@@ -1538,14 +1538,47 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 
 // Capacitor back button (for APK)
-try{
-  if(window.Capacitor?.Plugins?.App){
-    window.Capacitor.Plugins.App.addListener('backButton',({canGoBack})=>{
-      if(currentPage!=='pg-home')nav.back();
-      else if(window.Capacitor?.Plugins?.App?.exitApp)window.Capacitor.Plugins.App.exitApp();
+try {
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    const App = window.Capacitor.Plugins.App;
+    
+    App.addListener('backButton', ({ canGoBack }) => {
+      // If there are pages in the stack, go back
+      if (pageStack.length > 1) {
+        nav.back();
+      } else {
+        // Only exit if we're on the home page
+        if (currentPage === 'pg-home') {
+          // Ask before exiting
+          if (confirm('Exit The Mirror?')) {
+            App.exitApp().catch(() => {
+              // Fallback: try to close the window
+              window.close();
+            });
+          }
+        } else {
+          // If not on home, go home first
+          nav.go('pg-home', true);
+        }
+      }
+    });
+  } else {
+    // Fallback for web/browser
+    window.addEventListener('popstate', () => {
+      if (pageStack.length > 1) {
+        nav.back();
+      }
     });
   }
-}catch(e){}
+} catch(e) {
+  console.log('Back button handler error:', e);
+  // Fallback: handle popstate
+  window.addEventListener('popstate', () => {
+    if (pageStack.length > 1) {
+      nav.back();
+    }
+  });
+}
 </script>
 </body>
 </html>
