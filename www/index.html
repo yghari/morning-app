@@ -3,111 +3,84 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="theme-color" content="#09090f"/>
+<meta name="theme-color" content="#0c0c0f"/>
 <title>The Mirror</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#09090f;--s1:#0f0f1a;--s2:#151520;--s3:#1c1c2c;
-  --bdr:#242438;--bdr2:#2e2e48;
-  --txt:#ede9e0;--muted:#6b6a88;--dim:#3a3a58;
-  --am:#d4924a;--am2:rgba(212,146,74,.15);--am3:rgba(212,146,74,.06);
-  --pu:#6a5acd;--pu2:rgba(106,90,205,.15);--pu3:rgba(106,90,205,.06);
-  --gr:#4a9e6a;--rd:#b84040;
-  --r1:#d4924a;--r2:#c47a3a;--r3:#a855a0;--r4:#6a5acd;--r5:#4a9e6a;--r6:#cd5a7a;
-  --t:260ms cubic-bezier(.4,0,.2,1);
+  --bg:#0c0c0f;--s1:#121214;--s2:#17171b;--s3:#1f1f24;
+  --bdr:#272722;--bdr2:#332f28;
+  --txt:#e8e3d8;--muted:#6b6862;--dim:#3a3834;
+  --am:#b8895a;--am2:rgba(184,137,90,.16);--am3:rgba(184,137,90,.07);
+  --pu:#8a7a9a;--pu2:rgba(138,122,154,.16);--pu3:rgba(138,122,154,.07);
+  --gr:#5a9e74;--rd:#b8604a;
+  --r1:#b8895a;--r2:#a8703f;--r3:#9a6a8a;--r4:#8a7a9a;--r5:#5a9e74;--r6:#b8604a;
+  --t:220ms cubic-bezier(.4,0,.2,1);
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif}
 #app{position:relative;height:100%;overflow:hidden}
 
-/* ── PAGES ─────────────────────────────────────────────────
-   Simplified, race-free transition model:
-   - Every .pg sits at inset:0, stacked.
-   - Exactly ONE state class controls each page at any time:
-       (none)   = active, fully visible, on-screen
-       .pg-next = entering from the right
-       .pg-prev = exiting to the left (mid-transition only)
-       .pg-off  = fully hidden, off-screen right, not interactive
-   - No inline styles are ever set by JS. No setTimeout races.
-     Visibility is 100% driven by which single class is present,
-     so two rapid taps can never leave a page stuck mid-state.
-------------------------------------------------------------- */
-.pg{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;
-  background:var(--bg);
-  overflow:hidden;
-  transform:translateX(0);
-  opacity:1;
-  transition:transform var(--t),opacity var(--t);
+/* ── PAGES — single transform-driven slide, no inline style races ── */
+.pg{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);
+  transform:translateX(100%);opacity:0;visibility:hidden;
+  transition:transform var(--t),opacity var(--t),visibility 0s linear var(--t);
   z-index:1;
-  pointer-events:auto;
 }
-.pg.pg-off{
-  transform:translateX(100%);
-  opacity:0;
-  pointer-events:none;
-  z-index:0;
-}
-.pg.pg-next{
-  transform:translateX(0);
-  opacity:1;
-  z-index:2;
-}
-.pg.pg-prev{
-  transform:translateX(-6%);
-  opacity:0;
-  z-index:0;
-  pointer-events:none;
-}
+.pg.is-active{transform:translateX(0);opacity:1;visibility:visible;transition:transform var(--t),opacity var(--t);z-index:2}
+.pg.is-prev{transform:translateX(-8%);opacity:0;visibility:hidden;z-index:1}
+
+/* ── LEDGER RULE — signature element: a recording mark down the spine ── */
+.ledger{position:absolute;top:0;bottom:0;left:0;width:1px;background:var(--bdr);pointer-events:none;z-index:0}
+.ledger::before{content:'';position:absolute;top:0;left:-2px;width:5px;height:5px;border-radius:50%;background:var(--am);box-shadow:0 0 8px rgba(184,137,90,.6)}
 
 /* ── SCROLL ─────────────────────────────────── */
-.scrl{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
+.scrl{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom);position:relative}
 .scrl::-webkit-scrollbar{display:none}
 
 /* ── TOPBAR ─────────────────────────────────── */
 .topbar{display:flex;align-items:center;gap:12px;padding:14px 20px 10px;padding-top:calc(14px + env(safe-area-inset-top));flex-shrink:0;border-bottom:1px solid var(--bdr)}
-.back-btn{width:44px;height:44px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:18px;transition:color var(--t),border-color var(--t);flex-shrink:0}
+.back-btn{width:40px;height:40px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:18px;transition:color var(--t),border-color var(--t);flex-shrink:0;background:transparent}
 .back-btn:active{color:var(--am);border-color:var(--am)}
-.tb-title{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);flex:1}
+.tb-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);flex:1}
 .tb-right{flex-shrink:0;font-size:11px;color:var(--dim)}
 
 /* ── TYPOGRAPHY ─────────────────────────────── */
 .serif{font-family:'Cormorant Garamond',serif}
+.mono{font-family:'IBM Plex Mono',monospace}
 .ar-bg{font-family:'Cormorant Garamond',serif;color:var(--bdr);font-size:72px;font-weight:300;direction:rtl;line-height:1;pointer-events:none;user-select:none;overflow:hidden;white-space:nowrap;opacity:.6}
 .page-title{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;line-height:1.1;color:var(--txt)}
-.eyebrow{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
 .rule-h{height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);margin:0}
 
 /* ── VOTE TOAST ─────────────────────────────── */
-#vote-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s2);border:1px solid var(--am);border-radius:40px;padding:10px 20px;font-size:13px;color:var(--am);white-space:nowrap;opacity:0;transition:opacity .3s,transform .3s;z-index:999;pointer-events:none;font-family:'DM Sans',sans-serif;font-weight:500}
+#vote-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s2);border:1px solid var(--am);border-radius:6px;padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.02em;color:var(--am);white-space:nowrap;opacity:0;transition:opacity .3s,transform .3s;z-index:999;pointer-events:none;font-weight:500}
 #vote-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── FLOATING BUTTONS ───────────────────────── */
-#urge-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:50%;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:100;box-shadow:0 0 30px rgba(106,90,205,.4);transition:transform .2s;display:none}
+#urge-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:14px;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:100;box-shadow:0 4px 20px rgba(138,122,154,.35);transition:transform .2s;display:none}
 #urge-fab:active{transform:scale(.93)}
-#eve-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:20px;width:52px;height:52px;border-radius:50%;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:100;box-shadow:0 0 30px rgba(106,90,205,.3);transition:transform .2s;display:none}
+#eve-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:20px;width:52px;height:52px;border-radius:14px;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;z-index:100;box-shadow:0 4px 20px rgba(138,122,154,.3);transition:transform .2s;display:none}
 #eve-fab:active{transform:scale(.93)}
 
 /* ── BUTTONS ─────────────────────────────────── */
-.btn{display:flex;align-items:center;justify-content:center;min-height:52px;padding:14px 20px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;transition:opacity var(--t),transform var(--t);width:100%;gap:8px}
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;padding:14px 20px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;transition:opacity var(--t),transform var(--t);width:100%;gap:8px}
 .btn:active{transform:scale(.97)}
-.btn-am{background:var(--am);color:#09090f}
-.btn-pu{background:var(--pu);color:#fff}
+.btn-am{background:var(--am);color:#0c0c0f}
+.btn-pu{background:var(--pu);color:#0c0c0f}
 .btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--txt)}
-.btn-gr{background:var(--gr);color:#fff}
+.btn-gr{background:var(--gr);color:#0c0c0f}
 .btn-sm{min-height:40px;padding:10px 16px;font-size:13px}
 
 /* ── CARDS / SURFACES ───────────────────────── */
-.card{background:var(--s2);border:1px solid var(--bdr);border-radius:14px;padding:20px}
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:20px}
 .card+.card{margin-top:10px}
-.pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.06em}
-.pill-am{background:var(--am2);color:var(--am);border:1px solid rgba(212,146,74,.3)}
-.pill-pu{background:var(--pu2);color:var(--pu);border:1px solid rgba(106,90,205,.3)}
-.pill-gr{background:rgba(74,158,106,.15);color:var(--gr);border:1px solid rgba(74,158,106,.3)}
+.pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.04em}
+.pill-am{background:var(--am2);color:var(--am);border:1px solid rgba(184,137,90,.3)}
+.pill-pu{background:var(--pu2);color:var(--pu);border:1px solid rgba(138,122,154,.3)}
+.pill-gr{background:rgba(90,158,116,.15);color:var(--gr);border:1px solid rgba(90,158,116,.3)}
 
 /* ── TOGGLE ─────────────────────────────────── */
 .tog-wrap{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--bdr)}
@@ -115,14 +88,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 .tog-lbl{flex:1;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--txt)}
 .tog{width:50px;height:26px;background:var(--s3);border:1px solid var(--bdr);border-radius:13px;position:relative;cursor:pointer;transition:background var(--t);flex-shrink:0}
 .tog.on{background:var(--am)}
-.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform var(--t)}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#0c0c0f;transition:transform var(--t)}
 .tog.on::after{transform:translateX(24px)}
 
 /* ── TEXTAREA ───────────────────────────────── */
 textarea{width:100%;background:transparent;border:none;border-bottom:1px solid var(--bdr);color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:18px;padding:12px 0 10px;resize:none;outline:none;line-height:1.7;transition:border-color var(--t);min-height:100px}
 textarea::placeholder{color:var(--dim)}
 textarea:focus{border-bottom-color:var(--am)}
-.field-lbl{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.field-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 
 /* ── STEP DOTS ──────────────────────────────── */
 .dots{display:flex;gap:5px;align-items:center}
@@ -134,16 +107,16 @@ textarea:focus{border-bottom-color:var(--am)}
 /* ── AFFIRM ITEMS ───────────────────────────── */
 .aff-item{display:flex;align-items:flex-start;gap:14px;padding:15px 0;border-bottom:1px solid var(--bdr);cursor:pointer;transition:opacity var(--t)}
 .aff-item:first-child{border-top:1px solid var(--bdr)}
-.aff-circle{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t);margin-top:2px}
+.aff-circle{width:26px;height:26px;border-radius:6px;border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t);margin-top:2px}
 .aff-item.done .aff-circle{background:var(--gr);border-color:var(--gr)}
-.aff-chk{font-size:13px;color:#fff;opacity:0;transition:opacity var(--t)}
+.aff-chk{font-size:13px;color:#0c0c0f;opacity:0;transition:opacity var(--t)}
 .aff-item.done .aff-chk{opacity:1}
 .aff-txt{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--txt);line-height:1.5}
 .aff-item.done .aff-txt{color:var(--muted)}
 
 /* ── TRAIT GRID ─────────────────────────────── */
 .trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.trait-chip{padding:14px 12px;background:var(--s2);border:1.5px solid var(--bdr);border-radius:12px;text-align:center;cursor:pointer;transition:all var(--t)}
+.trait-chip{padding:14px 12px;background:var(--s2);border:1.5px solid var(--bdr);border-radius:10px;text-align:center;cursor:pointer;transition:all var(--t)}
 .trait-chip:active{transform:scale(.96)}
 .trait-chip.sel{border-color:var(--am);background:var(--am3)}
 .trait-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt)}
@@ -153,57 +126,56 @@ textarea:focus{border-bottom-color:var(--am)}
 .score-big{font-family:'Cormorant Garamond',serif;font-size:72px;font-weight:300;text-align:center;line-height:1;padding:12px 0}
 .s-lo{color:var(--rd)}.s-mi{color:var(--am)}.s-hi{color:var(--gr)}
 input[type=range]{width:100%;-webkit-appearance:none;height:2px;background:var(--bdr);border-radius:1px;outline:none;accent-color:var(--am)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--am);box-shadow:0 0 16px rgba(212,146,74,.5)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--am);box-shadow:0 0 14px rgba(184,137,90,.5)}
 
 /* ── ACTION BAR ─────────────────────────────── */
 .act-bar{padding:14px 20px;padding-bottom:calc(14px + env(safe-area-inset-bottom));flex-shrink:0;background:linear-gradient(to top,var(--bg) 70%,transparent)}
 
 /* ── BOTTOM NAV ─────────────────────────────── */
 .bnav{display:flex;gap:6px;padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom));flex-shrink:0;border-top:1px solid var(--bdr);background:var(--bg)}
-.bn-btn{flex:1;min-height:52px;background:transparent;border:1px solid var(--bdr);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:border-color var(--t),background var(--t)}
+.bn-btn{flex:1;min-height:52px;background:transparent;border:1px solid var(--bdr);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:border-color var(--t),background var(--t)}
 .bn-btn:active{border-color:var(--am);background:var(--am3)}
-.bn-ico{font-size:18px}
-.bn-lbl{font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.bn-ico{font-size:17px}
+.bn-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.06em;text-transform:uppercase}
 
 /* ── RADAR CHART ─────────────────────────────── */
 #radar-wrap{padding:4px 0 0;display:flex;justify-content:center}
 #radar-svg{display:block;width:100%;max-width:280px;margin:0 auto}
 .radar-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 20px;margin-top:4px}
-.rl-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
-.rl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.rl-item{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+.rl-dot{width:7px;height:7px;border-radius:1px;flex-shrink:0}
 
 /* ── HOME STATS ROW ─────────────────────────── */
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin:0 20px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin:0 20px}
 .stat-cell{background:var(--s1);padding:14px 8px;text-align:center}
 .stat-n{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--am);line-height:1}
-.stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.stat-l{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
 
 /* ── STEP LIST ───────────────────────────────── */
 .step-row{display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--bdr)}
 .step-row:last-child{border-bottom:none}
-.step-ico{font-size:18px;width:26px;text-align:center;flex-shrink:0}
+.step-ico{font-size:17px;width:26px;text-align:center;flex-shrink:0}
 .step-info{flex:1}
 .step-nm{font-size:14px;font-weight:500}
 .step-sub{font-size:12px;color:var(--muted);margin-top:1px}
-.step-t{font-size:11px;color:var(--dim);flex-shrink:0}
 .step-row.done .step-nm{color:var(--muted)}
 
 /* ── HISTORY ─────────────────────────────────── */
 .h-card{margin-bottom:1px;background:var(--s1)}
 .h-hdr{display:flex;align-items:center;padding:15px 20px;cursor:pointer;gap:12px}
 .h-date{font-size:13px;font-weight:500;flex:1}
-.h-status{font-size:11px;color:var(--muted)}
-.h-sc{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.h-status{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+.h-sc{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;flex-shrink:0}
 .h-body{padding:0 20px 18px;display:none;border-top:1px solid var(--bdr)}
 .h-body.open{display:block}
 .h-field{margin-top:14px}
-.h-flbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.h-flbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 .h-fval{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.6}
 .empty-msg{padding:80px 32px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--muted);font-style:italic;line-height:1.6}
 
 /* ── SURFACE CARD ────────────────────────────── */
-.surface-card{margin:16px 20px;padding:18px;background:var(--s2);border:1px solid rgba(212,146,74,.25);border-radius:14px}
-.surface-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--am);margin-bottom:8px}
+.surface-card{margin:16px 20px;padding:18px;background:var(--s2);border:1px solid rgba(184,137,90,.25);border-radius:12px}
+.surface-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--am);margin-bottom:8px}
 .surface-body{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.6;font-style:italic}
 
 /* ── WEEKLY REPORT ───────────────────────────── */
@@ -211,16 +183,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 .rcb-name{font-size:13px;font-weight:500;width:110px;flex-shrink:0}
 .rcb-track{flex:1;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
 .rcb-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.rcb-val{font-size:12px;color:var(--muted);width:28px;text-align:right;flex-shrink:0}
+.rcb-val{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);width:28px;text-align:right;flex-shrink:0}
 
 /* ── REFERENCE ───────────────────────────────── */
 .ref-sec{padding:20px}
-.ref-sec-title{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--am);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
-.ref-item{padding:12px 0;border-bottom:1px solid rgba(36,36,56,.7)}
+.ref-sec-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--am);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
+.ref-item{padding:12px 0;border-bottom:1px solid rgba(39,39,34,.7)}
 .ref-item:last-child{border-bottom:none}
 .ri-title{font-size:14px;font-weight:500;margin-bottom:4px}
 .ri-body{font-size:13px;color:var(--muted);line-height:1.7}
-.v-trait{display:inline-block;padding:4px 9px;border:1px solid var(--bdr);border-radius:4px;font-size:11px;color:var(--muted);margin:3px}
+.v-trait{display:inline-block;padding:4px 9px;border:1px solid var(--bdr);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin:3px}
 
 /* ── URGE MODE ───────────────────────────────── */
 #pg-urge{background:var(--bg)}
@@ -228,12 +200,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 .urge-ring-svg{width:200px;height:200px}
 .urge-countdown{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .urge-count-n{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--txt);line-height:1}
-.urge-count-lbl{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.urge-count-lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
 
 /* ── GOALS ───────────────────────────────────── */
 .goal-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--bdr)}
 .goal-item:last-child{border-bottom:none}
-.goal-status{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--bdr);flex-shrink:0;margin-top:1px;transition:all var(--t);cursor:pointer}
+.goal-status{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--bdr);flex-shrink:0;margin-top:3px;transition:all var(--t);cursor:pointer}
 .goal-status.done{background:var(--gr);border-color:var(--gr)}
 .goal-txt{flex:1;font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.5}
 .goal-del{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--dim);cursor:pointer;font-size:18px;flex-shrink:0;transition:color var(--t)}
@@ -241,13 +213,451 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 
 /* ── COMPLETE ────────────────────────────────── */
 #pg-complete .cinner{padding:48px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
-.c-emblem{width:80px;height:80px;border-radius:50%;border:1px solid var(--am);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative}
-.c-emblem::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(212,146,74,.25)}
+.c-emblem{width:78px;height:78px;border-radius:16px;border:1px solid var(--am);display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;transform:rotate(45deg)}
+.c-emblem span{transform:rotate(-45deg);display:block}
 
 /* ── SETUP ───────────────────────────────────── */
-#pg-setup{background:var(--bg);align-items:center;justify-content:flex-start}
+#pg-setup{align-items:center;justify-content:flex-start}
 .setup-inner{padding:48px 28px;padding-top:calc(48px + env(safe-area-inset-top));width:100%}
 
+/* ── ABOUT ───────────────────────────────────── */
+#pg-about .about-inner{padding:24px 20px}
+
+/* ── ANIMATIONS ──────────────────────────────── */
+@keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeup .45s ease both}
+.fu1{animation-delay:.08s}.fu2{animation-delay:.16s}.fu3{animation-delay:.24s}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.pulse{animation:pulse 2s ease infinite}
+
+/* ── FOCUS VISIBILITY ─────────────────────────── */
+button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--am);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){
+  .pg,.dot,.btn,.tog,.aff-item,.aff-circle,.trait-chip,.rcb-fill,.back-btn,.fu{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="ledger"></div>
+
+<!-- ══════════════════════════════════ SETUP (first launch) -->
+<div class="pg" id="pg-setup">
+  <div class="scrl"><div class="setup-inner">
+    <div class="ar-bg" style="margin-bottom:-16px;font-size:56px;color:var(--bdr2);text-align:center">المرآة</div>
+    <h1 class="serif fu" style="font-size:42px;font-weight:300;line-height:1.1;margin-bottom:8px">The Mirror</h1>
+    <p class="fu serif fu1" style="font-size:17px;color:var(--muted);font-style:italic;line-height:1.7;margin-bottom:32px">A long-term identity system — not a motivation app.</p>
+    <div class="fu fu1" style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:20px;margin-bottom:32px">
+      <p class="serif" style="font-size:16px;color:var(--muted);line-height:1.8;font-style:italic">
+        "This app can structure your reflection and make consistency easier — but the actual rewiring happens in the 2 minutes you spend being honest with yourself in it, not in the code. The app is the mirror. You are still the one who has to look into it."
+      </p>
+    </div>
+    <div class="fu fu2">
+      <div class="field-lbl" style="margin-bottom:8px">Name your future self — who are you becoming?</div>
+      <input id="setup-name" type="text" placeholder="e.g. Ibrahim, The Disciplined One, The Builder…" style="width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:20px;outline:none;transition:border-color var(--t);margin-bottom:20px"/>
+      <div class="field-lbl" style="margin-bottom:8px">Your morning session time</div>
+      <input id="setup-time" type="time" value="05:30" style="width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:24px;color-scheme:dark"/>
+      <button class="btn btn-am fu fu3" onclick="completeSetup()">Begin — Enter The Mirror</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- ══════════════════════════════════ HOME -->
+<div class="pg" id="pg-home">
+  <div class="scrl">
+    <!-- Header -->
+    <div style="padding:20px 20px 12px;padding-top:calc(20px + env(safe-area-inset-top));display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div class="ar-bg" style="font-size:40px;margin-bottom:-8px;opacity:.4">المرآة</div>
+        <div class="serif" style="font-size:36px;font-weight:300" id="home-greeting">Good morning</div>
+        <div id="home-name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--am);margin-top:4px;font-weight:500;letter-spacing:.03em"></div>
+        <div id="home-date" class="mono" style="font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.04em"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="back-btn" onclick="nav.go('about')" aria-label="About" style="font-family:'Cormorant Garamond',serif">i</button>
+        <button class="back-btn" onclick="nav.go('weekly')" aria-label="Weekly report" style="font-size:14px">▤</button>
+      </div>
+    </div>
+
+    <!-- Resurfaced memory -->
+    <div id="resurface-wrap"></div>
+
+    <!-- Radar chart -->
+    <div id="radar-wrap">
+      <svg id="radar-svg" viewBox="0 0 280 280"></svg>
+    </div>
+    <div class="radar-legend" id="radar-legend"></div>
+
+    <div style="height:16px"></div>
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-cell"><div class="stat-n" id="st-streak">0</div><div class="stat-l">Streak</div></div>
+      <div class="stat-cell"><div class="stat-n" id="st-best">0</div><div class="stat-l">Best</div></div>
+      <div class="stat-cell"><div class="stat-n" id="st-urges">0</div><div class="stat-l">Urges Won</div></div>
+    </div>
+
+    <!-- Drift alert -->
+    <div id="drift-alert" style="display:none;margin:14px 20px 0;padding:14px 16px;background:var(--s2);border:1px solid rgba(184,137,90,.3);border-radius:10px">
+      <div class="mono" style="font-size:10px;color:var(--am);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Pattern Noticed</div>
+      <div id="drift-msg" class="serif" style="font-size:16px;color:var(--txt);line-height:1.6"></div>
+    </div>
+
+    <div style="height:16px"></div>
+    <!-- Morning block -->
+    <div style="padding:0 20px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      <div class="eyebrow" style="color:var(--am)">Morning Ritual</div>
+      <span class="pill pill-am" id="morn-pill">0 / 5</span>
+    </div>
+    <div id="home-morning-steps" style="border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)"></div>
+    <div style="padding:14px 20px"><button class="btn btn-am" id="morn-btn"><span id="morn-btn-txt">Begin Morning Ritual</span><span>→</span></button></div>
+
+    <!-- Evening block -->
+    <div style="padding:4px 20px 6px;display:flex;align-items:center;justify-content:space-between">
+      <div class="eyebrow" style="color:var(--pu)">Evening Check-in</div>
+      <span class="pill pill-pu" id="eve-pill">0 / 3</span>
+    </div>
+    <div id="home-eve-steps" style="border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)"></div>
+    <div style="padding:14px 20px"><button class="btn btn-pu" id="eve-btn"><span id="eve-btn-txt">Begin Evening Check-in</span><span>→</span></button></div>
+
+    <div style="height:90px"></div>
+  </div>
+  <!-- Bottom nav -->
+  <div class="bnav">
+    <button class="bn-btn" onclick="nav.go('history')"><div class="bn-ico">▦</div><div class="bn-lbl">History</div></button>
+    <button class="bn-btn" onclick="nav.go('wall')"><div class="bn-ico">▥</div><div class="bn-lbl">Wall</div></button>
+    <button class="bn-btn" onclick="nav.go('goals')"><div class="bn-ico">◎</div><div class="bn-lbl">Goals</div></button>
+    <button class="bn-btn" onclick="nav.go('reference')"><div class="bn-ico">▣</div><div class="bn-lbl">Library</div></button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ MORNING STEPS -->
+<!-- M1: FAJR -->
+<div class="pg" id="pg-m1">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 1</div><div class="tb-right"><div class="dots" id="dots-m1"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">الفجر</div>
+      <div class="page-title">Fajr Prayer</div>
+      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">5 minutes · Taqwa</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:24px 20px">
+      <div style="display:flex;flex-direction:column;align-items:center;padding:24px 0 16px;gap:20px">
+        <div class="serif" style="font-size:22px;text-align:center;line-height:1.4" id="m1-toggle-lbl">I prayed Fajr with khushu'</div>
+        <div class="tog" id="tog-fajr" onclick="toggleFajr()" style="width:62px;height:32px;border-radius:16px"></div>
+        <div style="font-size:13px;color:var(--dim);font-style:italic;font-family:'Cormorant Garamond',serif;text-align:center">Pause before confirming. Did you truly pray with presence?</div>
+      </div>
+      <div style="background:var(--s2);border-left:2px solid var(--am);padding:16px;border-radius:0 8px 8px 0;margin-bottom:16px">
+        <div class="field-lbl" style="color:var(--am);margin-bottom:8px">Khushu' Technique</div>
+        <p class="serif" style="font-size:15px;color:var(--muted);line-height:1.8">Before takbir — release the day. In qiyam — understand each word. In sujud — stay one extra breath. This is the closest you will be to Allah today.</p>
+      </div>
+      <div class="field-lbl" style="margin-bottom:10px">Morning Adhkar</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--muted);line-height:2">
+        Ayat al-Kursi (×1) · <span style="direction:rtl;display:inline">الإخلاص · الفلق · الناس</span> (×3 each)<br/>
+        <span style="color:var(--txt)">أصبحنا وأصبح الملك لله</span> · Istighfar (×3) · Salawat (×10)
+      </div>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m2')">Continue →</button></div>
+</div>
+
+<!-- M2: QUR'AN -->
+<div class="pg" id="pg-m2">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 2</div><div class="tb-right"><div class="dots" id="dots-m2"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">القرآن</div>
+      <div class="page-title">Qur'an</div>
+      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">5 minutes · Taqwa + Gratitude</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:22px;margin-bottom:20px">
+        <div class="field-lbl" style="color:var(--am);margin-bottom:10px">Today's Verse</div>
+        <div id="verse-ar" class="serif" style="font-size:26px;direction:rtl;text-align:right;color:var(--am);line-height:1.9;margin-bottom:12px"></div>
+        <div id="verse-en" class="serif" style="font-size:18px;font-style:italic;color:var(--txt);line-height:1.6;margin-bottom:6px"></div>
+        <div id="verse-ref" class="mono" style="font-size:11px;color:var(--muted);letter-spacing:.05em"></div>
+      </div>
+      <div class="field-lbl" style="margin-bottom:6px" id="quran-prompt-lbl"></div>
+      <textarea id="ta-quran" placeholder="Write your reflection…" rows="5" oninput="saveM2()" onblur="saveM2()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m3')">Continue →</button></div>
+</div>
+
+<!-- M3: AFFIRMATIONS -->
+<div class="pg" id="pg-m3">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 3</div><div class="tb-right"><div class="dots" id="dots-m3"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">الهوية</div>
+      <div class="page-title">Affirmations</div>
+      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">3 minutes · Say each aloud · All 6 traits</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:12px 20px">
+      <div style="padding:12px 0;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--dim);font-style:italic">Each tap casts a vote for a specific identity trait. Speak it — don't just tap.</div>
+      <div id="affirm-list"></div>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m4')">Continue →</button></div>
+</div>
+
+<!-- M4: INTENTION -->
+<div class="pg" id="pg-m4">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 4</div><div class="tb-right"><div class="dots" id="dots-m4"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">النية</div>
+      <div class="page-title">Intention</div>
+      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Discipline + Honesty</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div style="background:var(--s2);border-left:2px solid var(--am);padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:20px">
+        <p class="serif" style="font-size:15px;color:var(--muted);line-height:1.7">Implementation intention format: <span style="color:var(--txt)">"If [situation], I will [specific action]."</span> Not vague goals — concrete triggers.</p>
+      </div>
+      <div class="field-lbl" style="margin-bottom:6px" id="intent-prompt"></div>
+      <textarea id="ta-intent" placeholder="If I feel the urge to scroll, I will put my phone in the other room and open a book…" rows="5" oninput="saveM4()" onblur="saveM4()"></textarea>
+      <div style="margin-top:28px">
+        <div class="field-lbl" style="margin-bottom:6px" id="align-prompt"></div>
+        <div class="trait-grid" id="trait-grid-m4" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m5')">Continue →</button></div>
+</div>
+
+<!-- M5: YESTERDAY REVIEW -->
+<div class="pg" id="pg-m5">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 5</div><div class="tb-right"><div class="dots" id="dots-m5"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">المحاسبة</div>
+      <div class="page-title">Yesterday's Review</div>
+      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Honesty · Self-accountability</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div class="score-big" id="score-disp-m5">5</div>
+      <input type="range" id="score-range-m5" min="1" max="10" value="5" oninput="updateScore5()" onchange="saveM5()"/>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;margin-bottom:24px">
+        <span class="mono" style="font-size:11px;color:var(--dim)">1 — Lost</span>
+        <span class="mono" style="font-size:11px;color:var(--dim)">10 — Excellent</span>
+      </div>
+      <div class="field-lbl" style="margin-bottom:6px" id="review-prompt"></div>
+      <textarea id="ta-review" placeholder="Be specific. What happened vs. what should have?" rows="5" oninput="saveM5()" onblur="saveM5()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="completeMorning()">Complete Morning Ritual ✓</button></div>
+</div>
+
+<!-- ══════════════════════════════════ EVENING STEPS -->
+<!-- E1: INTENTION CHECK -->
+<div class="pg" id="pg-e1">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Evening · Step 1</div><div class="tb-right"><div class="dots" id="dots-e1"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">النتيجة</div>
+      <div class="page-title">Intention Review</div>
+      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Honesty · Discipline</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div id="morning-intent-display" style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:20px">
+        <div class="field-lbl" style="margin-bottom:6px">This morning's intention was</div>
+        <div id="mid-intent" class="serif" style="font-size:17px;color:var(--muted);font-style:italic;line-height:1.6">No intention recorded this morning.</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <button class="btn btn-gr btn-sm" id="e1-did-btn" style="flex:1" onclick="setIntentDone(true)">✓ I did it</button>
+        <button class="btn btn-ghost btn-sm" id="e1-not-btn" style="flex:1" onclick="setIntentDone(false)">✗ I did not</button>
+      </div>
+      <div class="field-lbl" style="margin-bottom:6px" id="e1-reflect-prompt"></div>
+      <textarea id="ta-e1" placeholder="What happened?" rows="4" oninput="saveE1()" onblur="saveE1()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="nav.go('pg-e2')">Continue →</button></div>
+</div>
+
+<!-- E2: WHAT I AVOIDED -->
+<div class="pg" id="pg-e2">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Evening · Step 2</div><div class="tb-right"><div class="dots" id="dots-e2"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">التجنب</div>
+      <div class="page-title">What Was Avoided</div>
+      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Self-control · Honesty</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div class="field-lbl" style="margin-bottom:6px" id="avoid-prompt"></div>
+      <textarea id="ta-avoid" placeholder="Name it specifically. Not avoiding it is also data." rows="5" oninput="saveE2()" onblur="saveE2()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="nav.go('pg-e3')">Continue →</button></div>
+</div>
+
+<!-- E3: GRATITUDE -->
+<div class="pg" id="pg-e3">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Evening · Step 3</div><div class="tb-right"><div class="dots" id="dots-e3"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">الشكر</div>
+      <div class="page-title">Gratitude</div>
+      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Gratitude · Brotherhood</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div class="field-lbl" style="margin-bottom:6px" id="grat-prompt"></div>
+      <textarea id="ta-grat" placeholder="Three specific things — not generic…" rows="5" oninput="saveE3()" onblur="saveE3()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="completeEvening()">Complete Evening Check-in ✓</button></div>
+</div>
+
+<!-- ══════════════════════════════════ URGE MODE -->
+<div class="pg" id="pg-urge">
+  <div class="topbar"><button class="back-btn" onclick="cancelUrge()" aria-label="Cancel">✕</button><div class="tb-title" style="color:var(--pu)">Urge Mode</div></div>
+  <div class="scrl" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center">
+    <div id="urge-phase-1">
+      <div class="serif" style="font-size:32px;font-weight:300;margin-bottom:8px;line-height:1.3" id="urge-title"></div>
+      <div class="serif" style="font-size:18px;color:var(--muted);font-style:italic;margin-bottom:40px">is deciding right now. What does he choose?</div>
+      <div class="urge-timer-ring">
+        <svg class="urge-ring-svg" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="88" fill="none" stroke="var(--bdr)" stroke-width="4"/>
+          <circle id="urge-arc" cx="100" cy="100" r="88" fill="none" stroke="var(--pu)" stroke-width="4" stroke-linecap="round"
+            stroke-dasharray="553" stroke-dashoffset="0"
+            transform="rotate(-90 100 100)" style="transition:stroke-dashoffset 1s linear"/>
+        </svg>
+        <div class="urge-countdown">
+          <span class="urge-count-n" id="urge-count">60</span>
+          <span class="urge-count-lbl">seconds</span>
+        </div>
+      </div>
+      <div class="serif" style="font-size:16px;color:var(--muted);font-style:italic;line-height:1.7">Wait. Breathe. The urge is not you.<br/>It is a wave. Watch it pass.</div>
+    </div>
+    <div id="urge-phase-2" style="display:none;width:100%">
+      <div class="serif" style="font-size:28px;font-weight:300;margin-bottom:24px;line-height:1.3">What did you choose?</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--muted);font-style:italic;margin-bottom:28px;line-height:1.7">Both answers are data. Both are logged without judgment.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin:0 auto">
+        <button class="btn btn-gr" onclick="logUrge(true)">✓ I resisted — <span id="urge-name-btn"></span> held the line</button>
+        <button class="btn btn-ghost" onclick="logUrge(false)">I gave in — this is the data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ COMPLETE -->
+<div class="pg" id="pg-complete">
+  <div class="scrl">
+    <div class="cinner fu">
+      <div style="height:calc(48px + env(safe-area-inset-top))"></div>
+      <div class="c-emblem"><span>✦</span></div>
+      <div class="serif" style="font-size:40px;font-weight:300;line-height:1;margin-top:8px" id="complete-title">Complete</div>
+      <div class="serif" style="font-size:24px;color:var(--am)" id="complete-ar">جزاك الله خيراً</div>
+      <div class="serif" style="font-size:17px;color:var(--muted);font-style:italic;max-width:280px;text-align:center;line-height:1.7" id="complete-msg"></div>
+      <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:16px;width:100%;max-width:320px;text-align:left;margin:8px 0" id="complete-votes"></div>
+      <button class="btn btn-ghost" style="max-width:240px;margin-top:8px" onclick="nav.go('home',true)">Return Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ HISTORY -->
+<div class="pg" id="pg-history">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">History</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl"><div id="hist-list"></div></div>
+</div>
+
+<!-- ══════════════════════════════════ WALL -->
+<div class="pg" id="pg-wall">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">The Wall</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl">
+    <div style="padding:24px 20px">
+      <div class="ar-bg" style="font-size:48px;margin-bottom:-10px">الجدار</div>
+      <div class="serif" style="font-size:32px;font-weight:300;margin-bottom:24px">Total Accountability</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px" id="wall-grid"></div>
+      <div class="field-lbl" style="margin-bottom:12px">Category Strengths</div>
+      <div id="wall-cats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ GOALS -->
+<div class="pg" id="pg-goals">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Goals</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl">
+    <div style="padding:20px">
+      <div style="background:var(--s2);border-left:2px solid var(--am);padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:20px">
+        <p class="serif" style="font-size:16px;color:var(--muted);font-style:italic;line-height:1.7">"Every time you delay gratification, you cast a vote for Discipline. Every vote compounds. There are no shortcuts — only the accumulation of honest choices."</p>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <input id="goal-input" type="text" placeholder="Add a goal (delayed-gratification framing)…" style="flex:1;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:17px;outline:none"/>
+        <button class="btn btn-am btn-sm" style="width:52px;padding:0" onclick="addGoal()" aria-label="Add goal">+</button>
+      </div>
+      <div id="goal-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ REFERENCE -->
+<div class="pg" id="pg-reference">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Reference Library</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl">
+    <div class="ref-sec">
+      <div class="ref-sec-title">The Shadow Self — Who You Must Not Become</div>
+      <div style="margin-bottom:14px">
+        <span class="v-trait">Laziness</span><span class="v-trait">Distraction</span><span class="v-trait">Lust</span>
+        <span class="v-trait">Delay</span><span class="v-trait">Arrogance</span><span class="v-trait">Complaint</span>
+        <span class="v-trait">Envy</span><span class="v-trait">Inconsistency</span><span class="v-trait">Victim mindset</span>
+        <span class="v-trait">Short-sightedness</span><span class="v-trait">People-pleasing</span><span class="v-trait">Self-betrayal</span>
+      </div>
+      <div class="field-lbl" style="margin-bottom:8px">What he says</div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"I'll start tomorrow."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"I don't feel like it."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"Just this once won't hurt."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"Nobody sees me anyway."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"This isn't working."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic;color:var(--muted)">"I can't help how I feel."</div></div>
+    </div>
+    <div class="ref-sec">
+      <div class="ref-sec-title">Ethics & Character</div>
+      <div class="ref-item"><div class="ri-title">Silence</div><div class="ri-body">Speak only when words add real value. Silence is mastery, not absence.</div></div>
+      <div class="ref-item"><div class="ri-title">Humility</div><div class="ri-body">Your achievements are from Allah. Your failures are yours. Never let success make you forget this.</div></div>
+      <div class="ref-item"><div class="ri-title">Gratitude</div><div class="ri-body">Count what you have before what you lack. الحمد لله in every moment.</div></div>
+      <div class="ref-item"><div class="ri-title">Discipline</div><div class="ri-body">Do what you said you would do, when you said you would, regardless of feeling.</div></div>
+      <div class="ref-item"><div class="ri-title">Self-Respect</div><div class="ri-body">Iron. Non-negotiable. You do not beg, chase, or compromise principles for approval.</div></div>
+    </div>
+    <div class="ref-sec">
+      <div class="ref-sec-title">Method</div>
+      <div class="ref-item"><div class="ri-title">Urge Control</div><div class="ri-body">The urge is not you. It is a wave. Observe it. Name it. Wait 90 seconds. Watch it lose power. Do not negotiate.</div></div>
+      <div class="ref-item"><div class="ri-title">Identity Voting</div><div class="ri-body">Every action is a vote for a type of person. The goal is not to be perfect — it is to have the majority of votes go toward who you are becoming.</div></div>
+      <div class="ref-item"><div class="ri-title">Khushu' in Salah</div><div class="ri-body">Before takbir: breathe and release. In qiyam: understand the words. In ruku': glorify fully. In sujud: pour your heart. This is your meeting with Allah.</div></div>
+      <div class="ref-item"><div class="ri-title">Self-distancing</div><div class="ri-body">When reflecting, use your name instead of "I". "[Name] felt this way." This reduces emotional reactivity and improves honest self-assessment.</div></div>
+    </div>
+    <div class="ref-sec">
+      <div class="ref-sec-title">Seven Rules</div>
+      <div class="ref-item"><div class="ri-title">I — Allah first in everything</div><div class="ri-body">Before any decision: is this pleasing to Allah?</div></div>
+      <div class="ref-item"><div class="ri-title">II — Pray on time, always</div><div class="ri-body">The five prayers are the skeleton of the day. Everything else is built around them.</div></div>
+      <div class="ref-item"><div class="ri-title">III — Keep promises to yourself</div><div class="ri-body">Your self-trust is built or destroyed in the promises no one else can hold you to.</div></div>
+      <div class="ref-item"><div class="ri-title">IV — Control desires</div><div class="ri-body">Every delayed gratification is a vote for Discipline. Every surrender weakens.</div></div>
+      <div class="ref-item"><div class="ri-title">V — Speak only when necessary</div><div class="ri-body">Guard your speech like you guard your time.</div></div>
+      <div class="ref-item"><div class="ri-title">VI — Improve every day</div><div class="ri-body">One domain — body, mind, deen, or provision — every single day.</div></div>
+      <div class="ref-item"><div class="ri-title">VII — Never quit after a bad day</div><div class="ri-body">After any failure — pray two raka'at, reset, begin again. The return defines you.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ WEEKLY REPORT -->
+<div class="pg" id="pg-weekly">
+  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Weekly Identity Report</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl"><div style="padding:20px" id="weekly-inner"></div></div>
+</div>
 /* ── ABOUT ───────────────────────────────────── */
 #pg-about .about-inner{padding:24px 20px}
 
