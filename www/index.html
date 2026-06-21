@@ -1537,31 +1537,36 @@ window.addEventListener('DOMContentLoaded',()=>{
   updateFabs();
 });
 
-// Capacitor back button (for APK)
-try{
-  if(window.Capacitor?.Plugins?.App){
-    window.Capacitor.Plugins.App.addListener('backButton',({canGoBack})=>{
-      if(currentPage!=='pg-home')nav.back();
-      else if(window.Capacitor?.Plugins?.App?.exitApp)let lastBack = 0;
+try {
+  const App = window.Capacitor?.Plugins?.App;
 
-window.Capacitor.Plugins.App.addListener('backButton', () => {
-  if(currentPage !== 'pg-home'){
-    nav.back();
-    return;
-  }
+  if (App?.addListener) {
+    App.addListener('backButton', ({ canGoBack }) => {
+      // 1. If your app has internal navigation history → use it first
+      if (pageStack && pageStack.length > 1) {
+        nav.back();
+        return;
+      }
 
-  const now = Date.now();
+      // 2. If Capacitor says it can go back (Android webview history)
+      if (canGoBack) {
+        window.history.back();
+        return;
+      }
 
-  if(now - lastBack < 2000){
-    window.Capacitor.Plugins.App.exitApp();
-  } else {
-    lastBack = now;
-    alert('Press back again to exit');
-  }
-});
+      // 3. If on home → exit app
+      if (currentPage === 'pg-home') {
+        App.exitApp?.();
+        return;
+      }
+
+      // 4. fallback safety
+      nav.go('pg-home', true);
     });
   }
-}catch(e){}
+} catch (e) {
+  console.error(e);
+}
 </script>
 </body>
 </html>
