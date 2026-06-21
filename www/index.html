@@ -1,1095 +1,1551 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="The Morning">
-<meta name="theme-color" content="#09090f">
-<link rel="manifest" id="pwa-manifest">
-<title>The Morning</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#09090f"/>
+<title>The Mirror</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-
-:root {
-  --bg:       #09090f;
-  --bg2:      #111118;
-  --bg3:      #1c1c26;
-  --rim:      #2a2a38;
-  --muted:    #6b6b88;
-  --silver:   #a8a8c0;
-  --cream:    #ede9e0;
-  --dawn:     #d4924a;
-  --dawn-dim: #3d2510;
-  --dawn-glow:rgba(212,146,74,.18);
-  --dusk:     #6a5acd;
-  --dusk-dim: #261f4a;
-  --dusk-glow:rgba(106,90,205,.18);
-  --red:      #b84040;
-  --green:    #4a9e6a;
-  --r: 16px;
-  --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans:  'DM Sans', system-ui, sans-serif;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#09090f;--s1:#0f0f1a;--s2:#151520;--s3:#1c1c2c;
+  --bdr:#242438;--bdr2:#2e2e48;
+  --txt:#ede9e0;--muted:#6b6a88;--dim:#3a3a58;
+  --am:#d4924a;--am2:rgba(212,146,74,.15);--am3:rgba(212,146,74,.06);
+  --pu:#6a5acd;--pu2:rgba(106,90,205,.15);--pu3:rgba(106,90,205,.06);
+  --gr:#4a9e6a;--rd:#b84040;
+  --r1:#d4924a;--r2:#c47a3a;--r3:#a855a0;--r4:#6a5acd;--r5:#4a9e6a;--r6:#cd5a7a;
+  --t:260ms cubic-bezier(.4,0,.2,1);
 }
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif}
+#app{position:relative;height:100%;overflow:hidden}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--cream); font-family: var(--sans); }
+/* ── PAGES ─────────────────────────────────── */
+.pg{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;will-change:transform;transition:transform var(--t),opacity var(--t)}
+.pg.off{pointer-events:none;transform:translateX(100%);opacity:0}
+.pg.back-off{transform:translateX(-6%) scale(.98);opacity:0;pointer-events:none}
 
-.layer { position: fixed; inset: 0; display: flex; flex-direction: column; transition: opacity .32s cubic-bezier(.4,0,.2,1), transform .32s cubic-bezier(.4,0,.2,1); }
-.layer.gone { opacity: 0; pointer-events: none; transform: translateY(16px); }
-.scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.scroll::-webkit-scrollbar { display: none; }
+/* ── SCROLL ─────────────────────────────────── */
+.scrl{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
+.scrl::-webkit-scrollbar{display:none}
 
-.topbar { display: flex; align-items: center; padding: 14px 20px; flex-shrink: 0; gap: 8px; }
-.tb-back { font-family: var(--sans); font-size: 13px; color: var(--dawn); background: none; border: none; cursor: pointer; min-width: 48px; }
-.tb-title { font-family: var(--serif); font-size: 17px; color: var(--cream); flex: 1; text-align: center; letter-spacing: .02em; font-weight: 400; }
-.tb-right { min-width: 48px; text-align: right; }
-.tb-action { font-family: var(--sans); font-size: 13px; color: var(--muted); background: none; border: none; cursor: pointer; }
+/* ── TOPBAR ─────────────────────────────────── */
+.topbar{display:flex;align-items:center;gap:12px;padding:14px 20px 10px;padding-top:calc(14px + env(safe-area-inset-top));flex-shrink:0;border-bottom:1px solid var(--bdr)}
+.back-btn{width:40px;height:40px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:18px;transition:color var(--t),border-color var(--t);flex-shrink:0}
+.back-btn:active{color:var(--am);border-color:var(--am)}
+.tb-title{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);flex:1}
+.tb-right{flex-shrink:0;font-size:11px;color:var(--dim)}
 
-/* ═══ SPLASH ═══ */
-#l-splash { background: var(--bg); align-items: center; justify-content: center; text-align: center; padding: 0 32px; }
-.splash-moon { font-size: 44px; margin-bottom: 24px; filter: drop-shadow(0 0 20px var(--dawn-glow)); animation: rise 3s ease-in-out infinite; }
-@keyframes rise { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-.splash-ar { font-family: var(--serif); font-size: 22px; color: var(--dawn); margin-bottom: 20px; opacity: .85; }
-.splash-title { font-family: var(--serif); font-size: 38px; font-weight: 300; color: var(--cream); line-height: 1.2; margin-bottom: 10px; }
-.splash-title strong { font-weight: 600; color: var(--dawn); }
-.splash-sub { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 52px; font-weight: 300; }
-.splash-cta { width: 100%; padding: 17px; background: var(--dawn); border: none; border-radius: var(--r); font-size: 15px; font-weight: 500; color: #1a0e00; cursor: pointer; transition: opacity .2s; letter-spacing: .02em; }
-.splash-cta:active { opacity: .85; }
+/* ── TYPOGRAPHY ─────────────────────────────── */
+.serif{font-family:'Cormorant Garamond',serif}
+.ar-bg{font-family:'Cormorant Garamond',serif;color:var(--bdr);font-size:72px;font-weight:300;direction:rtl;line-height:1;pointer-events:none;user-select:none;overflow:hidden;white-space:nowrap;opacity:.6}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;line-height:1.1;color:var(--txt)}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+.rule-h{height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);margin:0}
 
-/* ═══ HOME ═══ */
-#l-home { background: var(--bg); }
-.home-head { padding: 22px 20px 16px; flex-shrink: 0; }
-.home-date { font-size: 11px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
-.home-title { font-family: var(--serif); font-size: 26px; font-weight: 300; color: var(--cream); line-height: 1.2; }
-.home-title strong { font-weight: 600; }
+/* ── VOTE TOAST ─────────────────────────────── */
+#vote-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s2);border:1px solid var(--am);border-radius:40px;padding:10px 20px;font-size:13px;color:var(--am);white-space:nowrap;opacity:0;transition:opacity .3s,transform .3s;z-index:999;pointer-events:none;font-family:'DM Sans',sans-serif;font-weight:500}
+#vote-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.daypart-toggle { display: flex; gap: 8px; padding: 0 20px 14px; flex-shrink: 0; }
-.dp-btn { flex: 1; padding: 10px; border-radius: 30px; border: 1px solid var(--rim); background: var(--bg2); font-size: 12px; color: var(--muted); cursor: pointer; transition: all .2s; text-align: center; }
-.dp-btn.active.morning { border-color: var(--dawn-dim); background: linear-gradient(135deg,#130c04,#1d1206); color: var(--dawn); }
-.dp-btn.active.evening { border-color: var(--dusk-dim); background: linear-gradient(135deg,#0d0a1a,#12102a); color: var(--dusk); }
+/* ── FLOATING BUTTONS ───────────────────────── */
+#urge-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:50%;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:100;box-shadow:0 0 30px rgba(106,90,205,.4);transition:transform .2s;display:none}
+#urge-fab:active{transform:scale(.93)}
+#eve-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:20px;width:52px;height:52px;border-radius:50%;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:100;box-shadow:0 0 30px rgba(106,90,205,.3);transition:transform .2s;display:none}
+#eve-fab:active{transform:scale(.93)}
 
-.arc-wrap { display: flex; flex-direction: column; align-items: center; padding: 8px 20px 0; flex-shrink: 0; }
-.arc-svg { width: 190px; height: 105px; overflow: visible; }
-.arc-track { fill: none; stroke: var(--rim); stroke-width: 6; stroke-linecap: round; }
-.arc-fill { fill: none; stroke: var(--dawn); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s cubic-bezier(.4,0,.2,1), stroke .4s; filter: drop-shadow(0 0 6px var(--dawn-glow)); }
-.arc-pct { font-family: var(--serif); font-size: 32px; font-weight: 300; color: var(--cream); text-align: center; margin-top: -6px; }
-.arc-label { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; margin-bottom: 14px; }
-.remaining-pill { font-size: 11px; color: var(--muted); background: var(--bg2); border: 1px solid var(--rim); border-radius: 20px; padding: 5px 12px; margin-bottom: 14px; }
+/* ── BUTTONS ─────────────────────────────────── */
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;padding:14px 20px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;transition:opacity var(--t),transform var(--t);width:100%;gap:8px}
+.btn:active{transform:scale(.97)}
+.btn-am{background:var(--am);color:#09090f}
+.btn-pu{background:var(--pu);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--txt)}
+.btn-gr{background:var(--gr);color:#fff}
+.btn-sm{min-height:40px;padding:10px 16px;font-size:13px}
 
-.streak-row { display: flex; gap: 8px; padding: 0 20px 14px; flex-shrink: 0; }
-.streak-pill { flex: 1; background: var(--bg2); border: 1px solid var(--rim); border-radius: 30px; padding: 10px 10px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-.streak-pill.active { border-color: var(--dawn-dim); background: linear-gradient(135deg,#130c04,#1d1206); }
-.streak-n { font-family: var(--serif); font-size: 20px; color: var(--dawn); line-height: 1; }
-.streak-pill:not(.active) .streak-n { color: var(--muted); }
-.streak-l { font-size: 10px; color: var(--muted); }
+/* ── CARDS / SURFACES ───────────────────────── */
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:14px;padding:20px}
+.card+.card{margin-top:10px}
+.pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.06em}
+.pill-am{background:var(--am2);color:var(--am);border:1px solid rgba(212,146,74,.3)}
+.pill-pu{background:var(--pu2);color:var(--pu);border:1px solid rgba(106,90,205,.3)}
+.pill-gr{background:rgba(74,158,106,.15);color:var(--gr);border:1px solid rgba(74,158,106,.3)}
 
-.start-wrap { padding: 0 20px 14px; flex-shrink: 0; }
-.start-btn { width: 100%; padding: 16px; background: var(--dawn); border: none; border-radius: var(--r); font-size: 15px; font-weight: 500; color: #1a0e00; cursor: pointer; transition: opacity .2s; box-shadow: 0 4px 24px var(--dawn-glow); }
-.start-btn.evening { background: var(--dusk); box-shadow: 0 4px 24px var(--dusk-glow); color: #0d0820; }
-.start-btn:active { opacity: .85; }
-.done-msg { text-align: center; padding: 16px; font-family: var(--serif); font-size: 16px; color: var(--green); font-style: italic; display: none; }
+/* ── TOGGLE ─────────────────────────────────── */
+.tog-wrap{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--bdr)}
+.tog-wrap:last-child{border-bottom:none}
+.tog-lbl{flex:1;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--txt)}
+.tog{width:50px;height:26px;background:var(--s3);border:1px solid var(--bdr);border-radius:13px;position:relative;cursor:pointer;transition:background var(--t);flex-shrink:0}
+.tog.on{background:var(--am)}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform var(--t)}
+.tog.on::after{transform:translateX(24px)}
 
-.steps-preview { flex: 1; overflow-y: auto; padding: 0 20px 24px; }
-.steps-preview::-webkit-scrollbar { display: none; }
-.step-preview-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--rim); cursor: pointer; }
-.step-preview-row:last-child { border-bottom: none; }
-.step-preview-row:active { opacity: .7; }
-.spr-icon { width: 34px; height: 34px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--rim); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; transition: all .3s; }
-.spr-icon.done { background: var(--green); border-color: var(--green); }
-.spr-icon.active { border-color: var(--dawn); background: var(--dawn-dim); }
-.spr-text { flex: 1; }
-.spr-name { font-family: var(--serif); font-size: 15px; color: var(--cream); font-weight: 400; }
-.spr-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.spr-time { font-size: 10px; color: var(--muted); background: var(--bg3); padding: 3px 8px; border-radius: 20px; }
+/* ── TEXTAREA ───────────────────────────────── */
+textarea{width:100%;background:transparent;border:none;border-bottom:1px solid var(--bdr);color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:18px;padding:12px 0 10px;resize:none;outline:none;line-height:1.7;transition:border-color var(--t);min-height:100px}
+textarea::placeholder{color:var(--dim)}
+textarea:focus{border-bottom-color:var(--am)}
+.field-lbl{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 
-.menu-grid { display: flex; flex-direction: column; gap: 8px; padding: 0 20px 24px; flex-shrink: 0; }
-.menu-card { background: var(--bg2); border: 1px solid var(--rim); border-radius: var(--r); padding: 13px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-.menu-card:active { opacity: .8; }
-.menu-icon { font-size: 20px; width: 36px; text-align: center; flex-shrink: 0; }
-.menu-name { font-family: var(--serif); font-size: 14px; color: var(--cream); }
-.menu-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.menu-arrow { font-size: 15px; color: var(--muted); margin-left: auto; }
+/* ── STEP DOTS ──────────────────────────────── */
+.dots{display:flex;gap:5px;align-items:center}
+.dot{height:2px;border-radius:1px;background:var(--bdr);transition:all var(--t)}
+.dot.done{background:var(--gr);width:18px}
+.dot.cur{background:var(--am);width:28px}
+.dot.idle{width:10px}
 
-/* ═══ STEP ═══ */
-#l-step { background: var(--bg); }
-.identity-label { display: inline-flex; align-items: center; gap: 6px; background: var(--dawn-dim); border: 1px solid #5a3a18; border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--dawn); margin-bottom: 10px; }
-.identity-label.evening { background: var(--dusk-dim); border-color: #3a2e6a; color: var(--dusk); }
-.step-head { padding: 16px 20px 14px; flex-shrink: 0; border-bottom: 1px solid var(--rim); }
-.step-progress-bar { height: 2px; background: var(--rim); border-radius: 1px; overflow: hidden; margin-bottom: 12px; }
-.step-progress-fill { height: 100%; background: var(--dawn); border-radius: 1px; transition: width .4s ease; }
-.step-progress-fill.evening { background: var(--dusk); }
-.step-label { font-size: 11px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
-.step-name { font-family: var(--serif); font-size: 24px; font-weight: 300; color: var(--cream); line-height: 1.2; }
+/* ── AFFIRM ITEMS ───────────────────────────── */
+.aff-item{display:flex;align-items:flex-start;gap:14px;padding:15px 0;border-bottom:1px solid var(--bdr);cursor:pointer;transition:opacity var(--t)}
+.aff-item:first-child{border-top:1px solid var(--bdr)}
+.aff-circle{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t);margin-top:2px}
+.aff-item.done .aff-circle{background:var(--gr);border-color:var(--gr)}
+.aff-chk{font-size:13px;color:#fff;opacity:0;transition:opacity var(--t)}
+.aff-item.done .aff-chk{opacity:1}
+.aff-txt{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--txt);line-height:1.5}
+.aff-item.done .aff-txt{color:var(--muted)}
 
-.step-body { flex: 1; overflow-y: auto; padding: 20px 20px 16px; -webkit-overflow-scrolling: touch; }
-.step-body::-webkit-scrollbar { display: none; }
-.step-icon-large { font-size: 44px; margin-bottom: 16px; display: block; }
-.step-content { margin-bottom: 20px; }
+/* ── TRAIT GRID ─────────────────────────────── */
+.trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trait-chip{padding:14px 12px;background:var(--s2);border:1.5px solid var(--bdr);border-radius:12px;text-align:center;cursor:pointer;transition:all var(--t)}
+.trait-chip:active{transform:scale(.96)}
+.trait-chip.sel{border-color:var(--am);background:var(--am3)}
+.trait-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt)}
+.trait-chip.sel .trait-name{color:var(--am)}
 
-.fajr-check-btn { width: 100%; padding: 18px; background: var(--bg3); border: 1px solid var(--rim); border-radius: var(--r); cursor: pointer; font-family: var(--serif); font-size: 18px; color: var(--cream); font-weight: 300; transition: all .25s; text-align: center; font-style: italic; line-height: 1.5; }
-.fajr-check-btn.checked { background: linear-gradient(135deg,#0d1a10,#112016); border-color: var(--green); color: var(--green); }
-.fajr-check-btn:active { transform: scale(.98); }
-.fajr-tip { font-size: 12px; color: var(--muted); text-align: center; line-height: 1.6; margin-top: 10px; }
+/* ── SCORE ──────────────────────────────────── */
+.score-big{font-family:'Cormorant Garamond',serif;font-size:72px;font-weight:300;text-align:center;line-height:1;padding:12px 0}
+.s-lo{color:var(--rd)}.s-mi{color:var(--am)}.s-hi{color:var(--gr)}
+input[type=range]{width:100%;-webkit-appearance:none;height:2px;background:var(--bdr);border-radius:1px;outline:none;accent-color:var(--am)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--am);box-shadow:0 0 16px rgba(212,146,74,.5)}
 
-.verse-box { background: linear-gradient(135deg, #0f0d04, #160f00); border: 1px solid var(--dawn-dim); border-radius: var(--r); padding: 18px; margin-bottom: 12px; }
-.verse-ar { font-family: var(--serif); font-size: 24px; color: var(--dawn); text-align: right; line-height: 1.8; margin-bottom: 12px; font-weight: 300; direction: rtl; }
-.verse-en { font-family: var(--serif); font-size: 16px; color: var(--cream); line-height: 1.7; font-style: italic; font-weight: 300; }
-.verse-ref { font-size: 10px; color: var(--muted); margin-top: 8px; letter-spacing: .06em; }
+/* ── ACTION BAR ─────────────────────────────── */
+.act-bar{padding:14px 20px;padding-bottom:calc(14px + env(safe-area-inset-bottom));flex-shrink:0;background:linear-gradient(to top,var(--bg) 70%,transparent)}
 
-.aff-item { background: var(--bg2); border-left: 2px solid var(--dawn-dim); border-radius: 0 var(--r) var(--r) 0; padding: 13px 15px; margin-bottom: 9px; cursor: pointer; transition: all .2s; }
-.aff-item.read { border-left-color: var(--dawn); }
-.aff-item:active { transform: scale(.99); }
-.aff-item-text { font-family: var(--serif); font-size: 15px; color: var(--cream); line-height: 1.6; font-weight: 300; }
-.aff-item-check { font-size: 11px; color: var(--dawn); display: none; margin-top: 3px; }
-.aff-item.read .aff-item-check { display: block; }
-.aff-hint { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 12px; }
+/* ── BOTTOM NAV ─────────────────────────────── */
+.bnav{display:flex;gap:6px;padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom));flex-shrink:0;border-top:1px solid var(--bdr);background:var(--bg)}
+.bn-btn{flex:1;min-height:52px;background:transparent;border:1px solid var(--bdr);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:border-color var(--t),background var(--t)}
+.bn-btn:active{border-color:var(--am);background:var(--am3)}
+.bn-ico{font-size:18px}
+.bn-lbl{font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
 
-.intention-area, .verse-reflect, .rating-reflection, .obs-area, .ev-area {
-  width: 100%; background: var(--bg3); border: 1px solid var(--rim); border-radius: var(--r);
-  padding: 14px; font-family: var(--serif); font-size: 16px; font-style: italic;
-  color: var(--cream); line-height: 1.65; resize: none; outline: none; min-height: 80px;
-  caret-color: var(--dawn); transition: border-color .2s;
-}
-.intention-area { font-size: 19px; min-height: 110px; }
-.intention-area:focus, .verse-reflect:focus, .rating-reflection:focus, .obs-area:focus, .ev-area:focus { border-color: var(--dawn-dim); }
-.intention-area::placeholder, .verse-reflect::placeholder, .rating-reflection::placeholder, .obs-area::placeholder, .ev-area::placeholder { color: var(--muted); font-style: italic; }
-.intention-prompt, .ev-prompt { font-family: var(--serif); font-size: 16px; color: var(--silver); font-style: italic; line-height: 1.6; margin-bottom: 14px; }
+/* ── RADAR CHART ─────────────────────────────── */
+#radar-wrap{padding:4px 0 0;display:flex;justify-content:center}
+#radar-svg{display:block;width:100%;max-width:280px;margin:0 auto}
+.radar-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 20px;margin-top:4px}
+.rl-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.rl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-.rating-question { font-family: var(--serif); font-size: 19px; color: var(--cream); font-style: italic; line-height: 1.6; margin-bottom: 18px; font-weight: 300; }
-.rating-scale { display: flex; gap: 6px; margin-bottom: 8px; }
-.r-dot { flex: 1; aspect-ratio: 1; border-radius: 50%; background: var(--bg3); border: 1px solid var(--rim); font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
-.r-dot:active { transform: scale(.92); }
-.r-dot.sel-low { background: #3a0a0a; border-color: var(--red); color: #ff8888; }
-.r-dot.sel-mid { background: #2a1e00; border-color: #8a6000; color: var(--dawn); }
-.r-dot.sel-high { background: #0a2010; border-color: var(--green); color: #88ffaa; }
-.rating-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 18px; }
+/* ── HOME STATS ROW ─────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin:0 20px}
+.stat-cell{background:var(--s1);padding:14px 8px;text-align:center}
+.stat-n{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--am);line-height:1}
+.stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
 
-.ev-question-block { margin-bottom: 18px; }
-.ev-q-label { font-family: var(--sans); font-size: 11px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
-.ev-tasks-left { background: var(--bg2); border: 1px solid var(--rim); border-radius: var(--r); padding: 14px 16px; margin-bottom: 16px; }
-.ev-tasks-left-label { font-size: 11px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
-.ev-task-chip { display: inline-block; background: var(--bg3); border: 1px solid var(--rim); border-radius: 20px; padding: 5px 12px; font-size: 12px; color: var(--silver); margin: 0 6px 6px 0; cursor: pointer; }
-.ev-task-chip.completed { text-decoration: line-through; opacity: .4; border-color: var(--green); }
-.ev-grateful-box { background: linear-gradient(135deg,#0d0a1a,#12102a); border: 1px solid var(--dusk-dim); border-radius: var(--r); padding: 16px; }
+/* ── STEP LIST ───────────────────────────────── */
+.step-row{display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--bdr)}
+.step-row:last-child{border-bottom:none}
+.step-ico{font-size:18px;width:26px;text-align:center;flex-shrink:0}
+.step-info{flex:1}
+.step-nm{font-size:14px;font-weight:500}
+.step-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.step-t{font-size:11px;color:var(--dim);flex-shrink:0}
+.step-row.done .step-nm{color:var(--muted)}
 
-/* Observation note — appears on every page */
-.obs-wrap { padding: 16px 20px 24px; border-top: 1px solid var(--rim); flex-shrink: 0; }
-.obs-label { font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-.obs-saved-tag { font-size: 10px; color: var(--green); }
-.obs-area { min-height: 60px; font-size: 14px; }
+/* ── HISTORY ─────────────────────────────────── */
+.h-card{margin-bottom:1px;background:var(--s1)}
+.h-hdr{display:flex;align-items:center;padding:15px 20px;cursor:pointer;gap:12px}
+.h-date{font-size:13px;font-weight:500;flex:1}
+.h-status{font-size:11px;color:var(--muted)}
+.h-sc{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.h-body{padding:0 20px 18px;display:none;border-top:1px solid var(--bdr)}
+.h-body.open{display:block}
+.h-field{margin-top:14px}
+.h-flbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.h-fval{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.6}
+.empty-msg{padding:80px 32px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--muted);font-style:italic;line-height:1.6}
 
-/* Step footer */
-.step-foot { padding: 12px 20px 20px; flex-shrink: 0; }
-.step-next { width: 100%; padding: 16px; background: var(--dawn); border: none; border-radius: var(--r); font-size: 15px; font-weight: 500; color: #1a0e00; cursor: pointer; transition: opacity .2s; }
-.step-next.evening { background: var(--dusk); color: #0d0820; }
-.step-next:active { opacity: .85; }
-.step-next:disabled { background: var(--bg3); color: var(--muted); border: 1px solid var(--rim); }
+/* ── SURFACE CARD ────────────────────────────── */
+.surface-card{margin:16px 20px;padding:18px;background:var(--s2);border:1px solid rgba(212,146,74,.25);border-radius:14px}
+.surface-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--am);margin-bottom:8px}
+.surface-body{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.6;font-style:italic}
 
-/* ═══ COMPLETE ═══ */
-#l-complete { background: var(--bg); align-items: center; justify-content: center; text-align: center; padding: 0 28px; }
-.complete-glyph { font-size: 52px; margin-bottom: 18px; animation: glyph-in .5s cubic-bezier(.34,1.56,.64,1) both; }
-@keyframes glyph-in { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-.complete-title { font-family: var(--serif); font-size: 30px; font-weight: 300; color: var(--cream); margin-bottom: 8px; line-height: 1.2; }
-.complete-title strong { font-weight: 600; color: var(--dawn); }
-.complete-sub { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
-.complete-streak { font-family: var(--serif); font-size: 46px; color: var(--dawn); margin: 8px 0 2px; }
-.complete-streak-l { font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 30px; }
-.complete-verse { background: var(--bg2); border: 1px solid var(--rim); border-radius: var(--r); padding: 14px 18px; margin-bottom: 24px; width: 100%; }
-.complete-verse-text { font-family: var(--serif); font-size: 14px; color: var(--silver); font-style: italic; line-height: 1.6; }
-.complete-verse-ref { font-size: 10px; color: var(--muted); margin-top: 6px; }
-.complete-btn { width: 100%; padding: 15px; background: transparent; border: 1px solid var(--rim); border-radius: var(--r); font-size: 14px; color: var(--silver); cursor: pointer; }
-.complete-btn:active { background: var(--bg2); }
+/* ── WEEKLY REPORT ───────────────────────────── */
+.report-category-bar{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.rcb-name{font-size:13px;font-weight:500;width:110px;flex-shrink:0}
+.rcb-track{flex:1;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.rcb-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.rcb-val{font-size:12px;color:var(--muted);width:28px;text-align:right;flex-shrink:0}
 
-/* ═══ HISTORY ═══ */
-#l-history { background: var(--bg); }
-.hist-empty { text-align: center; padding: 60px 20px; font-family: var(--serif); font-size: 17px; color: var(--muted); font-style: italic; line-height: 1.6; }
-.hist-day { padding: 15px 20px; border-bottom: 1px solid var(--rim); cursor: pointer; }
-.hist-day:active { background: var(--bg2); }
-.hd-top { display: flex; align-items: center; gap: 10px; }
-.hd-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dawn); flex-shrink: 0; }
-.hd-date { font-size: 12px; color: var(--muted); flex: 1; }
-.hd-score { font-family: var(--serif); font-size: 15px; color: var(--dawn); }
-.hd-intention { font-family: var(--serif); font-size: 14px; color: var(--silver); font-style: italic; margin-top: 5px; line-height: 1.5; }
-.hd-detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rim); }
-.hd-detail.open { display: block; }
-.hd-detail-row { font-size: 11px; color: var(--muted); margin-bottom: 5px; letter-spacing: .04em; }
-.hd-detail-val { font-family: var(--serif); font-size: 13px; color: var(--silver); font-style: italic; margin-bottom: 10px; line-height: 1.5; }
+/* ── REFERENCE ───────────────────────────────── */
+.ref-sec{padding:20px}
+.ref-sec-title{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--am);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
+.ref-item{padding:12px 0;border-bottom:1px solid rgba(36,36,56,.7)}
+.ref-item:last-child{border-bottom:none}
+.ri-title{font-size:14px;font-weight:500;margin-bottom:4px}
+.ri-body{font-size:13px;color:var(--muted);line-height:1.7}
+.v-trait{display:inline-block;padding:4px 9px;border:1px solid var(--bdr);border-radius:4px;font-size:11px;color:var(--muted);margin:3px}
 
-/* ═══ THE WALL ═══ */
-#l-wall { background: var(--bg); }
-.wall-hero { text-align: center; padding: 28px 20px 20px; }
-.wall-hero-icon { font-size: 36px; margin-bottom: 10px; }
-.wall-hero-title { font-family: var(--serif); font-size: 22px; color: var(--cream); font-weight: 300; }
-.wall-hero-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.wall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 20px; }
-.wall-card { background: var(--bg2); border: 1px solid var(--rim); border-radius: var(--r); padding: 18px 14px; text-align: center; }
-.wall-card.full { grid-column: 1 / -1; }
-.wall-num { font-family: var(--serif); font-size: 30px; color: var(--dawn); line-height: 1; }
-.wall-label { font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: .03em; }
-.wall-month-name { font-family: var(--serif); font-size: 16px; color: var(--cream); margin-top: 4px; }
+/* ── URGE MODE ───────────────────────────────── */
+#pg-urge{background:var(--bg);z-index:200}
+.urge-timer-ring{position:relative;width:200px;height:200px;margin:0 auto 28px}
+.urge-ring-svg{width:200px;height:200px}
+.urge-countdown{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.urge-count-n{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--txt);line-height:1}
+.urge-count-lbl{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
 
-/* ═══ GOALS ═══ */
-#l-goals { background: var(--bg); }
-.goal-card { background: var(--bg2); border: 1px solid var(--rim); border-radius: var(--r); padding: 16px; margin-bottom: 10px; }
-.goal-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
-.goal-check { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--rim); flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent; transition: all .2s; }
-.goal-check.done { background: var(--green); border-color: var(--green); color: var(--bg); }
-.goal-text { flex: 1; font-family: var(--serif); font-size: 16px; color: var(--cream); font-style: italic; line-height: 1.5; }
-.goal-text.done { color: var(--muted); text-decoration: line-through; }
-.goal-del { font-size: 11px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px; }
-.goal-add-row { display: flex; gap: 8px; padding: 4px 20px 16px; }
-.goal-input { flex: 1; background: var(--bg3); border: 1px solid var(--rim); border-radius: var(--r); padding: 12px 14px; font-family: var(--serif); font-size: 15px; font-style: italic; color: var(--cream); outline: none; }
-.goal-input:focus { border-color: var(--dawn-dim); }
-.goal-add-btn { background: var(--dawn); border: none; border-radius: var(--r); padding: 0 18px; font-size: 14px; color: #1a0e00; cursor: pointer; }
-.goal-principle { background: linear-gradient(135deg,#0f0d04,#160f00); border: 1px solid var(--dawn-dim); border-radius: var(--r); padding: 16px; margin: 0 20px 16px; }
-.goal-principle-label { font-size: 10px; color: var(--dawn); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
-.goal-principle-text { font-family: var(--serif); font-size: 15px; color: var(--cream); font-style: italic; line-height: 1.6; }
+/* ── GOALS ───────────────────────────────────── */
+.goal-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--bdr)}
+.goal-item:last-child{border-bottom:none}
+.goal-status{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--bdr);flex-shrink:0;margin-top:3px;transition:all var(--t);cursor:pointer}
+.goal-status.done{background:var(--gr);border-color:var(--gr)}
+.goal-txt{flex:1;font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.5}
+.goal-del{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--dim);cursor:pointer;font-size:18px;flex-shrink:0;transition:color var(--t)}
+.goal-del:active{color:var(--rd)}
 
-/* ═══ REFERENCE ═══ */
-#l-reference { background: var(--bg); }
-.ref-tabs { display: flex; border-bottom: 1px solid var(--rim); flex-shrink: 0; }
-.ref-tab { flex: 1; padding: 11px 4px; font-size: 11px; color: var(--muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; }
-.ref-tab.active { color: var(--dawn); border-bottom-color: var(--dawn); }
-.ediv { font-size: 10px; color: var(--dawn-dim); letter-spacing: .14em; margin: 18px 20px 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rim); text-transform: uppercase; }
-.ediv:first-child { margin-top: 16px; }
-.ecard { background: var(--bg2); border-left: 2px solid var(--dawn-dim); border-radius: 0 var(--r) var(--r) 0; padding: 12px 15px; margin: 0 20px 8px; }
-.ecard strong { font-family: var(--serif); font-size: 14px; color: var(--dawn); display: block; margin-bottom: 4px; font-weight: 400; }
-.ecard p { font-size: 13px; color: var(--silver); line-height: 1.55; font-style: italic; }
-.vtrait { background: #1a0000; border: 1px solid #2a0000; border-radius: var(--r); padding: 10px 14px; margin: 0 20px 6px; font-size: 13px; color: #cc8888; display: flex; gap: 9px; }
-.vqi { background: var(--bg2); border-left: 2px solid var(--red); border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 0 20px 6px; font-size: 13px; font-style: italic; color: #ff8080; line-height: 1.5; }
+/* ── COMPLETE ────────────────────────────────── */
+#pg-complete .cinner{padding:48px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
+.c-emblem{width:80px;height:80px;border-radius:50%;border:1px solid var(--am);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative}
+.c-emblem::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(212,146,74,.25)}
 
-.toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(70px); background: var(--bg3); border: 1px solid var(--rim); border-radius: 30px; padding: 9px 20px; font-size: 13px; color: var(--silver); z-index: 999; transition: transform .28s; white-space: nowrap; pointer-events: none; }
-.toast.up { transform: translateX(-50%) translateY(0); }
+/* ── SETUP ───────────────────────────────────── */
+#pg-setup{background:var(--bg);z-index:300;align-items:center;justify-content:flex-start}
+.setup-inner{padding:48px 28px;padding-top:calc(48px + env(safe-area-inset-top));width:100%}
 
-.fab { position: fixed; bottom: 22px; width: 44px; height: 44px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--rim); font-size: 17px; cursor: pointer; z-index: 50; display: none; align-items: center; justify-content: center; }
-#fab-wall { right: 20px; }
-#fab-goals { right: 74px; }
-#fab-ref { right: 128px; }
+/* ── ABOUT ───────────────────────────────────── */
+#pg-about .about-inner{padding:24px 20px}
+
+/* ── ANIMATIONS ──────────────────────────────── */
+@keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeup .45s ease both}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.pulse{animation:pulse 2s ease infinite}
 </style>
 </head>
 <body>
+<div id="app">
 
-<!-- ═══ SPLASH ═══ -->
-<div class="layer" id="l-splash">
-  <div style="width:100%;max-width:400px;margin:0 auto;padding:0 28px;">
-    <div class="splash-moon">🌙</div>
-    <div class="splash-ar">بسم الله الرحمن الرحيم</div>
-    <div class="splash-title">Your <strong>day</strong>,<br>start to close.</div>
-    <div class="splash-sub">Morning ritual. Evening review.<br>Built on Allah — a complete daily cycle.</div>
-    <button class="splash-cta" onclick="show('home')">Start — بسم الله</button>
-  </div>
-</div>
-
-<!-- ═══ HOME ═══ -->
-<div class="layer gone" id="l-home">
-  <div class="home-head">
-    <div class="home-date" id="home-date">—</div>
-    <div class="home-title" id="home-greeting">Good <strong>morning.</strong></div>
-  </div>
-
-  <div class="daypart-toggle">
-    <button class="dp-btn morning" id="dp-morning" onclick="setDaypart('morning')">🌅 Morning</button>
-    <button class="dp-btn evening" id="dp-evening" onclick="setDaypart('evening')">🌆 Evening</button>
-  </div>
-
-  <div class="arc-wrap">
-    <svg class="arc-svg" viewBox="0 0 200 110">
-      <path class="arc-track" d="M 20 100 A 80 80 0 0 1 180 100"/>
-      <path class="arc-fill" id="arc-fill" d="M 20 100 A 80 80 0 0 1 180 100" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
-    </svg>
-    <div class="arc-pct" id="arc-pct">0%</div>
-    <div class="arc-label" id="arc-label">Begin your ritual</div>
-    <div class="remaining-pill" id="remaining-pill" style="display:none;"></div>
-  </div>
-
-  <div class="streak-row">
-    <div class="streak-pill active"><span style="font-size:15px;">🔥</span><span class="streak-n" id="s-cur">0</span><span class="streak-l">streak</span></div>
-    <div class="streak-pill"><span class="streak-n" id="s-best">0</span><span class="streak-l">best</span></div>
-    <div class="streak-pill"><span class="streak-n" id="s-days">0</span><span class="streak-l">days</span></div>
-  </div>
-
-  <div class="start-wrap">
-    <button class="start-btn" id="start-btn" onclick="beginRitual()">Begin ritual</button>
-    <div class="done-msg" id="done-msg">الحمد لله — complete for today ✓</div>
-  </div>
-
-  <div class="steps-preview" id="steps-preview"></div>
-
-  <div class="menu-grid">
-    <div class="menu-card" onclick="show('wall')"><div class="menu-icon">🏆</div><div><div class="menu-name">The Wall</div><div class="menu-desc">Your full record — streaks, totals, best month</div></div><div class="menu-arrow">›</div></div>
-    <div class="menu-card" onclick="show('goals')"><div class="menu-icon">🎯</div><div><div class="menu-name">Goals</div><div class="menu-desc">What you're working toward</div></div><div class="menu-arrow">›</div></div>
-    <div class="menu-card" onclick="show('reference')"><div class="menu-icon">📜</div><div><div class="menu-name">Reference</div><div class="menu-desc">Ethics, the villain, the method</div></div><div class="menu-arrow">›</div></div>
-  </div>
-</div>
-
-<!-- ═══ STEP ═══ -->
-<div class="layer gone" id="l-step">
-  <div class="topbar">
-    <button class="tb-back" onclick="exitStep()">← Back</button>
-    <div class="tb-title" id="step-tb-title"></div>
-    <div class="tb-right"><button class="tb-action" id="step-skip" onclick="skipStep()">Skip</button></div>
-  </div>
-  <div class="step-head">
-    <div class="step-progress-bar"><div class="step-progress-fill" id="step-pfill"></div></div>
-    <div class="step-label" id="step-label"></div>
-    <span class="identity-label" id="step-identity"></span>
-    <div class="step-name" id="step-name"></div>
-  </div>
-  <div class="step-body scroll" id="step-body"></div>
-  <div class="step-foot">
-    <button class="step-next" id="step-next" onclick="nextStep()">Done — next step →</button>
-  </div>
-</div>
-
-<!-- ═══ COMPLETE ═══ -->
-<div class="layer gone" id="l-complete">
-  <div class="complete-glyph" id="complete-glyph">☀️</div>
-  <div class="complete-title" id="complete-title">Ritual <strong>complete.</strong></div>
-  <div class="complete-sub" id="complete-sub">You showed up before the world woke up.</div>
-  <div class="complete-streak" id="c-streak">0</div>
-  <div class="complete-streak-l">day streak 🔥</div>
-  <div class="complete-verse">
-    <div class="complete-verse-text" id="complete-verse-text">"Indeed, Allah will not change the condition of a people until they change what is in themselves."</div>
-    <div class="complete-verse-ref" id="complete-verse-ref">Quran 13:11</div>
-  </div>
-  <button class="complete-btn" onclick="show('home')">Back to home</button>
-</div>
-
-<!-- ═══ HISTORY ═══ -->
-<div class="layer gone" id="l-history">
-  <div class="topbar"><button class="tb-back" onclick="show('home')">← Home</button><div class="tb-title">History</div><div class="tb-right"></div></div>
-  <div class="scroll" style="padding:0 0 40px;" id="hist-list"></div>
-</div>
-
-<!-- ═══ THE WALL ═══ -->
-<div class="layer gone" id="l-wall">
-  <div class="topbar"><button class="tb-back" onclick="show('home')">← Home</button><div class="tb-title">The Wall</div><div class="tb-right"></div></div>
-  <div class="scroll" style="padding-bottom:40px;">
-    <div class="wall-hero">
-      <div class="wall-hero-icon">🏆</div>
-      <div class="wall-hero-title">Your full record</div>
-      <div class="wall-hero-sub">Every number tells you who you've become.</div>
+<!-- ══════════════════════════════════ SETUP (first launch) -->
+<div class="pg" id="pg-setup">
+  <div class="setup-inner">
+    <div class="ar-bg" style="margin-bottom:-16px;font-size:56px;color:var(--bdr2);text-align:center">المرآة</div>
+    <h1 class="serif fu" style="font-size:42px;font-weight:300;line-height:1.1;margin-bottom:8px">The Mirror</h1>
+    <p class="fu serif" style="font-size:17px;color:var(--muted);font-style:italic;line-height:1.7;margin-bottom:32px;animation-delay:.1s">A long-term identity system — not a motivation app.</p>
+    <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:14px;padding:20px;margin-bottom:32px" class="fu" style="animation-delay:.15s">
+      <p class="serif" style="font-size:16px;color:var(--muted);line-height:1.8;font-style:italic">
+        "This app can structure your reflection and make consistency easier — but the actual rewiring happens in the 2 minutes you spend being honest with yourself in it, not in the code. The app is the mirror. You are still the one who has to look into it."
+      </p>
     </div>
-    <div class="wall-grid" id="wall-grid"></div>
-    <div class="obs-wrap" style="border-top:none;">
-      <div class="obs-label">YOUR OBSERVATION <span class="obs-saved-tag" id="obs-saved-wall" style="display:none;">✓ saved</span></div>
-      <textarea class="obs-area" id="obs-wall" placeholder="What do these numbers tell you about yourself?" oninput="saveObs('wall')"></textarea>
+    <div class="fu" style="animation-delay:.2s">
+      <div class="field-lbl" style="margin-bottom:8px">Name your future self — who are you becoming?</div>
+      <input id="setup-name" type="text" placeholder="e.g. Ibrahim, The Disciplined One, The Builder…" style="width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:20px;outline:none;transition:border-color var(--t);margin-bottom:20px"/>
+      <div class="field-lbl" style="margin-bottom:8px">Your morning session time</div>
+      <input id="setup-time" type="time" value="05:30" style="width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:24px;color-scheme:dark"/>
+      <button class="btn btn-am fu" style="animation-delay:.3s" onclick="completeSetup()">Begin — Enter The Mirror</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ GOALS ═══ -->
-<div class="layer gone" id="l-goals">
-  <div class="topbar"><button class="tb-back" onclick="show('home')">← Home</button><div class="tb-title">Goals</div><div class="tb-right"></div></div>
-  <div class="scroll" style="padding-bottom:40px;">
-    <div class="goal-principle">
-      <div class="goal-principle-label">Principle</div>
-      <div class="goal-principle-text">Delay the things that make you happy — so you can appreciate them more when they arrive. A goal achieved too easily is rarely respected.</div>
+<!-- ══════════════════════════════════ HOME -->
+<div class="pg off" id="pg-home">
+  <div class="scrl">
+    <!-- Header -->
+    <div style="padding:20px 20px 12px;padding-top:calc(20px + env(safe-area-inset-top));display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div class="ar-bg" style="font-size:40px;margin-bottom:-8px;opacity:.4">المرآة</div>
+        <div class="serif" style="font-size:36px;font-weight:300" id="home-greeting">Good morning</div>
+        <div id="home-name" style="font-size:13px;color:var(--am);margin-top:2px;font-weight:500;letter-spacing:.04em"></div>
+        <div id="home-date" style="font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.06em"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <div onclick="nav.go('about')" style="width:36px;height:36px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:15px">i</div>
+        <div onclick="nav.go('weekly')" style="width:36px;height:36px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:14px">📊</div>
+      </div>
     </div>
-    <div class="goal-add-row">
-      <input class="goal-input" id="goal-input" placeholder="Add a goal…" onkeydown="if(event.key==='Enter')addGoal()">
-      <button class="goal-add-btn" onclick="addGoal()">Add</button>
+
+    <!-- Resurfaced memory -->
+    <div id="resurface-wrap"></div>
+
+    <!-- Radar chart -->
+    <div id="radar-wrap">
+      <svg id="radar-svg" viewBox="0 0 280 280"></svg>
     </div>
-    <div id="goals-list" style="padding:0 20px;"></div>
-    <div class="obs-wrap" style="border-top:none;">
-      <div class="obs-label">YOUR OBSERVATION <span class="obs-saved-tag" id="obs-saved-goals" style="display:none;">✓ saved</span></div>
-      <textarea class="obs-area" id="obs-goals" placeholder="What pattern do you notice in what you chase?" oninput="saveObs('goals')"></textarea>
+    <div class="radar-legend" id="radar-legend"></div>
+
+    <div style="height:16px"></div>
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-cell"><div class="stat-n" id="st-streak">0</div><div class="stat-l">Streak</div></div>
+      <div class="stat-cell"><div class="stat-n" id="st-best">0</div><div class="stat-l">Best</div></div>
+      <div class="stat-cell"><div class="stat-n" id="st-urges">0</div><div class="stat-l">Urges Won</div></div>
+    </div>
+
+    <!-- Drift alert -->
+    <div id="drift-alert" style="display:none;margin:14px 20px 0;padding:14px 16px;background:var(--s2);border:1px solid rgba(212,146,74,.3);border-radius:12px">
+      <div style="font-size:11px;color:var(--am);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Pattern Noticed</div>
+      <div id="drift-msg" class="serif" style="font-size:16px;color:var(--txt);line-height:1.6"></div>
+    </div>
+
+    <div style="height:16px"></div>
+    <!-- Morning block -->
+    <div style="padding:0 20px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      <div class="eyebrow" style="color:var(--am)">Morning Ritual</div>
+      <span class="pill pill-am" id="morn-pill">0 / 5</span>
+    </div>
+    <div id="home-morning-steps" style="border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)"></div>
+    <div style="padding:14px 20px"><button class="btn btn-am" id="morn-btn" onclick="startMorning()"><span id="morn-btn-txt">Begin Morning Ritual</span><span>→</span></button></div>
+
+    <!-- Evening block -->
+    <div style="padding:4px 20px 6px;display:flex;align-items:center;justify-content:space-between">
+      <div class="eyebrow" style="color:var(--pu)">Evening Check-in</div>
+      <span class="pill pill-pu" id="eve-pill">0 / 3</span>
+    </div>
+    <div id="home-eve-steps" style="border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)"></div>
+    <div style="padding:14px 20px"><button class="btn btn-pu" id="eve-btn" onclick="startEvening()"><span id="eve-btn-txt">Begin Evening Check-in</span><span>→</span></button></div>
+
+    <div style="height:90px"></div>
+  </div>
+  <!-- Bottom nav -->
+  <div class="bnav">
+    <div class="bn-btn" onclick="nav.go('history')"><div class="bn-ico">📜</div><div class="bn-lbl">History</div></div>
+    <div class="bn-btn" onclick="nav.go('wall')"><div class="bn-ico">🧱</div><div class="bn-lbl">Wall</div></div>
+    <div class="bn-btn" onclick="nav.go('goals')"><div class="bn-ico">🎯</div><div class="bn-lbl">Goals</div></div>
+    <div class="bn-btn" onclick="nav.go('reference')"><div class="bn-ico">📖</div><div class="bn-lbl">Library</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ MORNING STEPS -->
+<!-- M1: FAJR -->
+<div class="pg off" id="pg-m1">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 1</div><div class="tb-right"><div class="dots" id="dots-m1"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">الفجر</div>
+      <div class="page-title">Fajr Prayer</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">5 minutes · Taqwa</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:24px 20px">
+      <div style="display:flex;flex-direction:column;align-items:center;padding:24px 0 16px;gap:20px">
+        <div class="serif" style="font-size:22px;text-align:center;line-height:1.4" id="m1-toggle-lbl">I prayed Fajr with khushu'</div>
+        <div class="tog" id="tog-fajr" onclick="toggleFajr()" style="width:62px;height:32px;border-radius:16px"></div>
+        <div style="font-size:13px;color:var(--dim);font-style:italic;font-family:'Cormorant Garamond',serif;text-align:center">Pause before confirming. Did you truly pray with presence?</div>
+      </div>
+      <div style="background:var(--s2);border-left:2px solid var(--am);padding:16px;border-radius:0 8px 8px 0;margin-bottom:16px">
+        <div class="field-lbl" style="color:var(--am);margin-bottom:8px">Khushu' Technique</div>
+        <p class="serif" style="font-size:15px;color:var(--muted);line-height:1.8">Before takbir — release the day. In qiyam — understand each word. In sujud — stay one extra breath. This is the closest you will be to Allah today.</p>
+      </div>
+      <div class="field-lbl" style="margin-bottom:10px">Morning Adhkar</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--muted);line-height:2">
+        Ayat al-Kursi (×1) · <span style="direction:rtl;display:inline">الإخلاص · الفلق · الناس</span> (×3 each)<br/>
+        <span style="color:var(--txt)">أصبحنا وأصبح الملك لله</span> · Istighfar (×3) · Salawat (×10)
+      </div>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m2')">Continue →</button></div>
+</div>
+
+<!-- M2: QUR'AN -->
+<div class="pg off" id="pg-m2">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 2</div><div class="tb-right"><div class="dots" id="dots-m2"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">القرآن</div>
+      <div class="page-title">Qur'an</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">5 minutes · Taqwa + Gratitude</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:14px;padding:22px;margin-bottom:20px">
+        <div class="field-lbl" style="color:var(--am);margin-bottom:10px">Today's Verse</div>
+        <div id="verse-ar" class="serif" style="font-size:26px;direction:rtl;text-align:right;color:var(--am);line-height:1.9;margin-bottom:12px"></div>
+        <div id="verse-en" class="serif" style="font-size:18px;font-style:italic;color:var(--txt);line-height:1.6;margin-bottom:6px"></div>
+        <div id="verse-ref" style="font-size:11px;color:var(--muted);letter-spacing:.06em"></div>
+      </div>
+      <div class="field-lbl" style="margin-bottom:6px" id="quran-prompt-lbl"></div>
+      <textarea id="ta-quran" placeholder="Write your reflection…" rows="5" oninput="saveM2()" onblur="saveM2()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m3')">Continue →</button></div>
+</div>
+
+<!-- M3: AFFIRMATIONS -->
+<div class="pg off" id="pg-m3">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 3</div><div class="tb-right"><div class="dots" id="dots-m3"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">الهوية</div>
+      <div class="page-title">Affirmations</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">3 minutes · Say each aloud · All 6 traits</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:12px 20px">
+      <div style="padding:12px 0;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--dim);font-style:italic">Each tap casts a vote for a specific identity trait. Speak it — don't just tap.</div>
+      <div id="affirm-list"></div>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m4')">Continue →</button></div>
+</div>
+
+<!-- M4: INTENTION -->
+<div class="pg off" id="pg-m4">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 4</div><div class="tb-right"><div class="dots" id="dots-m4"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">النية</div>
+      <div class="page-title">Intention</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">Discipline + Honesty</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div style="background:var(--s2);border-left:2px solid var(--am);padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:20px">
+        <p class="serif" style="font-size:15px;color:var(--muted);line-height:1.7">Implementation intention format: <span style="color:var(--txt)">"If [situation], I will [specific action]."</span> Not vague goals — concrete triggers.</p>
+      </div>
+      <div class="field-lbl" style="margin-bottom:6px" id="intent-prompt"></div>
+      <textarea id="ta-intent" placeholder="If I feel the urge to scroll, I will put my phone in the other room and open a book…" rows="5" oninput="saveM4()" onblur="saveM4()"></textarea>
+      <div style="margin-top:28px">
+        <div class="field-lbl" style="margin-bottom:6px" id="align-prompt"></div>
+        <div class="trait-grid" id="trait-grid-m4" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m5')">Continue →</button></div>
+</div>
+
+<!-- M5: YESTERDAY REVIEW -->
+<div class="pg off" id="pg-m5">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 5</div><div class="tb-right"><div class="dots" id="dots-m5"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">المحاسبة</div>
+      <div class="page-title">Yesterday's Review</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">Honesty · Self-accountability</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div class="score-big" id="score-disp-m5">5</div>
+      <input type="range" id="score-range-m5" min="1" max="10" value="5" oninput="updateScore5()" onchange="saveM5()"/>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;margin-bottom:24px">
+        <span style="font-size:11px;color:var(--dim)">1 — Lost</span>
+        <span style="font-size:11px;color:var(--dim)">10 — Excellent</span>
+      </div>
+      <div class="field-lbl" style="margin-bottom:6px" id="review-prompt"></div>
+      <textarea id="ta-review" placeholder="Be specific. What happened vs. what should have?" rows="5" oninput="saveM5()" onblur="saveM5()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-am" onclick="completeMorning()">Complete Morning Ritual ✓</button></div>
+</div>
+
+<!-- ══════════════════════════════════ EVENING STEPS -->
+<!-- E1: INTENTION CHECK -->
+<div class="pg off" id="pg-e1">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Evening · Step 1</div><div class="tb-right"><div class="dots" id="dots-e1"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">النتيجة</div>
+      <div class="page-title">Intention Review</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">Honesty · Discipline</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div id="morning-intent-display" style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:20px">
+        <div class="field-lbl" style="margin-bottom:6px">This morning's intention was</div>
+        <div id="mid-intent" class="serif" style="font-size:17px;color:var(--muted);font-style:italic;line-height:1.6">No intention recorded this morning.</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <button class="btn btn-gr btn-sm" style="flex:1" onclick="setIntentDone(true)">✓ I did it</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="setIntentDone(false)">✗ I did not</button>
+      </div>
+      <div class="field-lbl" style="margin-bottom:6px" id="e1-reflect-prompt"></div>
+      <textarea id="ta-e1" placeholder="What happened?" rows="4" oninput="saveE1()" onblur="saveE1()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="nav.go('pg-e2')">Continue →</button></div>
+</div>
+
+<!-- E2: WHAT I AVOIDED -->
+<div class="pg off" id="pg-e2">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Evening · Step 2</div><div class="tb-right"><div class="dots" id="dots-e2"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">التجنب</div>
+      <div class="page-title">What Was Avoided</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">Self-control · Honesty</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div class="field-lbl" style="margin-bottom:6px" id="avoid-prompt"></div>
+      <textarea id="ta-avoid" placeholder="Name it specifically. Not avoiding it is also data." rows="5" oninput="saveE2()" onblur="saveE2()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="nav.go('pg-e3')">Continue →</button></div>
+</div>
+
+<!-- E3: GRATITUDE -->
+<div class="pg off" id="pg-e3">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Evening · Step 3</div><div class="tb-right"><div class="dots" id="dots-e3"></div></div></div>
+  <div class="scrl">
+    <div style="padding:24px 20px 8px">
+      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">الشكر</div>
+      <div class="page-title">Gratitude</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">Gratitude · Brotherhood</div>
+    </div>
+    <div class="rule-h"></div>
+    <div style="padding:20px">
+      <div class="field-lbl" style="margin-bottom:6px" id="grat-prompt"></div>
+      <textarea id="ta-grat" placeholder="Three specific things — not generic…" rows="5" oninput="saveE3()" onblur="saveE3()"></textarea>
+    </div>
+  </div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="completeEvening()">Complete Evening Check-in ✓</button></div>
+</div>
+
+<!-- ══════════════════════════════════ URGE MODE -->
+<div class="pg off" id="pg-urge">
+  <div class="topbar"><div class="back-btn" onclick="cancelUrge()">✕ Cancel</div><div class="tb-title" style="color:var(--pu)">Urge Mode</div></div>
+  <div class="scrl" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center">
+    <div id="urge-phase-1">
+      <div class="serif" style="font-size:32px;font-weight:300;margin-bottom:8px;line-height:1.3" id="urge-title"></div>
+      <div class="serif" style="font-size:18px;color:var(--muted);font-style:italic;margin-bottom:40px">is deciding right now. What does he choose?</div>
+      <div class="urge-timer-ring">
+        <svg class="urge-ring-svg" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="88" fill="none" stroke="var(--bdr)" stroke-width="4"/>
+          <circle id="urge-arc" cx="100" cy="100" r="88" fill="none" stroke="var(--pu)" stroke-width="4" stroke-linecap="round"
+            stroke-dasharray="553" stroke-dashoffset="0"
+            transform="rotate(-90 100 100)" style="transition:stroke-dashoffset 1s linear"/>
+        </svg>
+        <div class="urge-countdown">
+          <span class="urge-count-n" id="urge-count">60</span>
+          <span class="urge-count-lbl">seconds</span>
+        </div>
+      </div>
+      <div class="serif" style="font-size:16px;color:var(--muted);font-style:italic;line-height:1.7">Wait. Breathe. The urge is not you.<br/>It is a wave. Watch it pass.</div>
+    </div>
+    <div id="urge-phase-2" style="display:none;width:100%">
+      <div class="serif" style="font-size:28px;font-weight:300;margin-bottom:24px;line-height:1.3">What did you choose?</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--muted);font-style:italic;margin-bottom:28px;line-height:1.7">Both answers are data. Both are logged without judgment.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin:0 auto">
+        <button class="btn btn-gr" onclick="logUrge(true)">✓ I resisted — <span id="urge-name-btn"></span> held the line</button>
+        <button class="btn btn-ghost" onclick="logUrge(false)">I gave in — this is the data</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ REFERENCE ═══ -->
-<div class="layer gone" id="l-reference">
-  <div class="topbar"><button class="tb-back" onclick="show('home')">← Home</button><div class="tb-title">Reference</div><div class="tb-right"></div></div>
-  <div class="ref-tabs">
-    <button class="ref-tab active" id="rt-ethics" onclick="switchRefTab('ethics')">Ethics</button>
-    <button class="ref-tab" id="rt-method" onclick="switchRefTab('method')">Method</button>
-    <button class="ref-tab" id="rt-villain" onclick="switchRefTab('villain')">Villain</button>
-  </div>
-  <div class="scroll" style="padding-bottom:10px;">
-    <div id="ref-ethics">
-      <div class="ediv">Allah Before Everything</div>
-      <div class="ecard"><strong>Every goal serves your deen</strong><p>Every habit, ambition, and goal must serve your relationship with Allah. Success without obedience is failure, no matter how it looks from outside.</p></div>
-      <div class="ecard"><strong>Salah is the foundation</strong><p>If prayer collapses, everything eventually collapses behind it. Protect the five prayers before anything else competes for your time.</p></div>
-      <div class="ediv">Taqwa</div>
-      <div class="ecard"><strong>Establish all obligatory worship</strong><p>The non-negotiables come first — prayer, fasting, zakat when due. These are not optional extras around your goals; they are the frame everything else hangs on.</p></div>
-      <div class="ecard"><strong>Abstain from what is prohibited</strong><p>Taqwa means consciousness of Allah even when no one is watching — especially then.</p></div>
-      <div class="ecard"><strong>Patience, gratitude, repentance</strong><p>These three cycle endlessly. Patience in hardship, gratitude in ease, repentance when you fall short of either.</p></div>
-      <div class="ediv">Silence Is Strength</div>
-      <div class="ecard"><strong>Speak less, listen more</strong><p>The disciplined man's silence carries more weight than most men's speech.</p></div>
-      <div class="ecard"><strong>Avoid gossip and unnecessary arguments</strong><p>Most arguments are not about truth — they are about ego. Walk away from the ones that are.</p></div>
-      <div class="ediv">Character & Family</div>
-      <div class="ecard"><strong>Obey and respect your parents</strong><p>This duty does not expire with age or disagreement. Their du'a opens doors effort alone cannot.</p></div>
-      <div class="ecard"><strong>Good character is worship</strong><p>The Prophet ﷺ said the heaviest thing on the scale of deeds is good character.</p></div>
-    </div>
-    <div id="ref-method" style="display:none;">
-      <div class="ediv">Morning Routine</div>
-      <div class="ecard"><strong>Fajr — on time, every time</strong><p>Bismillah before feet touch the floor. Non-negotiable.</p></div>
-      <div class="ecard"><strong>Morning adhkar</strong><p>Ayat al-Kursi, the three Quls, morning supplications. Your armour for the day.</p></div>
-      <div class="ediv">Evening Closure</div>
-      <div class="ecard"><strong>Close the loop you opened</strong><p>The morning sets intention. The evening checks it. A day without closure is a day half-lived.</p></div>
-      <div class="ecard"><strong>Three honest questions</strong><p>Did I complete my intention? What did I avoid? What am I grateful for? Two minutes, every night.</p></div>
-      <div class="ediv">The No Shit Rule</div>
-      <div class="ecard"><strong>Pause before the urge wins</strong><p>Ask: what happens after I do this? Play the full movie, not just the pleasure.</p></div>
-      <div class="ediv">Daily Limits</div>
-      <div class="ecard"><strong>Prayer and Quran — on time, with heart</strong><p>Not just the motions. Presence is the actual requirement.</p></div>
-      <div class="ecard"><strong>No shit</strong><p>Wasteful content, useless talk, draining people, idle hours — all forbidden.</p></div>
-    </div>
-    <div id="ref-villain" style="display:none;">
-      <div class="ediv">His Traits</div>
-      <div class="vtrait">▸ Prays every Fajr — on time, with full presence</div>
-      <div class="vtrait">▸ Reads Quran daily with understanding</div>
-      <div class="vtrait">▸ Speaks only when he has something useful to say</div>
-      <div class="vtrait">▸ His word is his bond — he never breaks a promise</div>
-      <div class="vtrait">▸ He controls his anger. He responds — he doesn't react.</div>
-      <div class="ediv">What He Says To You</div>
-      <div class="vqi">He prayed Fajr on time this morning. Did you?</div>
-      <div class="vqi">He stayed silent when others talked. People respected him more for it.</div>
-      <div class="vqi">He is not waiting for the right moment. He created it already.</div>
+<!-- ══════════════════════════════════ COMPLETE -->
+<div class="pg off" id="pg-complete">
+  <div class="scrl">
+    <div class="cinner fu">
+      <div style="height:calc(48px + env(safe-area-inset-top))"></div>
+      <div class="c-emblem">✦</div>
+      <div class="serif" style="font-size:40px;font-weight:300;line-height:1;margin-top:8px" id="complete-title">Complete</div>
+      <div class="serif" style="font-size:24px;color:var(--am)" id="complete-ar">جزاك الله خيراً</div>
+      <div class="serif" style="font-size:17px;color:var(--muted);font-style:italic;max-width:280px;text-align:center;line-height:1.7" id="complete-msg"></div>
+      <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:16px;width:100%;max-width:320px;text-align:left;margin:8px 0" id="complete-votes"></div>
+      <button class="btn btn-ghost" style="max-width:240px;margin-top:8px" onclick="nav.go('home',true)">Return Home</button>
     </div>
   </div>
 </div>
 
-<button class="fab" id="fab-wall" onclick="show('wall')">🏆</button>
-<button class="fab" id="fab-goals" onclick="show('goals')">🎯</button>
-<button class="fab" id="fab-ref" onclick="show('reference')">📜</button>
+<!-- ══════════════════════════════════ HISTORY -->
+<div class="pg off" id="pg-history">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">History</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl"><div id="hist-list"></div></div>
+</div>
 
-<div class="toast" id="toast"></div>
+<!-- ══════════════════════════════════ WALL -->
+<div class="pg off" id="pg-wall">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">The Wall</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl">
+    <div style="padding:24px 20px">
+      <div class="ar-bg" style="font-size:48px;margin-bottom:-10px">الجدار</div>
+      <div class="serif" style="font-size:32px;font-weight:300;margin-bottom:24px">Total Accountability</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px" id="wall-grid"></div>
+      <div class="field-lbl" style="margin-bottom:12px">Category Strengths</div>
+      <div id="wall-cats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ GOALS -->
+<div class="pg off" id="pg-goals">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Goals</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl">
+    <div style="padding:20px">
+      <div style="background:var(--s2);border-left:2px solid var(--am);padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:20px">
+        <p class="serif" style="font-size:16px;color:var(--muted);font-style:italic;line-height:1.7">"Every time you delay gratification, you cast a vote for Discipline. Every vote compounds. There are no shortcuts — only the accumulation of honest choices."</p>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <input id="goal-input" type="text" placeholder="Add a goal (delayed-gratification framing)…" style="flex:1;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:17px;outline:none"/>
+        <button class="btn btn-am btn-sm" style="width:52px;padding:0" onclick="addGoal()">+</button>
+      </div>
+      <div id="goal-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ REFERENCE -->
+<div class="pg off" id="pg-reference">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Reference Library</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl">
+    <div class="ref-sec">
+      <div class="ref-sec-title">The Shadow Self — Who You Must Not Become</div>
+      <div style="margin-bottom:14px">
+        <span class="v-trait">Laziness</span><span class="v-trait">Distraction</span><span class="v-trait">Lust</span>
+        <span class="v-trait">Delay</span><span class="v-trait">Arrogance</span><span class="v-trait">Complaint</span>
+        <span class="v-trait">Envy</span><span class="v-trait">Inconsistency</span><span class="v-trait">Victim mindset</span>
+        <span class="v-trait">Short-sightedness</span><span class="v-trait">People-pleasing</span><span class="v-trait">Self-betrayal</span>
+      </div>
+      <div class="field-lbl" style="margin-bottom:8px">What he says</div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"I'll start tomorrow."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"I don't feel like it."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"Just this once won't hurt."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"Nobody sees me anyway."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"This isn't working."</div></div>
+      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic;color:var(--muted)">"I can't help how I feel."</div></div>
+    </div>
+    <div class="ref-sec">
+      <div class="ref-sec-title">Ethics & Character</div>
+      <div class="ref-item"><div class="ri-title">Silence</div><div class="ri-body">Speak only when words add real value. Silence is mastery, not absence.</div></div>
+      <div class="ref-item"><div class="ri-title">Humility</div><div class="ri-body">Your achievements are from Allah. Your failures are yours. Never let success make you forget this.</div></div>
+      <div class="ref-item"><div class="ri-title">Gratitude</div><div class="ri-body">Count what you have before what you lack. الحمد لله in every moment.</div></div>
+      <div class="ref-item"><div class="ri-title">Discipline</div><div class="ri-body">Do what you said you would do, when you said you would, regardless of feeling.</div></div>
+      <div class="ref-item"><div class="ri-title">Self-Respect</div><div class="ri-body">Iron. Non-negotiable. You do not beg, chase, or compromise principles for approval.</div></div>
+    </div>
+    <div class="ref-sec">
+      <div class="ref-sec-title">Method</div>
+      <div class="ref-item"><div class="ri-title">Urge Control</div><div class="ri-body">The urge is not you. It is a wave. Observe it. Name it. Wait 90 seconds. Watch it lose power. Do not negotiate.</div></div>
+      <div class="ref-item"><div class="ri-title">Identity Voting</div><div class="ri-body">Every action is a vote for a type of person. The goal is not to be perfect — it is to have the majority of votes go toward who you are becoming.</div></div>
+      <div class="ref-item"><div class="ri-title">Khushu' in Salah</div><div class="ri-body">Before takbir: breathe and release. In qiyam: understand the words. In ruku': glorify fully. In sujud: pour your heart. This is your meeting with Allah.</div></div>
+      <div class="ref-item"><div class="ri-title">Self-distancing</div><div class="ri-body">When reflecting, use your name instead of "I". "[Name] felt this way." This reduces emotional reactivity and improves honest self-assessment.</div></div>
+    </div>
+    <div class="ref-sec">
+      <div class="ref-sec-title">Seven Rules</div>
+      <div class="ref-item"><div class="ri-title">I — Allah first in everything</div><div class="ri-body">Before any decision: is this pleasing to Allah?</div></div>
+      <div class="ref-item"><div class="ri-title">II — Pray on time, always</div><div class="ri-body">The five prayers are the skeleton of the day. Everything else is built around them.</div></div>
+      <div class="ref-item"><div class="ri-title">III — Keep promises to yourself</div><div class="ri-body">Your self-trust is built or destroyed in the promises no one else can hold you to.</div></div>
+      <div class="ref-item"><div class="ri-title">IV — Control desires</div><div class="ri-body">Every delayed gratification is a vote for Discipline. Every surrender weakens.</div></div>
+      <div class="ref-item"><div class="ri-title">V — Speak only when necessary</div><div class="ri-body">Guard your speech like you guard your time.</div></div>
+      <div class="ref-item"><div class="ri-title">VI — Improve every day</div><div class="ri-body">One domain — body, mind, deen, or provision — every single day.</div></div>
+      <div class="ref-item"><div class="ri-title">VII — Never quit after a bad day</div><div class="ri-body">After any failure — pray two raka'at, reset, begin again. The return defines you.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ WEEKLY REPORT -->
+<div class="pg off" id="pg-weekly">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Weekly Identity Report</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl"><div style="padding:20px" id="weekly-inner"></div></div>
+</div>
+
+<!-- ══════════════════════════════════ ABOUT -->
+<div class="pg off" id="pg-about">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">About</div></div>
+  <div class="rule-h"></div>
+  <div class="scrl">
+    <div class="about-inner">
+      <div class="ar-bg" style="font-size:48px;padding:20px 20px 8px">المرآة</div>
+      <div style="padding:20px">
+        <div class="serif" style="font-size:28px;font-weight:300;margin-bottom:20px">What This App Is</div>
+        <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:14px;padding:22px;margin-bottom:24px">
+          <p class="serif" style="font-size:17px;color:var(--txt);line-height:1.8;font-style:italic">"This app can structure your reflection and make consistency easier — but the actual rewiring happens in the 2 minutes you spend being honest with yourself in it, not in the code. The radar chart, the named future self, the urge timer — these are scaffolding to make that honesty easier to sustain for months instead of days. The app is the mirror. You are still the one who has to look into it."</p>
+        </div>
+        <div class="field-lbl" style="margin-bottom:12px">6 Identity Categories</div>
+        <div id="about-cats"></div>
+        <div style="margin-top:24px">
+          <div class="field-lbl" style="margin-bottom:8px">Behavioral Psychology Basis</div>
+          <div class="ref-item"><div class="ri-title">Identity-based habits</div><div class="ri-body">Every logged action is framed as a "vote" for an identity, not a task completed. Repeated votes shape belief.</div></div>
+          <div class="ref-item"><div class="ri-title">Implementation intentions</div><div class="ri-body">"If [X], then I will [Y]" format doubles follow-through vs. vague goals (Gollwitzer, 1999).</div></div>
+          <div class="ref-item"><div class="ri-title">Self-distancing</div><div class="ri-body">Referring to yourself in the third person reduces emotional reactivity and improves honest self-assessment (Kross et al.).</div></div>
+          <div class="ref-item"><div class="ri-title">Spaced resurfacing</div><div class="ri-body">Revisiting past reflections at intervals prevents identity drift and reinforces long-term commitments.</div></div>
+        </div>
+        <div style="margin-top:24px">
+          <button class="btn btn-ghost btn-sm" onclick="resetSetup()">Reset Name / Future Self</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VOTE TOAST -->
+<div id="vote-toast">Vote cast</div>
+
+<!-- FABS -->
+<button id="urge-fab" onclick="openUrge()">🛡</button>
+<button id="eve-fab" onclick="startEvening()">🌙</button>
+
+</div><!-- #app -->
 
 <script>
-// ════════════════════════════════════════
-// DATA
-// ════════════════════════════════════════
+'use strict';
+// ════════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════════
+const KEY = 'the_mirror_v1';
+let HISTORY_API_OK = true;
 
-const AFFIRMATIONS = [
-  "Islam is my religion and my identity. Allah is my Lord. Everything I build stands on this.",
-  "I am the hero of my own story. I struggle — therefore I am growing.",
-  "I do not wait to feel ready. I do what I must, regardless of how I feel.",
-  "Silence is my power. I speak only when I have something real to add.",
-  "I remain humble regardless of what I achieve — because I know who gave it to me.",
-  "My self-respect is iron. No failure, no rejection can dissolve who I am.",
-  "I delay gratification. Every denial is a deposit into my future self.",
-  "I build my body, my brotherhood, and my wealth — daily, without negotiation."
+const CATS = [
+  {id:'taqwa',     name:'Taqwa',        color:'#d4924a', desc:'Consciousness of Allah'},
+  {id:'discipline',name:'Discipline',    color:'#c47a3a', desc:'Acting regardless of feeling'},
+  {id:'control',   name:'Self-Control',  color:'#a855a0', desc:'Delay, restraint, silence'},
+  {id:'gratitude', name:'Gratitude',     color:'#6a5acd', desc:'Humility, appreciation'},
+  {id:'honesty',   name:'Honesty',       color:'#4a9e6a', desc:'Self-accountability, no excuses'},
+  {id:'brotherhood',name:'Brotherhood',  color:'#cd5a7a', desc:'Relationships, generosity, character'}
 ];
 
 const VERSES = [
-  { ar:"وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", en:"And whoever relies upon Allah — then He is sufficient for him.", ref:"Quran 65:3" },
-  { ar:"إِنَّ مَعَ الْعُسْرِ يُسْرًا", en:"Indeed, with hardship will be ease.", ref:"Quran 94:6" },
-  { ar:"وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنتُمُ الْأَعْلَوْنَ", en:"Do not weaken and do not grieve. You will be superior if you are believers.", ref:"Quran 3:139" },
-  { ar:"وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ", en:"Seek help through patience and prayer.", ref:"Quran 2:45" },
-  { ar:"إِنَّ اللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا مَا بِأَنفُسِهِمْ", en:"Indeed, Allah will not change the condition of a people until they change what is in themselves.", ref:"Quran 13:11" },
-  { ar:"وَمَن جَاهَدَ فَإِنَّمَا يُجَاهِدُ لِنَفْسِهِ", en:"And whoever strives only strives for the benefit of himself.", ref:"Quran 29:6" },
-  { ar:"فَاذْكُرُونِي أَذْكُرْكُمْ", en:"Remember Me — I will remember you.", ref:"Quran 2:152" }
+  {ar:'وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ',en:'Perhaps you dislike a thing and it is good for you.',ref:'Al-Baqarah 2:216'},
+  {ar:'إِنَّ مَعَ الْعُسْرِ يُسْرًا',en:'Indeed, with hardship comes ease.',ref:'Ash-Sharh 94:6'},
+  {ar:'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا',en:'Whoever fears Allah — He will make for him a way out.',ref:'At-Talaq 65:2'},
+  {ar:'وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ',en:'Man will only have what he strives for.',ref:'An-Najm 53:39'},
+  {ar:'فَاصْبِرْ إِنَّ وَعْدَ اللَّهِ حَقٌّ',en:'So be patient. Indeed, the promise of Allah is truth.',ref:'Ghafir 40:77'},
+  {ar:'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',en:'Indeed, Allah is with the patient.',ref:'Al-Baqarah 2:153'},
+  {ar:'وَتَوَكَّلْ عَلَى اللَّهِ ۚ وَكَفَىٰ بِاللَّهِ وَكِيلًا',en:'Rely upon Allah — sufficient is Allah as Disposer of affairs.',ref:'Al-Ahzab 33:3'}
 ];
 
-// MORNING STEPS
-const MORNING_STEPS = [
-  { id:'fajr', icon:'🌙', name:'Fajr prayer', sub:'The first victory of the day', time:'5 min', identity:'Tawakkul', render: renderFajr, canSkip:false },
-  { id:'quran', icon:'📖', name:'One Quran verse', sub:'Read with your heart present', time:'5 min', identity:'Connection', render: renderQuran, canSkip:false },
-  { id:'affirmations', icon:'🪞', name:'Affirmations', sub:'Say them aloud in the mirror', time:'3 min', identity:'Identity', render: renderAffirmations, canSkip:false },
-  { id:'intention', icon:'🎯', name:'Daily intention', sub:'One clear goal for today', time:'2 min', identity:'Discipline', render: renderIntention, canSkip:false },
-  { id:'review', icon:'⚖️', name:'Yesterday\'s review', sub:'One honest sentence', time:'2 min', identity:'Self-accountability', render: renderReview, canSkip:true }
+// Affirmations with their identity categories
+const AFFIRMS = [
+  {txt:'[N] builds his Taqwa with every prayer, every silent moment of remembrance.',cats:['taqwa']},
+  {txt:'[N] acts regardless of how he feels. Feelings are weather. Discipline is architecture.',cats:['discipline']},
+  {txt:'[N] does not negotiate with his desires. Silence before an urge is a vote for self-control.',cats:['control','discipline']},
+  {txt:'[N] is grateful for exactly what he has — and works hard for what is yet to come.',cats:['gratitude']},
+  {txt:'[N] tells himself the truth. He accounts for his own failures before blaming anything else.',cats:['honesty']},
+  {txt:'[N] shows up for his brothers. He gives generously and asks for nothing in return.',cats:['brotherhood']},
+  {txt:'[N] keeps every promise he makes to himself. His word to himself is iron.',cats:['discipline','honesty']},
+  {txt:'[N] delays gratification today to compound into the man he is building tomorrow.',cats:['control','discipline']}
 ];
 
-// EVENING STEPS
-const EVENING_STEPS = [
-  { id:'ev_intention', icon:'🎯', name:'Intention check', sub:'Did you complete it?', time:'1 min', identity:'Self-accountability', render: renderEvIntention, canSkip:false },
-  { id:'ev_avoided', icon:'🌑', name:'What you avoided', sub:'Name it honestly', time:'1 min', identity:'Self-control', render: renderEvAvoided, canSkip:false },
-  { id:'ev_grateful', icon:'🙏', name:'Gratitude', sub:'Close the day with thanks', time:'1 min', identity:'Gratitude', render: renderEvGrateful, canSkip:false }
-];
+const TRAITS = ['Disciplined','Consistent','Prays on time','Controls desires','Improves daily','Relies on Allah'];
+const TRAIT_CATS = ['discipline','taqwa','taqwa','control','discipline','taqwa'];
 
-function STEPS_FOR(part) { return part === 'evening' ? EVENING_STEPS : MORNING_STEPS; }
+const M_STEPS = ['pg-m1','pg-m2','pg-m3','pg-m4','pg-m5'];
+const E_STEPS = ['pg-e1','pg-e2','pg-e3'];
 
-// ════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// DATA LAYER
+// ════════════════════════════════════════════════════════
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||newStore()}catch{return newStore()}}
+function store(d){localStorage.setItem(KEY,JSON.stringify(d))}
+function newStore(){return{setup:false,name:'',days:{},catScores:{taqwa:0,discipline:0,control:0,gratitude:0,honesty:0,brotherhood:0},streak:0,best:0,urgesResisted:0,urgesTotal:0,goals:[]}}
 
-let DB = { days: {}, streak: 0, best: 0, goals: [], obs: {} };
-let today = {};
-let curStep = 0;
-let stepData = {};
-let curPage = 'splash';
-let daypart = 'morning';
+function todayKey(){const n=new Date;return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')}
 
-function dk(offset = 0) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toISOString().slice(0, 10);
+function getToday(d){
+  const k=todayKey();
+  if(!d.days[k])d.days[k]={fajr:false,quranRef:'',quranDone:false,affirms:[],intent:'',trait:'',score:5,review:'',mornDone:false,intentDone:null,eveReflect:'',avoided:'',gratitude:'',eveDone:false,votes:{}};
+  return d.days[k];
 }
 
-function load() {
-  try { const s = localStorage.getItem('hero_morning_v3'); if (s) DB = JSON.parse(s); } catch(e) {}
-  if (!DB.goals) DB.goals = [];
-  if (!DB.obs) DB.obs = {};
-  today = DB.days[dk()] || {};
+function addCatScore(catId, amt, d){
+  if(!d.catScores)d.catScores={};
+  d.catScores[catId]=(d.catScores[catId]||0)+amt;
 }
 
-function save() {
-  DB.days[dk()] = today;
-  calcStreak();
-  try { localStorage.setItem('hero_morning_v3', JSON.stringify(DB)); } catch(e) {}
+function castVote(categories, d, label){
+  const today=getToday(d);
+  categories.forEach(c=>{
+    addCatScore(c,1,d);
+    today.votes[c]=(today.votes[c]||0)+1;
+  });
+  store(d);
+  const names=categories.map(c=>CATS.find(x=>x.id===c)?.name||c).join(' + ');
+  showVoteToast(`Vote cast for: ${names}`);
 }
 
-function calcStreak() {
-  let s = 0;
-  const todayKey = dk();
-  let d = new Date();
-  for (let i = 0; i < 365; i++) {
-    const k = d.toISOString().slice(0, 10);
-    const day = DB.days[k];
-    if (day && day.morning_complete) s++;
-    else if (k !== todayKey) break;
-    d.setDate(d.getDate() - 1);
+// ════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════
+let currentPage='pg-setup';
+let pageStack=['pg-setup'];
+
+function safePush(state,url){
+  if(!HISTORY_API_OK)return;
+  try{history.pushState(state,'',url)}catch(e){HISTORY_API_OK=false}
+}
+
+const nav={
+  go(rawPage, replace=false){
+    const page = rawPage.startsWith('pg-') ? rawPage : 'pg-'+rawPage;
+    const prevEl=document.getElementById(currentPage);
+    const nextEl=document.getElementById(page);
+    if(!nextEl)return;
+    if(prevEl){
+      prevEl.classList.add('back-off');
+      setTimeout(()=>{prevEl.classList.add('off');prevEl.classList.remove('back-off')},260);
+    }
+    nextEl.classList.remove('off','back-off');
+    nextEl.style.cssText='transform:translateX(100%);opacity:0;transition:none';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      nextEl.style.cssText='transform:translateX(0);opacity:1;transition:transform 260ms cubic-bezier(.4,0,.2,1),opacity 260ms';
+      setTimeout(()=>{nextEl.style.cssText=''},300);
+    }));
+    currentPage=page;
+    if(replace)pageStack[pageStack.length-1]=page;else pageStack.push(page);
+    safePush({page},'#'+page.replace('pg-',''));
+    onEnter(page);
+    updateFabs();
+  },
+  back(){
+    if(pageStack.length<=1){nav.go('pg-home',true);return}
+    pageStack.pop();
+    const prev=pageStack[pageStack.length-1]||'pg-home';
+    const curEl=document.getElementById(currentPage);
+    const prevEl=document.getElementById(prev);
+    if(curEl){
+      curEl.style.cssText='transform:translateX(0);opacity:1;transition:none';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        curEl.style.cssText='transform:translateX(100%);opacity:0;transition:transform 260ms cubic-bezier(.4,0,.2,1),opacity 260ms';
+        setTimeout(()=>{curEl.classList.add('off');curEl.style.cssText=''},260);
+      }));
+    }
+    if(prevEl){prevEl.classList.remove('off','back-off');prevEl.style.cssText=''}
+    currentPage=prev;
+    safePush({page:prev},'#'+prev.replace('pg-',''));
+    onEnter(prev);
+    updateFabs();
   }
-  DB.streak = s;
-  if (s > DB.best) DB.best = s;
-}
+};
 
-// ════════════════════════════════════════
-// NAVIGATION (with hardware back button support)
-// ════════════════════════════════════════
-
-function show(page, pushState = true) {
-  document.getElementById('l-' + curPage).classList.add('gone');
-  curPage = page;
-  document.getElementById('l-' + page).classList.remove('gone');
-  if (page === 'home') refreshHome();
-  if (page === 'history') renderHistory();
-  if (page === 'wall') renderWall();
-  if (page === 'goals') renderGoals();
-  if (page === 'reference') { /* default tab already rendered */ }
-
-  showFabs(page === 'home');
-  loadObsField(page);
-
-  if (pushState) safePushState({ page }, '#' + page);
-}
-
-// Safe History API wrappers — some sandboxed/preview environments
-// (e.g. srcdoc iframes) block pushState/replaceState entirely.
-// We detect that once and silently fall back to in-memory navigation
-// so the app never crashes, while still using the real History API
-// (and therefore the hardware back button) wherever it's allowed.
-let HISTORY_API_OK = true;
-
-function safePushState(state, hash) {
-  if (!HISTORY_API_OK) return;
-  try { history.pushState(state, '', hash); }
-  catch (e) { HISTORY_API_OK = false; }
-}
-
-function safeReplaceState(state, hash) {
-  if (!HISTORY_API_OK) return;
-  try { history.replaceState(state, '', hash); }
-  catch (e) { HISTORY_API_OK = false; }
-}
-
-window.addEventListener('popstate', function(e) {
-  const target = (e.state && e.state.page) ? e.state.page : 'home';
-  if (curPage === 'step') { collectStepData(curStep); save(); }
-  show(target, false);
+window.addEventListener('popstate',e=>{
+  const p=e.state?.page||(e.state?.page)||'pg-home';
+  const target=p.startsWith('pg-')?p:'pg-'+p;
+  if(target===currentPage)return;
+  const el=document.getElementById(target);
+  if(!el){safePush({page:currentPage},'#'+currentPage.replace('pg-',''));return}
+  const old=document.getElementById(currentPage);
+  if(old)old.classList.add('off');
+  el.classList.remove('off','back-off');
+  pageStack=pageStack.slice(0,Math.max(1,pageStack.indexOf(target)+1));
+  currentPage=target;
+  onEnter(target);
+  updateFabs();
 });
 
-function showFabs(v) {
-  ['fab-wall','fab-goals','fab-ref'].forEach(id => {
-    document.getElementById(id).style.display = v ? 'flex' : 'none';
+function updateFabs(){
+  const urgeFab=document.getElementById('urge-fab');
+  const eveFab=document.getElementById('eve-fab');
+  const onFab=!['pg-setup','pg-urge','pg-complete'].includes(currentPage);
+  if(urgeFab)urgeFab.style.display=onFab?'flex':'none';
+  const d=load(); const today=getToday(d);
+  const h=new Date().getHours();
+  if(eveFab)eveFab.style.display=(onFab&&h>=17&&!today.eveDone)?'flex':'none';
+}
+
+// ════════════════════════════════════════════════════════
+// PAGE ENTER HOOKS
+// ════════════════════════════════════════════════════════
+function onEnter(p){
+  const hooks={
+    'pg-home':renderHome,
+    'pg-m1':enterM1,'pg-m2':enterM2,'pg-m3':enterM3,'pg-m4':enterM4,'pg-m5':enterM5,
+    'pg-e1':enterE1,'pg-e2':enterE2,'pg-e3':enterE3,
+    'pg-history':renderHistory,'pg-wall':renderWall,'pg-goals':renderGoals,
+    'pg-weekly':renderWeekly,'pg-about':renderAbout,'pg-complete':()=>{}
+  };
+  (hooks[p]||function(){})();
+}
+
+// ════════════════════════════════════════════════════════
+// SETUP
+// ════════════════════════════════════════════════════════
+function completeSetup(){
+  const n=document.getElementById('setup-name').value.trim();
+  if(!n){document.getElementById('setup-name').style.borderColor='var(--rd)';return}
+  const d=load();d.setup=true;d.name=n;store(d);
+  nav.go('pg-home',true);
+}
+function resetSetup(){
+  const d=load();d.setup=false;store(d);
+  nav.go('pg-setup',true);
+}
+
+// ════════════════════════════════════════════════════════
+// VOTE TOAST
+// ════════════════════════════════════════════════════════
+let toastTimeout;
+function showVoteToast(msg){
+  const t=document.getElementById('vote-toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ════════════════════════════════════════════════════════
+// RADAR CHART
+// ════════════════════════════════════════════════════════
+function drawRadar(svgId, scores, prevScores){
+  const svg=document.getElementById(svgId);
+  if(!svg)return;
+  const cx=140,cy=140,r=100,n=6;
+  svg.innerHTML='';
+  const PI2=Math.PI*2;
+  const angle=(i)=>i*PI2/n - Math.PI/2;
+  const pt=(i,radius)=>[cx+radius*Math.cos(angle(i)),cy+radius*Math.sin(angle(i))];
+
+  // Grid rings
+  [0.2,0.4,0.6,0.8,1].forEach(frac=>{
+    const pts=Array.from({length:n},(_,i)=>pt(i,r*frac)).map(p=>p.join(',')).join(' ');
+    const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points',pts);poly.setAttribute('fill','none');
+    poly.setAttribute('stroke','#1c1c2c');poly.setAttribute('stroke-width','1');
+    svg.appendChild(poly);
+  });
+
+  // Axes
+  Array.from({length:n},(_,i)=>{
+    const [x,y]=pt(i,r);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',cx);line.setAttribute('y1',cy);
+    line.setAttribute('x2',x);line.setAttribute('y2',y);
+    line.setAttribute('stroke','#1c1c2c');line.setAttribute('stroke-width','1');
+    svg.appendChild(line);
+  });
+
+  // Max for normalization
+  const max=Math.max(1,...Object.values(scores));
+
+  // Previous week polygon (faint)
+  if(prevScores){
+    const pm=Math.max(1,...Object.values(prevScores));
+    const prevPts=CATS.map((c,i)=>{const v=(prevScores[c.id]||0)/pm;return pt(i,r*Math.min(v,1))}).map(p=>p.join(',')).join(' ');
+    const prevPoly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    prevPoly.setAttribute('points',prevPts);prevPoly.setAttribute('fill','rgba(255,255,255,.03)');
+    prevPoly.setAttribute('stroke','#2a2a48');prevPoly.setAttribute('stroke-width','1');
+    svg.appendChild(prevPoly);
+  }
+
+  // Main polygon
+  const pts=CATS.map((c,i)=>{const v=(scores[c.id]||0)/max;return pt(i,r*Math.min(Math.max(v,0.04),1))}).map(p=>p.join(',')).join(' ');
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+  const grad=document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
+  grad.setAttribute('id','radar-grad');grad.setAttribute('x1','0%');grad.setAttribute('y1','0%');grad.setAttribute('x2','100%');grad.setAttribute('y2','100%');
+  const s1=document.createElementNS('http://www.w3.org/2000/svg','stop');s1.setAttribute('offset','0%');s1.setAttribute('stop-color','#d4924a');s1.setAttribute('stop-opacity','.35');
+  const s2=document.createElementNS('http://www.w3.org/2000/svg','stop');s2.setAttribute('offset','100%');s2.setAttribute('stop-color','#6a5acd');s2.setAttribute('stop-opacity','.35');
+  grad.appendChild(s1);grad.appendChild(s2);defs.appendChild(grad);svg.appendChild(defs);
+  const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points',pts);poly.setAttribute('fill','url(#radar-grad)');
+  poly.setAttribute('stroke','#d4924a');poly.setAttribute('stroke-width','1.5');
+  svg.appendChild(poly);
+
+  // Dots + labels
+  CATS.forEach((c,i)=>{
+    const v=(scores[c.id]||0)/max;
+    const [x,y]=pt(i,r*Math.min(Math.max(v,.04),1));
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.setAttribute('r','4');
+    dot.setAttribute('fill',c.color);svg.appendChild(dot);
+    const [lx,ly]=pt(i,r*1.22);
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',lx);txt.setAttribute('y',ly);txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('dominant-baseline','middle');txt.setAttribute('fill',c.color);
+    txt.setAttribute('font-size','9');txt.setAttribute('font-family','DM Sans,sans-serif');
+    txt.setAttribute('font-weight','600');txt.setAttribute('letter-spacing','0.08em');
+    txt.textContent=c.name.toUpperCase();svg.appendChild(txt);
   });
 }
 
-// ════════════════════════════════════════
-// OBSERVATION NOTES (per page)
-// ════════════════════════════════════════
-
-function loadObsField(page) {
-  const el = document.getElementById('obs-' + page);
-  if (el) el.value = DB.obs[page] || '';
-  const tag = document.getElementById('obs-saved-' + page);
-  if (tag) tag.style.display = 'none';
+function renderRadarLegend(scores){
+  const el=document.getElementById('radar-legend');
+  if(!el)return;
+  const max=Math.max(1,...Object.values(scores));
+  el.innerHTML=CATS.map(c=>`<div class="rl-item"><div class="rl-dot" style="background:${c.color}"></div>${c.name}: <b style="color:${c.color}">${Math.round((scores[c.id]||0)/max*100)}%</b></div>`).join('');
 }
 
-function saveObs(page) {
-  const el = document.getElementById('obs-' + page);
-  DB.obs[page] = el.value;
-  try { localStorage.setItem('hero_morning_v3', JSON.stringify(DB)); } catch(e) {}
-  const tag = document.getElementById('obs-saved-' + page);
-  if (tag) { tag.style.display = 'inline'; clearTimeout(tag._t); tag._t = setTimeout(() => tag.style.display='none', 1800); }
-}
-
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // HOME
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+function renderHome(){
+  const d=load();
+  const today=getToday(d);
+  const name=d.name||'You';
+  const h=new Date().getHours();
+  const greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('home-greeting').textContent=greet+',';
+  const nameEl=document.getElementById('home-name');
+  if(nameEl)nameEl.textContent=name+' — The Mirror';
+  document.getElementById('home-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('st-streak').textContent=d.streak||0;
+  document.getElementById('st-best').textContent=d.best||0;
+  document.getElementById('st-urges').textContent=d.urgesResisted||0;
 
-function setDaypart(part) {
-  daypart = part;
-  document.getElementById('dp-morning').classList.toggle('active', part === 'morning');
-  document.getElementById('dp-evening').classList.toggle('active', part === 'evening');
-  refreshHome();
+  // Radar
+  drawRadar('radar-svg',d.catScores||{});
+  renderRadarLegend(d.catScores||{});
+
+  // Morning steps
+  const mDone=[today.fajr,today.quranDone,today.affirms?.length===8,!!today.trait,!!today.review||!!today.mornDone].filter(Boolean).length;
+  document.getElementById('morn-pill').textContent=mDone+' / 5';
+  const mSteps=[
+    {ico:'🕌',name:'Fajr Prayer',sub:'With khushu\'',done:today.fajr},
+    {ico:'📖',name:'Qur\'an',sub:'Verse & reflection',done:today.quranDone},
+    {ico:'⚡',name:'Affirmations',sub:'8 identity votes',done:today.affirms?.length===8},
+    {ico:'✦',name:'Intention',sub:'If/then format',done:!!today.intent},
+    {ico:'⚖',name:'Yesterday\'s Review',sub:'Honest accounting',done:!!today.review}
+  ];
+  document.getElementById('home-morning-steps').innerHTML=mSteps.map(s=>`
+    <div class="step-row${s.done?' done':''}">
+      <span class="step-ico">${s.done?'<span style="color:var(--gr)">✓</span>':s.ico}</span>
+      <div class="step-info"><div class="step-nm">${s.name}</div><div class="step-sub">${s.sub}</div></div>
+    </div>`).join('');
+  const mBtn=document.getElementById('morn-btn');
+  const mBtnTxt=document.getElementById('morn-btn-txt');
+  if(today.mornDone){if(mBtn){mBtn.className='btn btn-ghost';mBtn.onclick=null}if(mBtnTxt)mBtnTxt.textContent='Morning Complete ✓'}
+  else{if(mBtn){mBtn.className='btn btn-am';mBtn.onclick=startMorning}if(mBtnTxt)mBtnTxt.textContent=mDone>0?'Continue Morning →':'Begin Morning Ritual'}
+
+  // Evening steps
+  const eDone=[today.intentDone!==null,!!today.avoided,!!today.gratitude].filter(Boolean).length;
+  document.getElementById('eve-pill').textContent=eDone+' / 3';
+  const eSteps=[
+    {ico:'🎯',name:'Intention Review',sub:'Did you do it?',done:today.intentDone!==null},
+    {ico:'🛡',name:'What Was Avoided',sub:'Self-control accounting',done:!!today.avoided},
+    {ico:'🙏',name:'Gratitude',sub:'Three specific things',done:!!today.gratitude}
+  ];
+  document.getElementById('home-eve-steps').innerHTML=eSteps.map(s=>`
+    <div class="step-row${s.done?' done':''}">
+      <span class="step-ico">${s.done?'<span style="color:var(--pu)">✓</span>':s.ico}</span>
+      <div class="step-info"><div class="step-nm">${s.name}</div><div class="step-sub">${s.sub}</div></div>
+    </div>`).join('');
+  const eBtn=document.getElementById('eve-btn');
+  const eBtnTxt=document.getElementById('eve-btn-txt');
+  if(today.eveDone){if(eBtn){eBtn.className='btn btn-ghost';eBtn.onclick=null}if(eBtnTxt)eBtnTxt.textContent='Evening Complete ✓'}
+  else{if(eBtn){eBtn.className='btn btn-pu';eBtn.onclick=startEvening}if(eBtnTxt)eBtnTxt.textContent=eDone>0?'Continue Evening →':'Begin Evening Check-in'}
+
+  // Drift detector
+  checkDrift(d,name);
+
+  // Resurface
+  renderResurface(d,name);
 }
 
-function refreshHome() {
-  const now = new Date();
-  const h = now.getHours();
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('home-date').textContent = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate();
-
-  if (h >= 16 && daypart === 'morning' && !today.morning_complete) {
-    // gentle nudge but don't force switch
-  }
-
-  const gr = daypart === 'evening' ? 'Close your <strong>day.</strong>' : (h < 12 ? 'Good <strong>morning.</strong>' : h < 17 ? 'Good <strong>afternoon.</strong>' : 'Good <strong>evening.</strong>');
-  document.getElementById('home-greeting').innerHTML = gr;
-
-  load();
-  calcStreak();
-  document.getElementById('s-cur').textContent = DB.streak;
-  document.getElementById('s-best').textContent = DB.best;
-  document.getElementById('s-days').textContent = Object.values(DB.days).filter(d => d.morning_complete).length;
-
-  const steps = STEPS_FOR(daypart);
-  const prefix = daypart === 'evening' ? '' : '';
-  const doneCount = steps.filter(s => today[s.id + '_done']).length;
-  const pct = Math.round(doneCount / steps.length * 100);
-  setArc(pct, daypart);
-
-  const complete = daypart === 'evening' ? !!today.evening_complete : !!today.morning_complete;
-  const startBtn = document.getElementById('start-btn');
-  const doneMsg = document.getElementById('done-msg');
-  startBtn.className = 'start-btn' + (daypart === 'evening' ? ' evening' : '');
-  if (complete) {
-    startBtn.style.display = 'none';
-    doneMsg.style.display = 'block';
-    doneMsg.textContent = daypart === 'evening' ? 'الحمد لله — day closed ✓' : 'الحمد لله — complete for today ✓';
-  } else {
-    startBtn.style.display = 'block';
-    doneMsg.style.display = 'none';
-    const remainingN = steps.length - doneCount;
-    const nextIdx = steps.findIndex(s => !today[s.id + '_done']);
-    startBtn.textContent = doneCount === 0
-      ? (daypart === 'evening' ? 'Begin evening review' : 'Begin ritual')
-      : 'Continue — step ' + (nextIdx + 1) + ' of ' + steps.length;
-
-    const rp = document.getElementById('remaining-pill');
-    if (doneCount > 0 && remainingN > 0) {
-      rp.style.display = 'inline-block';
-      rp.textContent = remainingN === 1 ? 'You have 1 task left.' : 'You have ' + remainingN + ' tasks left.';
-    } else { rp.style.display = 'none'; }
-  }
-
-  renderStepsPreview();
+function checkDrift(d,name){
+  const days=Object.keys(d.days).sort();
+  let missedStreak=0;
+  days.slice(-4).forEach(k=>{
+    if(k!==todayKey()&&!d.days[k]?.intent)missedStreak++;
+  });
+  const driftEl=document.getElementById('drift-alert');
+  const driftMsg=document.getElementById('drift-msg');
+  if(missedStreak>=3&&driftEl&&driftMsg){
+    driftEl.style.display='block';
+    driftMsg.textContent=`Pattern noticed: ${missedStreak} days without a completed intention. ${name} would lower the target, not abandon it. Adjust today's goal?`;
+  } else if(driftEl)driftEl.style.display='none';
 }
 
-function setArc(pct, part) {
-  const total = 251.3;
-  const offset = total - (total * pct / 100);
-  const fill = document.getElementById('arc-fill');
-  fill.style.strokeDashoffset = offset;
-  fill.style.stroke = part === 'evening' ? 'var(--dusk)' : 'var(--dawn)';
-  document.getElementById('arc-pct').textContent = pct + '%';
-  const labels = part === 'evening'
-    ? ['Close your day','Reflecting…','Halfway there','Almost closed','Day closed ✓']
-    : ['Begin your ritual','Keep going…','Halfway there','Almost done','Ritual complete ✓'];
-  const li = pct === 100 ? 4 : pct > 60 ? 3 : pct > 40 ? 2 : pct > 0 ? 1 : 0;
-  document.getElementById('arc-label').textContent = labels[li];
+function renderResurface(d,name){
+  const el=document.getElementById('resurface-wrap');
+  if(!el)return;
+  const days=Object.keys(d.days).filter(k=>k!==todayKey()).sort();
+  if(days.length<3){el.innerHTML='';return}
+  // Surface every 3-5 days based on day number
+  const dayNum=Math.floor(Date.now()/86400000);
+  if(dayNum%4!==0){el.innerHTML='';return}
+  const pastDay=days[Math.floor(Math.random()*days.length)];
+  const rec=d.days[pastDay];
+  if(!rec){el.innerHTML='';return}
+  const daysAgo=Math.round((Date.now()-new Date(pastDay+'T00:00:00').getTime())/86400000);
+  let msg='',lbl='';
+  if(rec.quranRef&&rec.quranRef.length>10){msg=rec.quranRef.slice(0,120)+(rec.quranRef.length>120?'…':'');lbl=`${daysAgo} days ago, ${name} wrote:`}
+  else if(rec.intent){msg=rec.intent;lbl=`${daysAgo} days ago, ${name}'s intention was:`}
+  if(!msg){el.innerHTML='';return}
+  el.innerHTML=`<div class="surface-card"><div class="surface-label">${lbl}</div><div class="surface-body">"${esc(msg)}"</div></div>`;
 }
 
-function renderStepsPreview() {
-  const wrap = document.getElementById('steps-preview');
-  wrap.innerHTML = '';
-  const steps = STEPS_FOR(daypart);
-  const complete = daypart === 'evening' ? today.evening_complete : today.morning_complete;
-  steps.forEach((s, i) => {
-    const done = !!today[s.id + '_done'];
-    const nextIdx = steps.findIndex(st => !today[st.id + '_done']);
-    const isNext = i === nextIdx;
-    const row = document.createElement('div');
-    row.className = 'step-preview-row';
-    row.innerHTML = `<div class="spr-icon ${done ? 'done' : isNext ? 'active' : ''}">${done ? '✓' : s.icon}</div>
-      <div class="spr-text"><div class="spr-name">${s.name}</div><div class="spr-sub">${s.sub}</div></div>
-      ${!done ? `<div class="spr-time">${s.time}</div>` : ''}`;
-    if (!complete) row.onclick = () => jumpToStep(i);
-    wrap.appendChild(row);
+// ════════════════════════════════════════════════════════
+// MORNING RITUAL
+// ════════════════════════════════════════════════════════
+function startMorning(){
+  const d=load(); const today=getToday(d);
+  if(!today.fajr)nav.go('pg-m1');
+  else if(!today.quranDone)nav.go('pg-m2');
+  else if(today.affirms?.length<8)nav.go('pg-m3');
+  else if(!today.intent)nav.go('pg-m4');
+  else nav.go('pg-m5');
+}
+
+function renderStepDots(id, stepIdx, steps){
+  const {rec:today}={rec:getToday(load())};
+  const done=[today.fajr,today.quranDone,today.affirms?.length===8,!!today.trait,!!today.review];
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=Array.from({length:steps},(_,i)=>`<div class="dot ${i<stepIdx?'done':(i===stepIdx?'cur':'idle')}"></div>`).join('');
+}
+
+// M1
+function enterM1(){
+  renderStepDots('dots-m1',0,5);
+  const d=load();const today=getToday(d);
+  const t=document.getElementById('tog-fajr');
+  if(t){t.className='tog'+(today.fajr?' on':'');t.style.cssText='width:62px;height:32px;border-radius:16px'}
+  const n=d.name||'You';
+  const lbl=document.getElementById('m1-toggle-lbl');
+  if(lbl)lbl.textContent=`${n} prayed Fajr with khushu'`;
+}
+function toggleFajr(){
+  const d=load();const today=getToday(d);
+  today.fajr=!today.fajr;
+  if(today.fajr)castVote(['taqwa','discipline'],d,'Fajr with khushu\'');
+  else store(d);
+  const t=document.getElementById('tog-fajr');
+  if(t){t.className='tog'+(today.fajr?' on':'');t.style.cssText='width:62px;height:32px;border-radius:16px'}
+}
+
+// M2
+function enterM2(){
+  renderStepDots('dots-m2',1,5);
+  const d=load();const name=d.name||'You';
+  const v=VERSES[Math.floor(Date.now()/86400000)%7];
+  document.getElementById('verse-ar').textContent=v.ar;
+  document.getElementById('verse-en').textContent=v.en;
+  document.getElementById('verse-ref').textContent=v.ref;
+  const pl=document.getElementById('quran-prompt-lbl');
+  if(pl)pl.textContent=`What does this verse mean for ${name} today?`;
+  const ta=document.getElementById('ta-quran');
+  if(ta)ta.value=getToday(d).quranRef||'';
+}
+function saveM2(){
+  const d=load();const today=getToday(d);
+  const ta=document.getElementById('ta-quran');
+  today.quranRef=ta?ta.value:'';
+  today.quranDone=true;
+  if(ta&&ta.value.length>10)castVote(['taqwa','gratitude'],d,'Qur\'an reflection');
+  else store(d);
+}
+
+// M3
+function enterM3(){
+  renderStepDots('dots-m3',2,5);
+  const d=load();const name=d.name||'You';
+  const today=getToday(d);
+  const saved=today.affirms||[];
+  document.getElementById('affirm-list').innerHTML=AFFIRMS.map((a,i)=>{
+    const done=saved.includes(i);
+    const txt=a.txt.replace(/\[N\]/g,name);
+    return`<div class="aff-item${done?' done':''}" onclick="tapAffirm(${i})">
+      <div class="aff-circle"><span class="aff-chk">✓</span></div>
+      <div class="aff-txt">${txt}</div>
+    </div>`;
+  }).join('');
+}
+function tapAffirm(i){
+  const d=load();const today=getToday(d);
+  if(!today.affirms)today.affirms=[];
+  const idx=today.affirms.indexOf(i);
+  if(idx===-1){today.affirms.push(i);castVote(AFFIRMS[i].cats,d,'Affirmation spoken')}
+  else{today.affirms.splice(idx,1);store(d)}
+  enterM3();
+}
+
+// M4
+function enterM4(){
+  renderStepDots('dots-m4',3,5);
+  const d=load();const name=d.name||'You';
+  const today=getToday(d);
+  const ip=document.getElementById('intent-prompt');
+  if(ip)ip.textContent=`What is ${name}'s implementation intention today?`;
+  const ap=document.getElementById('align-prompt');
+  if(ap)ap.textContent=`Which trait is ${name} voting for today?`;
+  const ta=document.getElementById('ta-intent');
+  if(ta)ta.value=today.intent||'';
+  document.getElementById('trait-grid-m4').innerHTML=TRAITS.map((t,i)=>`
+    <div class="trait-chip${today.trait===t?' sel':''}" onclick="pickTrait('${t}',${i})">
+      <div class="trait-name">${t}</div>
+    </div>`).join('');
+}
+function saveM4(){
+  const d=load();const today=getToday(d);
+  const ta=document.getElementById('ta-intent');
+  today.intent=ta?ta.value:'';
+  if(today.intent.length>5)castVote(['discipline','honesty'],d,'Intention set');else store(d);
+}
+function pickTrait(t,i){
+  const d=load();const today=getToday(d);
+  today.trait=t;
+  castVote([TRAIT_CATS[i]||'discipline'],d,'Trait chosen: '+t);
+  enterM4();
+}
+
+// M5
+function enterM5(){
+  renderStepDots('dots-m5',4,5);
+  const d=load();const name=d.name||'You';
+  const today=getToday(d);
+  const rp=document.getElementById('review-prompt');
+  if(rp)rp.textContent=`What did ${name} do yesterday vs. what should he have done?`;
+  const sr=document.getElementById('score-range-m5');
+  if(sr)sr.value=today.score||5;
+  updateScore5();
+  const ta=document.getElementById('ta-review');
+  if(ta)ta.value=today.review||'';
+}
+function updateScore5(){
+  const sr=document.getElementById('score-range-m5');
+  const sd=document.getElementById('score-disp-m5');
+  if(!sr||!sd)return;
+  const v=parseInt(sr.value);
+  sd.textContent=v;sd.className='score-big'+(v<=3?' s-lo':v<=6?' s-mi':' s-hi');
+}
+function saveM5(){
+  const d=load();const today=getToday(d);
+  const sr=document.getElementById('score-range-m5');
+  const ta=document.getElementById('ta-review');
+  today.score=sr?parseInt(sr.value):5;
+  today.review=ta?ta.value:'';
+  if(today.review.length>5)castVote(['honesty'],d,'Honest self-review');else store(d);
+}
+function completeMorning(){
+  saveM5();
+  const d=load();const today=getToday(d);
+  today.mornDone=true;
+  // Streak
+  const yest=new Date;yest.setDate(yest.getDate()-1);
+  const yk=yest.getFullYear()+'-'+String(yest.getMonth()+1).padStart(2,'0')+'-'+String(yest.getDate()).padStart(2,'0');
+  d.streak=d.days[yk]?.mornDone?(d.streak||0)+1:1;
+  if(d.streak>(d.best||0))d.best=d.streak;
+  store(d);
+  showComplete('Morning Ritual','Completed','جزاك الله خيراً',today.votes,'The votes you cast this morning compound. Every morning you show up, your identity shifts.',d);
+}
+
+// ════════════════════════════════════════════════════════
+// EVENING
+// ════════════════════════════════════════════════════════
+function startEvening(){
+  const d=load();const today=getToday(d);
+  if(today.intentDone===null)nav.go('pg-e1');
+  else if(!today.avoided)nav.go('pg-e2');
+  else nav.go('pg-e3');
+}
+function renderEveDots(id,idx){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=Array.from({length:3},(_,i)=>`<div class="dot ${i<idx?'done':(i===idx?'cur':'idle')}"></div>`).join('');
+}
+function enterE1(){
+  renderEveDots('dots-e1',0);
+  const d=load();const name=d.name||'You';
+  const today=getToday(d);
+  const mi=document.getElementById('mid-intent');
+  if(mi)mi.textContent=today.intent||'No intention recorded this morning.';
+  const rp=document.getElementById('e1-reflect-prompt');
+  if(rp)rp.textContent=`What stopped ${name} — or what made it possible?`;
+  const ta=document.getElementById('ta-e1');
+  if(ta)ta.value=today.eveReflect||'';
+}
+let intentDoneVal=null;
+function setIntentDone(v){
+  intentDoneVal=v;
+  const d=load();const today=getToday(d);
+  today.intentDone=v;
+  const cats=v?['discipline','honesty']:['honesty'];
+  castVote(cats,d,v?'Intention completed':'Honest: intention missed');
+  document.querySelectorAll('#pg-e1 .btn').forEach((b,i)=>{
+    b.style.opacity=(i===0&&v)||(i===1&&!v)?'1':'0.4';
   });
 }
-
-function jumpToStep(i) {
-  curStep = i;
-  showStep(curStep);
-  show('step');
+function saveE1(){
+  const d=load();const today=getToday(d);
+  const ta=document.getElementById('ta-e1');
+  today.eveReflect=ta?ta.value:'';
+  store(d);
+}
+function enterE2(){
+  renderEveDots('dots-e2',1);
+  const d=load();const name=d.name||'You';
+  const today=getToday(d);
+  const ap=document.getElementById('avoid-prompt');
+  if(ap)ap.textContent=`What did ${name} avoid today that he needs to face tomorrow?`;
+  const ta=document.getElementById('ta-avoid');
+  if(ta)ta.value=today.avoided||'';
+}
+function saveE2(){
+  const d=load();const today=getToday(d);
+  const ta=document.getElementById('ta-avoid');
+  today.avoided=ta?ta.value:'';
+  if(today.avoided.length>5)castVote(['control','honesty'],d,'Avoidance named');else store(d);
+}
+function enterE3(){
+  renderEveDots('dots-e3',2);
+  const d=load();const name=d.name||'You';
+  const today=getToday(d);
+  const gp=document.getElementById('grat-prompt');
+  if(gp)gp.textContent=`What is ${name} genuinely grateful for today — three specific things?`;
+  const ta=document.getElementById('ta-grat');
+  if(ta)ta.value=today.gratitude||'';
+}
+function saveE3(){
+  const d=load();const today=getToday(d);
+  const ta=document.getElementById('ta-grat');
+  today.gratitude=ta?ta.value:'';
+  if(today.gratitude.length>5)castVote(['gratitude','brotherhood'],d,'Gratitude practiced');else store(d);
+}
+function completeEvening(){
+  saveE3();
+  const d=load();const today=getToday(d);
+  today.eveDone=true;store(d);
+  showComplete('Evening Check-in','Complete','الحمد لله',today.votes,'Ending the day with honest reflection is the discipline most people skip. You did not.',d);
 }
 
-// ════════════════════════════════════════
-// RITUAL ENGINE (shared morning/evening)
-// ════════════════════════════════════════
-
-function beginRitual() {
-  const steps = STEPS_FOR(daypart);
-  curStep = steps.findIndex(s => !today[s.id + '_done']);
-  if (curStep < 0) curStep = 0;
-  stepData = {};
-  showStep(curStep);
-  show('step');
-}
-
-function showStep(idx) {
-  const steps = STEPS_FOR(daypart);
-  const s = steps[idx];
-  const isEve = daypart === 'evening';
-  document.getElementById('step-tb-title').textContent = s.icon + ' ' + s.name;
-  document.getElementById('step-label').textContent = 'Step ' + (idx + 1) + ' of ' + steps.length;
-  const idEl = document.getElementById('step-identity');
-  idEl.textContent = '✦ You are training: ' + s.identity;
-  idEl.className = 'identity-label' + (isEve ? ' evening' : '');
-  document.getElementById('step-name').textContent = s.name;
-  document.getElementById('step-pfill').className = 'step-progress-fill' + (isEve ? ' evening' : '');
-  document.getElementById('step-pfill').style.width = ((idx) / steps.length * 100) + '%';
-  document.getElementById('step-skip').style.display = s.canSkip ? '' : 'none';
-  const nextBtn = document.getElementById('step-next');
-  nextBtn.disabled = false;
-  nextBtn.className = 'step-next' + (isEve ? ' evening' : '');
-  nextBtn.textContent = idx === steps.length - 1 ? (isEve ? 'Close the day ✓' : 'Complete ritual ✓') : 'Done — next step →';
-  s.render();
-}
-
-function exitStep() {
-  collectStepData(curStep);
-  save();
-  show('home');
-}
-
-function skipStep() {
-  const steps = STEPS_FOR(daypart);
-  today[steps[curStep].id + '_done'] = true;
-  today[steps[curStep].id + '_skipped'] = true;
-  save();
-  advanceStep();
-}
-
-function nextStep() {
-  collectStepData(curStep);
-  const steps = STEPS_FOR(daypart);
-  today[steps[curStep].id + '_done'] = true;
-  save();
-  advanceStep();
-}
-
-function advanceStep() {
-  const steps = STEPS_FOR(daypart);
-  curStep++;
-  if (curStep >= steps.length) {
-    if (daypart === 'evening') today.evening_complete = true;
-    else today.morning_complete = true;
-    save();
-    finishRitual();
-  } else {
-    showStep(curStep);
+// ════════════════════════════════════════════════════════
+// COMPLETE SCREEN
+// ════════════════════════════════════════════════════════
+function showComplete(type,status,ar,votes,msg,d){
+  const t=document.getElementById('complete-title');
+  const aEl=document.getElementById('complete-ar');
+  const m=document.getElementById('complete-msg');
+  const v=document.getElementById('complete-votes');
+  if(t)t.textContent=type+' '+status;
+  if(aEl)aEl.textContent=ar;
+  if(m)m.textContent=msg;
+  if(v&&votes){
+    const cats=Object.keys(votes).filter(k=>votes[k]>0).map(k=>{
+      const cat=CATS.find(c=>c.id===k);
+      return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)"><div style="width:8px;height:8px;border-radius:50%;background:${cat?.color||'#fff'};flex-shrink:0"></div><span style="font-size:13px;color:var(--muted)">+${votes[k]} vote${votes[k]>1?'s':''} for</span> <span style="font-size:13px;font-weight:500">${cat?.name||k}</span></div>`;
+    }).join('');
+    v.innerHTML=`<div class="field-lbl" style="margin-bottom:6px">Votes Cast This Session</div>${cats||'<span style="font-size:13px;color:var(--muted)">Complete steps to cast votes.</span>'}`;
   }
+  nav.go('pg-complete');
 }
 
-function collectStepData(idx) {
-  const steps = STEPS_FOR(daypart);
-  const s = steps[idx];
-  if (s.id === 'quran') { const v = document.getElementById('verse-reflect-input'); if (v) today.quran_reflection = v.value; }
-  if (s.id === 'intention') { const v = document.getElementById('intention-input'); if (v) today.intention = v.value; }
-  if (s.id === 'review') { const v = document.getElementById('review-input'); if (v) today.review = v.value; today.review_score = stepData.rating; }
-  if (s.id === 'ev_avoided') { const v = document.getElementById('ev-avoided-input'); if (v) today.ev_avoided = v.value; }
-  if (s.id === 'ev_grateful') { const v = document.getElementById('ev-grateful-input'); if (v) today.ev_grateful = v.value; }
+// ════════════════════════════════════════════════════════
+// URGE MODE
+// ════════════════════════════════════════════════════════
+let urgeTimer=null;
+let urgeSeconds=60;
+function openUrge(){
+  const d=load();const name=d.name||'You';
+  const ut=document.getElementById('urge-title');
+  const unb=document.getElementById('urge-name-btn');
+  if(ut)ut.textContent=name;if(unb)unb.textContent=name;
+  document.getElementById('urge-phase-1').style.display='';
+  document.getElementById('urge-phase-2').style.display='none';
+  const arc=document.getElementById('urge-arc');
+  if(arc)arc.style.strokeDashoffset='0';
+  urgeSeconds=60;
+  const cnt=document.getElementById('urge-count');
+  if(cnt)cnt.textContent='60';
+  nav.go('pg-urge');
+  clearInterval(urgeTimer);
+  const total=553;
+  urgeTimer=setInterval(()=>{
+    urgeSeconds--;
+    if(cnt)cnt.textContent=urgeSeconds;
+    if(arc)arc.style.strokeDashoffset=String(total*(1-urgeSeconds/60));
+    if(urgeSeconds<=0){
+      clearInterval(urgeTimer);urgeTimer=null;
+      document.getElementById('urge-phase-1').style.display='none';
+      document.getElementById('urge-phase-2').style.display='';
+    }
+  },1000);
+}
+function cancelUrge(){
+  clearInterval(urgeTimer);urgeTimer=null;
+  nav.back();
+}
+function logUrge(resisted){
+  clearInterval(urgeTimer);urgeTimer=null;
+  const d=load();
+  d.urgesTotal=(d.urgesTotal||0)+1;
+  if(resisted){d.urgesResisted=(d.urgesResisted||0)+1;castVote(['control','discipline'],d,'Urge resisted')}
+  else{castVote(['honesty'],d,'Urge logged honestly');store(d)}
+  nav.back();
 }
 
-function finishRitual() {
-  calcStreak();
-  const isEve = daypart === 'evening';
-  document.getElementById('complete-glyph').textContent = isEve ? '🌙' : '☀️';
-  document.getElementById('complete-title').innerHTML = isEve ? 'Day <strong>closed.</strong>' : 'Ritual <strong>complete.</strong>';
-  document.getElementById('complete-sub').textContent = isEve ? 'You closed the loop you opened this morning.' : 'You showed up before the world woke up.';
-  document.getElementById('c-streak').textContent = DB.streak;
-  if (isEve) {
-    document.getElementById('complete-verse-text').textContent = '"And it is He who created the night and the day."';
-    document.getElementById('complete-verse-ref').textContent = 'Quran 21:33';
-  } else {
-    document.getElementById('complete-verse-text').textContent = '"Indeed, Allah will not change the condition of a people until they change what is in themselves."';
-    document.getElementById('complete-verse-ref').textContent = 'Quran 13:11';
-  }
-  show('complete');
-}
-
-// ════════════════════════════════════════
-// MORNING STEP RENDERERS
-// ════════════════════════════════════════
-
-function renderFajr() {
-  const done = !!today.fajr_prayed;
-  document.getElementById('step-body').innerHTML = `
-    <span class="step-icon-large">🌙</span>
-    <div class="step-content">
-      <button class="fajr-check-btn ${done ? 'checked' : ''}" onclick="toggleFajr()">
-        ${done ? '✓ &nbsp; Fajr prayed — with heart present' : 'I prayed Fajr on time,<br>with khushu\''}
-      </button>
-      <div class="fajr-tip">Before pressing — take 5 seconds of silence.<br>Remind yourself: <em style="color:var(--dawn)">I just stood before Allah.</em></div>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--rim);border-radius:var(--r);padding:16px;">
-      <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Morning adhkar</div>
-      <div style="font-family:var(--serif);font-size:14px;color:var(--silver);line-height:1.7;font-style:italic;">Ayat al-Kursi · The three Quls · Morning supplications</div>
-    </div>`;
-}
-function toggleFajr() { today.fajr_prayed = !today.fajr_prayed; save(); renderFajr(); }
-
-function renderQuran() {
-  const verse = VERSES[new Date().getDate() % VERSES.length];
-  const saved = today.quran_reflection || '';
-  document.getElementById('step-body').innerHTML = `
-    <span class="step-icon-large">📖</span>
-    <div class="step-content">
-      <div class="verse-box"><div class="verse-ar">${verse.ar}</div><div class="verse-en">"${verse.en}"</div><div class="verse-ref">${verse.ref}</div></div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">What does this mean to you today?</div>
-      <textarea class="verse-reflect" id="verse-reflect-input" placeholder="Write one honest thought…" rows="3">${saved}</textarea>
-    </div>`;
-}
-
-function renderAffirmations() {
-  if (!today.affs_read) today.affs_read = [];
-  const read = today.affs_read;
-  let html = `<span class="step-icon-large">🪞</span><div class="aff-hint">Say each one aloud. Tap when done.</div><div class="step-content">`;
-  AFFIRMATIONS.forEach((a, i) => {
-    const isRead = read.includes(i);
-    html += `<div class="aff-item ${isRead ? 'read' : ''}" id="aff-${i}" onclick="markAff(${i})"><div class="aff-item-text">${a}</div><div class="aff-item-check">Said aloud ✓</div></div>`;
-  });
-  html += '</div>';
-  document.getElementById('step-body').innerHTML = html;
-}
-function markAff(i) {
-  if (!today.affs_read) today.affs_read = [];
-  if (!today.affs_read.includes(i)) { today.affs_read.push(i); save(); }
-  document.getElementById('aff-' + i).classList.add('read');
-}
-
-function renderIntention() {
-  const saved = today.intention || '';
-  document.getElementById('step-body').innerHTML = `
-    <span class="step-icon-large">🎯</span>
-    <div class="step-content">
-      <div class="intention-prompt">If today ends and you did only one thing — what must it be?</div>
-      <textarea class="intention-area" id="intention-input" placeholder="Today I will…" rows="4">${saved}</textarea>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--rim);border-radius:var(--r);padding:14px;">
-      <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Make it specific</div>
-      <div style="font-family:var(--serif);font-size:13px;color:var(--muted);font-style:italic;line-height:1.6;">Not "be productive" — but "finish the report before 3pm".</div>
-    </div>`;
-}
-
-function renderReview() {
-  const saved = today.review || '';
-  const savedScore = today.review_score;
-  let dotsHtml = '';
-  for (let i = 1; i <= 10; i++) {
-    let cls = 'r-dot';
-    if (savedScore !== undefined && savedScore === i) cls += i <= 4 ? ' sel-low' : i <= 7 ? ' sel-mid' : ' sel-high';
-    dotsHtml += `<div class="${cls}" onclick="setReviewScore(${i})" id="rd-${i}">${i}</div>`;
-  }
-  document.getElementById('step-body').innerHTML = `
-    <span class="step-icon-large">⚖️</span>
-    <div class="step-content">
-      <div class="rating-question">How did yesterday go, honestly?</div>
-      <div class="rating-scale">${dotsHtml}</div>
-      <div class="rating-labels"><span>Struggled</span><span>Okay</span><span>Strong</span></div>
-      <textarea class="rating-reflection" id="review-input" placeholder="What did the man I want to become do yesterday — and what would he have done differently?" rows="4">${saved}</textarea>
-    </div>`;
-}
-function setReviewScore(v) {
-  stepData.rating = v;
-  for (let i = 1; i <= 10; i++) {
-    const el = document.getElementById('rd-' + i);
-    el.className = 'r-dot' + (i === v ? (v <= 4 ? ' sel-low' : v <= 7 ? ' sel-mid' : ' sel-high') : '');
-  }
-}
-
-// ════════════════════════════════════════
-// EVENING STEP RENDERERS
-// ════════════════════════════════════════
-
-function renderEvIntention() {
-  const intention = today.intention || '(no intention set this morning)';
-  const done = today.ev_intention_completed;
-  document.getElementById('step-body').innerHTML = `
-    <span class="step-icon-large">🎯</span>
-    <div class="step-content">
-      <div class="ev-prompt">This morning you said:</div>
-      <div style="background:var(--bg2);border:1px solid var(--rim);border-radius:var(--r);padding:14px 16px;margin-bottom:18px;">
-        <div style="font-family:var(--serif);font-size:16px;color:var(--cream);font-style:italic;line-height:1.6;">"${intention}"</div>
-      </div>
-      <div class="ev-q-label">DID YOU COMPLETE IT?</div>
-      <div style="display:flex;gap:10px;">
-        <button class="fajr-check-btn" style="flex:1;font-size:15px;${done===true?'background:linear-gradient(135deg,#0d1a10,#112016);border-color:var(--green);color:var(--green);':''}" onclick="setEvIntention(true)">Yes ✓</button>
-        <button class="fajr-check-btn" style="flex:1;font-size:15px;${done===false?'background:linear-gradient(135deg,#1a0d0d,#201111);border-color:var(--red);color:#ff8888;':''}" onclick="setEvIntention(false)">Not yet</button>
-      </div>
-    </div>`;
-}
-function setEvIntention(v) { today.ev_intention_completed = v; save(); renderEvIntention(); }
-
-function renderEvAvoided() {
-  const saved = today.ev_avoided || '';
-  document.getElementById('step-body').innerHTML = `
-    <span class="step-icon-large">🌑</span>
-    <div class="step-content">
-      <div class="ev-prompt">What did you avoid today? Be honest — this is just for you.</div>
-      <textarea class="ev-area" id="ev-avoided-input" placeholder="I avoided…" rows="4">${saved}</textarea>
-    </div>`;
-}
-
-function renderEvGrateful() {
-  const saved = today.ev_grateful || '';
-  document.getElementById('step-body').innerHTML = `
-    <span class="step-icon-large">🙏</span>
-    <div class="step-content">
-      <div class="ev-grateful-box">
-        <div class="ev-prompt" style="margin-bottom:10px;">What are you grateful for today? Be specific.</div>
-        <textarea class="ev-area" id="ev-grateful-input" placeholder="Alhamdulillah for…" rows="4" style="background:var(--bg3);">${saved}</textarea>
-      </div>
-    </div>`;
-}
-
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // HISTORY
-// ════════════════════════════════════════
-
-function renderHistory() {
-  const list = document.getElementById('hist-list');
-  list.innerHTML = '';
-  const keys = Object.keys(DB.days).sort().reverse();
-  if (!keys.length) { list.innerHTML = '<div class="hist-empty">Your history begins<br>after your first ritual.</div>'; return; }
-  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  keys.forEach(k => {
-    const d = DB.days[k];
-    if (!d) return;
-    const dt = new Date(k);
-    const label = dayNames[dt.getDay()] + ' ' + monthNames[dt.getMonth()] + ' ' + dt.getDate();
-    const score = d.review_score ? d.review_score + '/10' : '—';
-    const el = document.createElement('div');
-    el.className = 'hist-day';
-    el.innerHTML = `
-      <div class="hd-top" onclick="this.closest('.hist-day').querySelector('.hd-detail').classList.toggle('open')">
-        <div class="hd-dot" style="background:${d.morning_complete ? 'var(--dawn)' : 'var(--muted)'}"></div>
-        <div class="hd-date">${label} ${d.evening_complete ? '🌙' : ''}</div>
-        <div class="hd-score">${score}</div>
+// ════════════════════════════════════════════════════════
+function renderHistory(){
+  const d=load();const name=d.name||'You';
+  const days=Object.keys(d.days).sort((a,b)=>b.localeCompare(a));
+  const el=document.getElementById('hist-list');
+  if(!days.length){el.innerHTML=`<div class="empty-msg">Your journey begins<br/>with your first morning.</div>`;return}
+  el.innerHTML=days.map(k=>{
+    const r=d.days[k];
+    const sc=r.score||0;
+    const scC=sc<=3?'var(--rd)':sc<=6?'var(--am)':'var(--gr)';
+    const date=new Date(k+'T00:00:00');
+    const lbl=date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const status=r.mornDone?'✓ Morning done':r.fajr?'In progress':'Not started';
+    return`<div class="h-card">
+      <div class="h-hdr" onclick="this.nextElementSibling.classList.toggle('open')">
+        <div><div class="h-date">${lbl}</div><div class="h-status">${status}</div></div>
+        ${sc?`<div class="h-sc" style="background:${scC}22;color:${scC}">${sc}</div>`:''}
       </div>
-      ${d.intention ? `<div class="hd-intention">"${d.intention}"</div>` : ''}
-      <div class="hd-detail">
-        ${d.quran_reflection ? `<div class="hd-detail-row">QURAN REFLECTION</div><div class="hd-detail-val">"${d.quran_reflection}"</div>` : ''}
-        ${d.review ? `<div class="hd-detail-row">MORNING REVIEW</div><div class="hd-detail-val">"${d.review}"</div>` : ''}
-        ${d.ev_avoided ? `<div class="hd-detail-row">AVOIDED</div><div class="hd-detail-val">"${d.ev_avoided}"</div>` : ''}
-        ${d.ev_grateful ? `<div class="hd-detail-row">GRATEFUL FOR</div><div class="hd-detail-val">"${d.ev_grateful}"</div>` : ''}
-      </div>`;
-    list.appendChild(el);
-  });
-}
-
-// ════════════════════════════════════════
-// THE WALL
-// ════════════════════════════════════════
-
-function renderWall() {
-  const days = DB.days;
-  const keys = Object.keys(days);
-  const fajrCount = keys.filter(k => days[k].fajr_prayed).length;
-  const quranCount = keys.filter(k => days[k].quran_reflection).length;
-  const morningCount = keys.filter(k => days[k].morning_complete).length;
-  const eveningCount = keys.filter(k => days[k].evening_complete).length;
-
-  // Best month
-  const monthCounts = {};
-  keys.forEach(k => { if (days[k].morning_complete) { const m = k.slice(0,7); monthCounts[m] = (monthCounts[m]||0)+1; } });
-  let bestMonth = '—', bestMonthCount = 0;
-  Object.entries(monthCounts).forEach(([m,c]) => { if (c > bestMonthCount) { bestMonthCount = c; bestMonth = m; } });
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const bestMonthLabel = bestMonth !== '—' ? monthNames[parseInt(bestMonth.slice(5,7))-1] + ' ' + bestMonth.slice(0,4) : '—';
-
-  document.getElementById('wall-grid').innerHTML = `
-    <div class="wall-card"><div class="wall-num">${DB.best}</div><div class="wall-label">Longest streak</div></div>
-    <div class="wall-card"><div class="wall-num">${morningCount}</div><div class="wall-label">Mornings completed</div></div>
-    <div class="wall-card"><div class="wall-num">${fajrCount}</div><div class="wall-label">Total Fajr logged</div></div>
-    <div class="wall-card"><div class="wall-num">${quranCount}</div><div class="wall-label">Quran reflections</div></div>
-    <div class="wall-card"><div class="wall-num">${eveningCount}</div><div class="wall-label">Evenings closed</div></div>
-    <div class="wall-card full"><div class="wall-month-name">${bestMonthLabel}</div><div class="wall-label">Best month (${bestMonthCount} days)</div></div>`;
-}
-
-// ════════════════════════════════════════
-// GOALS
-// ════════════════════════════════════════
-
-function renderGoals() {
-  const list = document.getElementById('goals-list');
-  list.innerHTML = '';
-  if (!DB.goals.length) {
-    list.innerHTML = '<div style="text-align:center;padding:30px 10px;font-family:var(--serif);font-size:15px;color:var(--muted);font-style:italic;">No goals yet. Add the first one above.</div>';
-    return;
-  }
-  DB.goals.forEach((g, i) => {
-    const el = document.createElement('div');
-    el.className = 'goal-card';
-    el.innerHTML = `<div class="goal-top">
-      <div class="goal-check ${g.done?'done':''}" onclick="toggleGoal(${i})">${g.done?'✓':''}</div>
-      <div class="goal-text ${g.done?'done':''}">${g.text}</div>
-      <button class="goal-del" onclick="delGoal(${i})">✕</button>
+      <div class="h-body">
+        ${r.intent?`<div class="h-field"><div class="h-flbl">Intention</div><div class="h-fval">${esc(r.intent)}</div></div>`:''}
+        ${r.quranRef?`<div class="h-field"><div class="h-flbl">Qur'an Reflection</div><div class="h-fval">${esc(r.quranRef)}</div></div>`:''}
+        ${r.avoided?`<div class="h-field"><div class="h-flbl">What ${name} Avoided</div><div class="h-fval">${esc(r.avoided)}</div></div>`:''}
+        ${r.gratitude?`<div class="h-field"><div class="h-flbl">Gratitude</div><div class="h-fval">${esc(r.gratitude)}</div></div>`:''}
+        ${r.votes&&Object.keys(r.votes).length?`<div class="h-field"><div class="h-flbl">Votes Cast</div><div class="h-fval" style="font-size:13px;color:var(--muted)">${Object.entries(r.votes).filter(([,v])=>v>0).map(([k,v])=>`${CATS.find(c=>c.id===k)?.name||k}: +${v}`).join(' · ')}</div></div>`:''}
+      </div>
     </div>`;
-    list.appendChild(el);
-  });
+  }).join('');
 }
-function addGoal() {
-  const input = document.getElementById('goal-input');
-  const v = input.value.trim();
-  if (!v) return;
-  DB.goals.push({ text: v, done: false, ts: Date.now() });
-  input.value = '';
-  try { localStorage.setItem('hero_morning_v3', JSON.stringify(DB)); } catch(e) {}
+
+// ════════════════════════════════════════════════════════
+// WALL
+// ════════════════════════════════════════════════════════
+function renderWall(){
+  const d=load();
+  const days=Object.keys(d.days);
+  const mornDone=days.filter(k=>d.days[k]?.mornDone).length;
+  const eveDone=days.filter(k=>d.days[k]?.eveDone).length;
+  const total=Object.values(d.catScores||{}).reduce((a,b)=>a+b,0);
+  const grid=document.getElementById('wall-grid');
+  if(grid)grid.innerHTML=[
+    ['Total Days',days.length],['Mornings',mornDone],['Evenings',eveDone],
+    ['Streak',d.streak||0],['Best',d.best||0],['Urges Won',d.urgesResisted||0],
+    ['Total Votes',total],['Urges Total',d.urgesTotal||0]
+  ].map(([l,v])=>`<div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:16px;text-align:center"><div style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--am);line-height:1">${v}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">${l}</div></div>`).join('');
+  const cats=document.getElementById('wall-cats');
+  if(cats){
+    const max=Math.max(1,...Object.values(d.catScores||{}));
+    cats.innerHTML=CATS.map(c=>`<div class="report-category-bar">
+      <span class="rcb-name">${c.name}</span>
+      <div class="rcb-track"><div class="rcb-fill" style="width:${Math.round((d.catScores?.[c.id]||0)/max*100)}%;background:${c.color}"></div></div>
+      <span class="rcb-val">${d.catScores?.[c.id]||0}</span>
+    </div>`).join('');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// GOALS
+// ════════════════════════════════════════════════════════
+function renderGoals(){
+  const d=load();const goals=d.goals||[];
+  document.getElementById('goal-list').innerHTML=goals.length?goals.map((g,i)=>`
+    <div class="goal-item">
+      <div class="goal-status${g.done?' done':''}" onclick="toggleGoal(${i})"></div>
+      <div class="goal-txt${g.done?' ':''}'" style="${g.done?'text-decoration:line-through;color:var(--muted)':''}">${esc(g.txt)}</div>
+      <div class="goal-del" onclick="deleteGoal(${i})">×</div>
+    </div>`).join(''):`<div class="empty-msg" style="padding:48px 0;font-size:18px">Add your first goal.</div>`;
+}
+function addGoal(){
+  const inp=document.getElementById('goal-input');
+  const txt=inp.value.trim();if(!txt)return;
+  const d=load();if(!d.goals)d.goals=[];
+  d.goals.push({txt,done:false});store(d);
+  castVote(['discipline'],d,'Goal added');
+  inp.value='';renderGoals();
+}
+function toggleGoal(i){
+  const d=load();if(!d.goals)return;
+  d.goals[i].done=!d.goals[i].done;
+  if(d.goals[i].done)castVote(['discipline'],d,'Goal completed');else store(d);
   renderGoals();
-  toast('Goal added');
 }
-function toggleGoal(i) { DB.goals[i].done = !DB.goals[i].done; try { localStorage.setItem('hero_morning_v3', JSON.stringify(DB)); } catch(e) {} renderGoals(); }
-function delGoal(i) { DB.goals.splice(i,1); try { localStorage.setItem('hero_morning_v3', JSON.stringify(DB)); } catch(e) {} renderGoals(); }
+function deleteGoal(i){const d=load();d.goals.splice(i,1);store(d);renderGoals()}
 
-// ════════════════════════════════════════
-// REFERENCE
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// WEEKLY REPORT
+// ════════════════════════════════════════════════════════
+function renderWeekly(){
+  const d=load();const name=d.name||'You';
+  const el=document.getElementById('weekly-inner');
+  if(!el)return;
+  const now=new Date();
+  const thisWeek=[];const lastWeek=[];
+  for(let i=0;i<7;i++){
+    const d1=new Date(now);d1.setDate(now.getDate()-i);
+    const k1=d1.getFullYear()+'-'+String(d1.getMonth()+1).padStart(2,'0')+'-'+String(d1.getDate()).padStart(2,'0');
+    thisWeek.push(k1);
+    const d2=new Date(now);d2.setDate(now.getDate()-i-7);
+    const k2=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');
+    lastWeek.push(k2);
+  }
+  const weekVotes={}; const prevVotes={};
+  CATS.forEach(c=>{weekVotes[c.id]=0;prevVotes[c.id]=0});
+  thisWeek.forEach(k=>{const r=d.days[k];if(r?.votes)Object.entries(r.votes).forEach(([cat,v])=>{if(weekVotes[cat]!==undefined)weekVotes[cat]+=v})});
+  lastWeek.forEach(k=>{const r=d.days[k];if(r?.votes)Object.entries(r.votes).forEach(([cat,v])=>{if(prevVotes[cat]!==undefined)prevVotes[cat]+=v})});
 
-function switchRefTab(tab) {
-  ['ethics','method','villain'].forEach(t => {
-    document.getElementById('rt-' + t).classList.toggle('active', t === tab);
-    document.getElementById('ref-' + t).style.display = t === tab ? '' : 'none';
-  });
+  const maxV=Math.max(1,...Object.values(weekVotes));
+  const strongest=CATS.reduce((a,c)=>(weekVotes[c.id]||0)>(weekVotes[a.id]||0)?c:a,CATS[0]);
+  const weakest=CATS.reduce((a,c)=>(weekVotes[c.id]||0)<(weekVotes[a.id]||0)?c:a,CATS[0]);
+
+  // Find best journal entry
+  let bestJournal='';let bestDay='';
+  thisWeek.forEach(k=>{const r=d.days[k];if(r?.quranRef&&r.quranRef.length>(bestJournal.length)){bestJournal=r.quranRef;bestDay=k}});
+
+  el.innerHTML=`
+    <div class="ar-bg" style="font-size:44px;margin-bottom:-8px;opacity:.4">التقرير</div>
+    <div class="serif" style="font-size:32px;font-weight:300;margin-bottom:20px">This Week's Identity</div>
+    <svg id="weekly-radar" viewBox="0 0 280 280" style="width:100%;max-width:280px;display:block;margin:0 auto"></svg>
+    <div style="height:16px"></div>
+    <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--am);margin-bottom:10px">This week, ${name} voted most for</div>
+      <div style="display:flex;gap:12px;align-items:center"><div style="width:10px;height:10px;border-radius:50%;background:${strongest.color}"></div><span class="serif" style="font-size:22px">${strongest.name}</span></div>
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Fewest votes for</div>
+      <div style="display:flex;gap:12px;align-items:center"><div style="width:10px;height:10px;border-radius:50%;background:${weakest.color}"></div><span class="serif" style="font-size:22px">${weakest.name}</span></div>
+    </div>
+    ${bestJournal?`<div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--am);margin-bottom:8px">Best reflection this week</div>
+      <div class="serif" style="font-size:17px;color:var(--txt);font-style:italic;line-height:1.6">"${esc(bestJournal.slice(0,200))}${bestJournal.length>200?'…':''}"</div>
+    </div>`:''}
+    <div style="margin-bottom:14px"><div class="field-lbl" style="margin-bottom:12px">Week vs. Last Week</div>${CATS.map(c=>`<div class="report-category-bar">
+      <span class="rcb-name">${c.name}</span>
+      <div class="rcb-track"><div class="rcb-fill" style="width:${Math.round((weekVotes[c.id]||0)/maxV*100)}%;background:${c.color}"></div></div>
+      <span class="rcb-val">${weekVotes[c.id]||0}</span>
+    </div>`).join('')}</div>`;
+
+  setTimeout(()=>drawRadar('weekly-radar',weekVotes,prevVotes),100);
 }
 
-// ════════════════════════════════════════
-// TOAST
-// ════════════════════════════════════════
-
-let toastTimer;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('up');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('up'), 2200);
+// ════════════════════════════════════════════════════════
+// ABOUT
+// ════════════════════════════════════════════════════════
+function renderAbout(){
+  const el=document.getElementById('about-cats');
+  if(el)el.innerHTML=CATS.map(c=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bdr)"><div style="width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0"></div><div><div style="font-size:14px;font-weight:500">${c.name}</div><div style="font-size:12px;color:var(--muted)">${c.desc}</div></div></div>`).join('');
 }
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════════════════
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+// ════════════════════════════════════════════════════════
 // PWA
-// ════════════════════════════════════════
-
-const mf = { name:"The Morning", short_name:"The Morning", start_url:".", display:"standalone", background_color:"#09090f", theme_color:"#09090f", icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2309090f'/><text y='.9em' font-size='75' x='12'>🌙</text></svg>",sizes:"192x192",type:"image/svg+xml"}] };
-document.getElementById('pwa-manifest').href = URL.createObjectURL(new Blob([JSON.stringify(mf)], {type:'application/json'}));
-if ('serviceWorker' in navigator) {
-  const sw = `self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
-  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});
+// ════════════════════════════════════════════════════════
+function regPWA(){
+  const icon=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#09090f"/><path d="M256 80C168 80 100 148 100 236c0 88 72 160 160 160 20 0 39-3 56-9-60-16-104-72-104-132 0-72 60-128 132-120C330 98 295 80 256 80Z" fill="#d4924a"/></svg>`;
+  const mf=JSON.stringify({name:'The Mirror',short_name:'Mirror',start_url:'.',display:'standalone',background_color:'#09090f',theme_color:'#09090f',icons:[{src:URL.createObjectURL(new Blob([icon],{type:'image/svg+xml'})),sizes:'512x512',type:'image/svg+xml'}]});
+  try{const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([mf],{type:'application/json'}));document.head.appendChild(l)}catch(e){}
+  if('serviceWorker' in navigator){
+    const sw=`self.addEventListener('install',e=>e.waitUntil(caches.open('mirror-v1').then(c=>c.addAll(['.']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+    try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})))}catch(e){}
+  }
 }
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // INIT
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  regPWA();
+  safePush({page:'pg-setup'},'#setup');
+  const d=load();
+  if(d.setup&&d.name){
+    document.getElementById('pg-setup').classList.add('off');
+    nav.go('pg-home',true);
+  } else {
+    document.getElementById('pg-setup').classList.remove('off');
+  }
+  updateFabs();
+});
 
-load();
-safeReplaceState({ page: 'splash' }, '#splash');
+// Capacitor back button (for APK)
+try{
+  if(window.Capacitor?.Plugins?.App){
+    window.Capacitor.Plugins.App.addListener('backButton',({canGoBack})=>{
+      if(currentPage!=='pg-home')nav.back();
+      else if(window.Capacitor?.Plugins?.App?.exitApp)window.Capacitor.Plugins.App.exitApp();
+    });
+  }
+}catch(e){}
 </script>
 </body>
 </html>
