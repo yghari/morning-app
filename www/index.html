@@ -3,84 +3,75 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="theme-color" content="#0c0c0f"/>
+<meta name="theme-color" content="#09090f"/>
 <title>The Mirror</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0c0c0f;--s1:#121214;--s2:#17171b;--s3:#1f1f24;
-  --bdr:#272722;--bdr2:#332f28;
-  --txt:#e8e3d8;--muted:#6b6862;--dim:#3a3834;
-  --am:#b8895a;--am2:rgba(184,137,90,.16);--am3:rgba(184,137,90,.07);
-  --pu:#8a7a9a;--pu2:rgba(138,122,154,.16);--pu3:rgba(138,122,154,.07);
-  --gr:#5a9e74;--rd:#b8604a;
-  --r1:#b8895a;--r2:#a8703f;--r3:#9a6a8a;--r4:#8a7a9a;--r5:#5a9e74;--r6:#b8604a;
-  --t:220ms cubic-bezier(.4,0,.2,1);
+  --bg:#09090f;--s1:#0f0f1a;--s2:#151520;--s3:#1c1c2c;
+  --bdr:#242438;--bdr2:#2e2e48;
+  --txt:#ede9e0;--muted:#6b6a88;--dim:#3a3a58;
+  --am:#d4924a;--am2:rgba(212,146,74,.15);--am3:rgba(212,146,74,.06);
+  --pu:#6a5acd;--pu2:rgba(106,90,205,.15);--pu3:rgba(106,90,205,.06);
+  --gr:#4a9e6a;--rd:#b84040;
+  --r1:#d4924a;--r2:#c47a3a;--r3:#a855a0;--r4:#6a5acd;--r5:#4a9e6a;--r6:#cd5a7a;
+  --t:260ms cubic-bezier(.4,0,.2,1);
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif}
 #app{position:relative;height:100%;overflow:hidden}
 
-/* ── PAGES — single transform-driven slide, no inline style races ── */
-.pg{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);
-  transform:translateX(100%);opacity:0;visibility:hidden;
-  transition:transform var(--t),opacity var(--t),visibility 0s linear var(--t);
-  z-index:1;
-}
-.pg.is-active{transform:translateX(0);opacity:1;visibility:visible;transition:transform var(--t),opacity var(--t);z-index:2}
-.pg.is-prev{transform:translateX(-8%);opacity:0;visibility:hidden;z-index:1}
-
-/* ── LEDGER RULE — signature element: a recording mark down the spine ── */
-.ledger{position:absolute;top:0;bottom:0;left:0;width:1px;background:var(--bdr);pointer-events:none;z-index:0}
-.ledger::before{content:'';position:absolute;top:0;left:-2px;width:5px;height:5px;border-radius:50%;background:var(--am);box-shadow:0 0 8px rgba(184,137,90,.6)}
+/* ── PAGES ─────────────────────────────────── */
+.pg{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;will-change:transform;transition:transform var(--t),opacity var(--t)}
+.pg.off{pointer-events:none;transform:translateX(100%);opacity:0}
+.pg.back-off{transform:translateX(-6%) scale(.98);opacity:0;pointer-events:none}
 
 /* ── SCROLL ─────────────────────────────────── */
-.scrl{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom);position:relative}
+.scrl{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
 .scrl::-webkit-scrollbar{display:none}
 
 /* ── TOPBAR ─────────────────────────────────── */
 .topbar{display:flex;align-items:center;gap:12px;padding:14px 20px 10px;padding-top:calc(14px + env(safe-area-inset-top));flex-shrink:0;border-bottom:1px solid var(--bdr)}
-.back-btn{width:40px;height:40px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:18px;transition:color var(--t),border-color var(--t);flex-shrink:0;background:transparent}
+.back-btn{width:40px;height:40px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:18px;transition:color var(--t),border-color var(--t);flex-shrink:0}
 .back-btn:active{color:var(--am);border-color:var(--am)}
-.tb-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);flex:1}
+.tb-title{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);flex:1}
 .tb-right{flex-shrink:0;font-size:11px;color:var(--dim)}
 
 /* ── TYPOGRAPHY ─────────────────────────────── */
 .serif{font-family:'Cormorant Garamond',serif}
-.mono{font-family:'IBM Plex Mono',monospace}
 .ar-bg{font-family:'Cormorant Garamond',serif;color:var(--bdr);font-size:72px;font-weight:300;direction:rtl;line-height:1;pointer-events:none;user-select:none;overflow:hidden;white-space:nowrap;opacity:.6}
 .page-title{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;line-height:1.1;color:var(--txt)}
-.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
 .rule-h{height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);margin:0}
 
 /* ── VOTE TOAST ─────────────────────────────── */
-#vote-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s2);border:1px solid var(--am);border-radius:6px;padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.02em;color:var(--am);white-space:nowrap;opacity:0;transition:opacity .3s,transform .3s;z-index:999;pointer-events:none;font-weight:500}
+#vote-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s2);border:1px solid var(--am);border-radius:40px;padding:10px 20px;font-size:13px;color:var(--am);white-space:nowrap;opacity:0;transition:opacity .3s,transform .3s;z-index:999;pointer-events:none;font-family:'DM Sans',sans-serif;font-weight:500}
 #vote-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── FLOATING BUTTONS ───────────────────────── */
-#urge-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:14px;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:100;box-shadow:0 4px 20px rgba(138,122,154,.35);transition:transform .2s;display:none}
+#urge-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:50%;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:100;box-shadow:0 0 30px rgba(106,90,205,.4);transition:transform .2s;display:none}
 #urge-fab:active{transform:scale(.93)}
-#eve-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:20px;width:52px;height:52px;border-radius:14px;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;z-index:100;box-shadow:0 4px 20px rgba(138,122,154,.3);transition:transform .2s;display:none}
+#eve-fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:20px;width:52px;height:52px;border-radius:50%;background:var(--pu);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:100;box-shadow:0 0 30px rgba(106,90,205,.3);transition:transform .2s;display:none}
 #eve-fab:active{transform:scale(.93)}
 
 /* ── BUTTONS ─────────────────────────────────── */
-.btn{display:flex;align-items:center;justify-content:center;min-height:52px;padding:14px 20px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;transition:opacity var(--t),transform var(--t);width:100%;gap:8px}
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;padding:14px 20px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;transition:opacity var(--t),transform var(--t);width:100%;gap:8px}
 .btn:active{transform:scale(.97)}
-.btn-am{background:var(--am);color:#0c0c0f}
-.btn-pu{background:var(--pu);color:#0c0c0f}
+.btn-am{background:var(--am);color:#09090f}
+.btn-pu{background:var(--pu);color:#fff}
 .btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--txt)}
-.btn-gr{background:var(--gr);color:#0c0c0f}
+.btn-gr{background:var(--gr);color:#fff}
 .btn-sm{min-height:40px;padding:10px 16px;font-size:13px}
 
 /* ── CARDS / SURFACES ───────────────────────── */
-.card{background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:20px}
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:14px;padding:20px}
 .card+.card{margin-top:10px}
-.pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.04em}
-.pill-am{background:var(--am2);color:var(--am);border:1px solid rgba(184,137,90,.3)}
-.pill-pu{background:var(--pu2);color:var(--pu);border:1px solid rgba(138,122,154,.3)}
-.pill-gr{background:rgba(90,158,116,.15);color:var(--gr);border:1px solid rgba(90,158,116,.3)}
+.pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.06em}
+.pill-am{background:var(--am2);color:var(--am);border:1px solid rgba(212,146,74,.3)}
+.pill-pu{background:var(--pu2);color:var(--pu);border:1px solid rgba(106,90,205,.3)}
+.pill-gr{background:rgba(74,158,106,.15);color:var(--gr);border:1px solid rgba(74,158,106,.3)}
 
 /* ── TOGGLE ─────────────────────────────────── */
 .tog-wrap{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--bdr)}
@@ -88,14 +79,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 .tog-lbl{flex:1;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--txt)}
 .tog{width:50px;height:26px;background:var(--s3);border:1px solid var(--bdr);border-radius:13px;position:relative;cursor:pointer;transition:background var(--t);flex-shrink:0}
 .tog.on{background:var(--am)}
-.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#0c0c0f;transition:transform var(--t)}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform var(--t)}
 .tog.on::after{transform:translateX(24px)}
 
 /* ── TEXTAREA ───────────────────────────────── */
 textarea{width:100%;background:transparent;border:none;border-bottom:1px solid var(--bdr);color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:18px;padding:12px 0 10px;resize:none;outline:none;line-height:1.7;transition:border-color var(--t);min-height:100px}
 textarea::placeholder{color:var(--dim)}
 textarea:focus{border-bottom-color:var(--am)}
-.field-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.field-lbl{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 
 /* ── STEP DOTS ──────────────────────────────── */
 .dots{display:flex;gap:5px;align-items:center}
@@ -107,16 +98,16 @@ textarea:focus{border-bottom-color:var(--am)}
 /* ── AFFIRM ITEMS ───────────────────────────── */
 .aff-item{display:flex;align-items:flex-start;gap:14px;padding:15px 0;border-bottom:1px solid var(--bdr);cursor:pointer;transition:opacity var(--t)}
 .aff-item:first-child{border-top:1px solid var(--bdr)}
-.aff-circle{width:26px;height:26px;border-radius:6px;border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t);margin-top:2px}
+.aff-circle{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t);margin-top:2px}
 .aff-item.done .aff-circle{background:var(--gr);border-color:var(--gr)}
-.aff-chk{font-size:13px;color:#0c0c0f;opacity:0;transition:opacity var(--t)}
+.aff-chk{font-size:13px;color:#fff;opacity:0;transition:opacity var(--t)}
 .aff-item.done .aff-chk{opacity:1}
 .aff-txt{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--txt);line-height:1.5}
 .aff-item.done .aff-txt{color:var(--muted)}
 
 /* ── TRAIT GRID ─────────────────────────────── */
 .trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.trait-chip{padding:14px 12px;background:var(--s2);border:1.5px solid var(--bdr);border-radius:10px;text-align:center;cursor:pointer;transition:all var(--t)}
+.trait-chip{padding:14px 12px;background:var(--s2);border:1.5px solid var(--bdr);border-radius:12px;text-align:center;cursor:pointer;transition:all var(--t)}
 .trait-chip:active{transform:scale(.96)}
 .trait-chip.sel{border-color:var(--am);background:var(--am3)}
 .trait-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt)}
@@ -126,56 +117,57 @@ textarea:focus{border-bottom-color:var(--am)}
 .score-big{font-family:'Cormorant Garamond',serif;font-size:72px;font-weight:300;text-align:center;line-height:1;padding:12px 0}
 .s-lo{color:var(--rd)}.s-mi{color:var(--am)}.s-hi{color:var(--gr)}
 input[type=range]{width:100%;-webkit-appearance:none;height:2px;background:var(--bdr);border-radius:1px;outline:none;accent-color:var(--am)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--am);box-shadow:0 0 14px rgba(184,137,90,.5)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--am);box-shadow:0 0 16px rgba(212,146,74,.5)}
 
 /* ── ACTION BAR ─────────────────────────────── */
 .act-bar{padding:14px 20px;padding-bottom:calc(14px + env(safe-area-inset-bottom));flex-shrink:0;background:linear-gradient(to top,var(--bg) 70%,transparent)}
 
 /* ── BOTTOM NAV ─────────────────────────────── */
 .bnav{display:flex;gap:6px;padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom));flex-shrink:0;border-top:1px solid var(--bdr);background:var(--bg)}
-.bn-btn{flex:1;min-height:52px;background:transparent;border:1px solid var(--bdr);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:border-color var(--t),background var(--t)}
+.bn-btn{flex:1;min-height:52px;background:transparent;border:1px solid var(--bdr);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:border-color var(--t),background var(--t)}
 .bn-btn:active{border-color:var(--am);background:var(--am3)}
-.bn-ico{font-size:17px}
-.bn-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+.bn-ico{font-size:18px}
+.bn-lbl{font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
 
 /* ── RADAR CHART ─────────────────────────────── */
 #radar-wrap{padding:4px 0 0;display:flex;justify-content:center}
 #radar-svg{display:block;width:100%;max-width:280px;margin:0 auto}
 .radar-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 20px;margin-top:4px}
-.rl-item{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
-.rl-dot{width:7px;height:7px;border-radius:1px;flex-shrink:0}
+.rl-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.rl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* ── HOME STATS ROW ─────────────────────────── */
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin:0 20px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin:0 20px}
 .stat-cell{background:var(--s1);padding:14px 8px;text-align:center}
 .stat-n{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--am);line-height:1}
-.stat-l{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
 
 /* ── STEP LIST ───────────────────────────────── */
 .step-row{display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--bdr)}
 .step-row:last-child{border-bottom:none}
-.step-ico{font-size:17px;width:26px;text-align:center;flex-shrink:0}
+.step-ico{font-size:18px;width:26px;text-align:center;flex-shrink:0}
 .step-info{flex:1}
 .step-nm{font-size:14px;font-weight:500}
 .step-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.step-t{font-size:11px;color:var(--dim);flex-shrink:0}
 .step-row.done .step-nm{color:var(--muted)}
 
 /* ── HISTORY ─────────────────────────────────── */
 .h-card{margin-bottom:1px;background:var(--s1)}
 .h-hdr{display:flex;align-items:center;padding:15px 20px;cursor:pointer;gap:12px}
 .h-date{font-size:13px;font-weight:500;flex:1}
-.h-status{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
-.h-sc{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;flex-shrink:0}
+.h-status{font-size:11px;color:var(--muted)}
+.h-sc{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
 .h-body{padding:0 20px 18px;display:none;border-top:1px solid var(--bdr)}
 .h-body.open{display:block}
 .h-field{margin-top:14px}
-.h-flbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.h-flbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 .h-fval{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.6}
 .empty-msg{padding:80px 32px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--muted);font-style:italic;line-height:1.6}
 
 /* ── SURFACE CARD ────────────────────────────── */
-.surface-card{margin:16px 20px;padding:18px;background:var(--s2);border:1px solid rgba(184,137,90,.25);border-radius:12px}
-.surface-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--am);margin-bottom:8px}
+.surface-card{margin:16px 20px;padding:18px;background:var(--s2);border:1px solid rgba(212,146,74,.25);border-radius:14px}
+.surface-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--am);margin-bottom:8px}
 .surface-body{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.6;font-style:italic}
 
 /* ── WEEKLY REPORT ───────────────────────────── */
@@ -183,29 +175,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 .rcb-name{font-size:13px;font-weight:500;width:110px;flex-shrink:0}
 .rcb-track{flex:1;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
 .rcb-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.rcb-val{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);width:28px;text-align:right;flex-shrink:0}
+.rcb-val{font-size:12px;color:var(--muted);width:28px;text-align:right;flex-shrink:0}
 
 /* ── REFERENCE ───────────────────────────────── */
 .ref-sec{padding:20px}
-.ref-sec-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--am);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
-.ref-item{padding:12px 0;border-bottom:1px solid rgba(39,39,34,.7)}
+.ref-sec-title{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--am);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
+.ref-item{padding:12px 0;border-bottom:1px solid rgba(36,36,56,.7)}
 .ref-item:last-child{border-bottom:none}
 .ri-title{font-size:14px;font-weight:500;margin-bottom:4px}
 .ri-body{font-size:13px;color:var(--muted);line-height:1.7}
-.v-trait{display:inline-block;padding:4px 9px;border:1px solid var(--bdr);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin:3px}
+.v-trait{display:inline-block;padding:4px 9px;border:1px solid var(--bdr);border-radius:4px;font-size:11px;color:var(--muted);margin:3px}
 
 /* ── URGE MODE ───────────────────────────────── */
-#pg-urge{background:var(--bg)}
+#pg-urge{background:var(--bg);z-index:200}
 .urge-timer-ring{position:relative;width:200px;height:200px;margin:0 auto 28px}
 .urge-ring-svg{width:200px;height:200px}
 .urge-countdown{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .urge-count-n{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--txt);line-height:1}
-.urge-count-lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.urge-count-lbl{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
 
 /* ── GOALS ───────────────────────────────────── */
 .goal-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--bdr)}
 .goal-item:last-child{border-bottom:none}
-.goal-status{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--bdr);flex-shrink:0;margin-top:3px;transition:all var(--t);cursor:pointer}
+.goal-status{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--bdr);flex-shrink:0;margin-top:3px;transition:all var(--t);cursor:pointer}
 .goal-status.done{background:var(--gr);border-color:var(--gr)}
 .goal-txt{flex:1;font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);line-height:1.5}
 .goal-del{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--dim);cursor:pointer;font-size:18px;flex-shrink:0;transition:color var(--t)}
@@ -213,451 +205,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 
 /* ── COMPLETE ────────────────────────────────── */
 #pg-complete .cinner{padding:48px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
-.c-emblem{width:78px;height:78px;border-radius:16px;border:1px solid var(--am);display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;transform:rotate(45deg)}
-.c-emblem span{transform:rotate(-45deg);display:block}
+.c-emblem{width:80px;height:80px;border-radius:50%;border:1px solid var(--am);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative}
+.c-emblem::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(212,146,74,.25)}
 
 /* ── SETUP ───────────────────────────────────── */
-#pg-setup{align-items:center;justify-content:flex-start}
+#pg-setup{background:var(--bg);z-index:300;align-items:center;justify-content:flex-start}
 .setup-inner{padding:48px 28px;padding-top:calc(48px + env(safe-area-inset-top));width:100%}
 
-/* ── ABOUT ───────────────────────────────────── */
-#pg-about .about-inner{padding:24px 20px}
-
-/* ── ANIMATIONS ──────────────────────────────── */
-@keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.fu{animation:fadeup .45s ease both}
-.fu1{animation-delay:.08s}.fu2{animation-delay:.16s}.fu3{animation-delay:.24s}
-@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
-.pulse{animation:pulse 2s ease infinite}
-
-/* ── FOCUS VISIBILITY ─────────────────────────── */
-button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--am);outline-offset:2px}
-
-@media (prefers-reduced-motion:reduce){
-  .pg,.dot,.btn,.tog,.aff-item,.aff-circle,.trait-chip,.rcb-fill,.back-btn,.fu{transition:none!important;animation:none!important}
-}
-</style>
-</head>
-<body>
-<div id="app">
-<div class="ledger"></div>
-
-<!-- ══════════════════════════════════ SETUP (first launch) -->
-<div class="pg" id="pg-setup">
-  <div class="scrl"><div class="setup-inner">
-    <div class="ar-bg" style="margin-bottom:-16px;font-size:56px;color:var(--bdr2);text-align:center">المرآة</div>
-    <h1 class="serif fu" style="font-size:42px;font-weight:300;line-height:1.1;margin-bottom:8px">The Mirror</h1>
-    <p class="fu serif fu1" style="font-size:17px;color:var(--muted);font-style:italic;line-height:1.7;margin-bottom:32px">A long-term identity system — not a motivation app.</p>
-    <div class="fu fu1" style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:20px;margin-bottom:32px">
-      <p class="serif" style="font-size:16px;color:var(--muted);line-height:1.8;font-style:italic">
-        "This app can structure your reflection and make consistency easier — but the actual rewiring happens in the 2 minutes you spend being honest with yourself in it, not in the code. The app is the mirror. You are still the one who has to look into it."
-      </p>
-    </div>
-    <div class="fu fu2">
-      <div class="field-lbl" style="margin-bottom:8px">Name your future self — who are you becoming?</div>
-      <input id="setup-name" type="text" placeholder="e.g. Ibrahim, The Disciplined One, The Builder…" style="width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:20px;outline:none;transition:border-color var(--t);margin-bottom:20px"/>
-      <div class="field-lbl" style="margin-bottom:8px">Your morning session time</div>
-      <input id="setup-time" type="time" value="05:30" style="width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:24px;color-scheme:dark"/>
-      <button class="btn btn-am fu fu3" onclick="completeSetup()">Begin — Enter The Mirror</button>
-    </div>
-  </div></div>
-</div>
-
-<!-- ══════════════════════════════════ HOME -->
-<div class="pg" id="pg-home">
-  <div class="scrl">
-    <!-- Header -->
-    <div style="padding:20px 20px 12px;padding-top:calc(20px + env(safe-area-inset-top));display:flex;align-items:flex-start;justify-content:space-between">
-      <div>
-        <div class="ar-bg" style="font-size:40px;margin-bottom:-8px;opacity:.4">المرآة</div>
-        <div class="serif" style="font-size:36px;font-weight:300" id="home-greeting">Good morning</div>
-        <div id="home-name" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--am);margin-top:4px;font-weight:500;letter-spacing:.03em"></div>
-        <div id="home-date" class="mono" style="font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.04em"></div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="back-btn" onclick="nav.go('about')" aria-label="About" style="font-family:'Cormorant Garamond',serif">i</button>
-        <button class="back-btn" onclick="nav.go('weekly')" aria-label="Weekly report" style="font-size:14px">▤</button>
-      </div>
-    </div>
-
-    <!-- Resurfaced memory -->
-    <div id="resurface-wrap"></div>
-
-    <!-- Radar chart -->
-    <div id="radar-wrap">
-      <svg id="radar-svg" viewBox="0 0 280 280"></svg>
-    </div>
-    <div class="radar-legend" id="radar-legend"></div>
-
-    <div style="height:16px"></div>
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-cell"><div class="stat-n" id="st-streak">0</div><div class="stat-l">Streak</div></div>
-      <div class="stat-cell"><div class="stat-n" id="st-best">0</div><div class="stat-l">Best</div></div>
-      <div class="stat-cell"><div class="stat-n" id="st-urges">0</div><div class="stat-l">Urges Won</div></div>
-    </div>
-
-    <!-- Drift alert -->
-    <div id="drift-alert" style="display:none;margin:14px 20px 0;padding:14px 16px;background:var(--s2);border:1px solid rgba(184,137,90,.3);border-radius:10px">
-      <div class="mono" style="font-size:10px;color:var(--am);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Pattern Noticed</div>
-      <div id="drift-msg" class="serif" style="font-size:16px;color:var(--txt);line-height:1.6"></div>
-    </div>
-
-    <div style="height:16px"></div>
-    <!-- Morning block -->
-    <div style="padding:0 20px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
-      <div class="eyebrow" style="color:var(--am)">Morning Ritual</div>
-      <span class="pill pill-am" id="morn-pill">0 / 5</span>
-    </div>
-    <div id="home-morning-steps" style="border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)"></div>
-    <div style="padding:14px 20px"><button class="btn btn-am" id="morn-btn"><span id="morn-btn-txt">Begin Morning Ritual</span><span>→</span></button></div>
-
-    <!-- Evening block -->
-    <div style="padding:4px 20px 6px;display:flex;align-items:center;justify-content:space-between">
-      <div class="eyebrow" style="color:var(--pu)">Evening Check-in</div>
-      <span class="pill pill-pu" id="eve-pill">0 / 3</span>
-    </div>
-    <div id="home-eve-steps" style="border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)"></div>
-    <div style="padding:14px 20px"><button class="btn btn-pu" id="eve-btn"><span id="eve-btn-txt">Begin Evening Check-in</span><span>→</span></button></div>
-
-    <div style="height:90px"></div>
-  </div>
-  <!-- Bottom nav -->
-  <div class="bnav">
-    <button class="bn-btn" onclick="nav.go('history')"><div class="bn-ico">▦</div><div class="bn-lbl">History</div></button>
-    <button class="bn-btn" onclick="nav.go('wall')"><div class="bn-ico">▥</div><div class="bn-lbl">Wall</div></button>
-    <button class="bn-btn" onclick="nav.go('goals')"><div class="bn-ico">◎</div><div class="bn-lbl">Goals</div></button>
-    <button class="bn-btn" onclick="nav.go('reference')"><div class="bn-ico">▣</div><div class="bn-lbl">Library</div></button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════ MORNING STEPS -->
-<!-- M1: FAJR -->
-<div class="pg" id="pg-m1">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 1</div><div class="tb-right"><div class="dots" id="dots-m1"></div></div></div>
-  <div class="scrl">
-    <div style="padding:24px 20px 8px">
-      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">الفجر</div>
-      <div class="page-title">Fajr Prayer</div>
-      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">5 minutes · Taqwa</div>
-    </div>
-    <div class="rule-h"></div>
-    <div style="padding:24px 20px">
-      <div style="display:flex;flex-direction:column;align-items:center;padding:24px 0 16px;gap:20px">
-        <div class="serif" style="font-size:22px;text-align:center;line-height:1.4" id="m1-toggle-lbl">I prayed Fajr with khushu'</div>
-        <div class="tog" id="tog-fajr" onclick="toggleFajr()" style="width:62px;height:32px;border-radius:16px"></div>
-        <div style="font-size:13px;color:var(--dim);font-style:italic;font-family:'Cormorant Garamond',serif;text-align:center">Pause before confirming. Did you truly pray with presence?</div>
-      </div>
-      <div style="background:var(--s2);border-left:2px solid var(--am);padding:16px;border-radius:0 8px 8px 0;margin-bottom:16px">
-        <div class="field-lbl" style="color:var(--am);margin-bottom:8px">Khushu' Technique</div>
-        <p class="serif" style="font-size:15px;color:var(--muted);line-height:1.8">Before takbir — release the day. In qiyam — understand each word. In sujud — stay one extra breath. This is the closest you will be to Allah today.</p>
-      </div>
-      <div class="field-lbl" style="margin-bottom:10px">Morning Adhkar</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--muted);line-height:2">
-        Ayat al-Kursi (×1) · <span style="direction:rtl;display:inline">الإخلاص · الفلق · الناس</span> (×3 each)<br/>
-        <span style="color:var(--txt)">أصبحنا وأصبح الملك لله</span> · Istighfar (×3) · Salawat (×10)
-      </div>
-    </div>
-  </div>
-  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m2')">Continue →</button></div>
-</div>
-
-<!-- M2: QUR'AN -->
-<div class="pg" id="pg-m2">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 2</div><div class="tb-right"><div class="dots" id="dots-m2"></div></div></div>
-  <div class="scrl">
-    <div style="padding:24px 20px 8px">
-      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">القرآن</div>
-      <div class="page-title">Qur'an</div>
-      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">5 minutes · Taqwa + Gratitude</div>
-    </div>
-    <div class="rule-h"></div>
-    <div style="padding:20px">
-      <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:22px;margin-bottom:20px">
-        <div class="field-lbl" style="color:var(--am);margin-bottom:10px">Today's Verse</div>
-        <div id="verse-ar" class="serif" style="font-size:26px;direction:rtl;text-align:right;color:var(--am);line-height:1.9;margin-bottom:12px"></div>
-        <div id="verse-en" class="serif" style="font-size:18px;font-style:italic;color:var(--txt);line-height:1.6;margin-bottom:6px"></div>
-        <div id="verse-ref" class="mono" style="font-size:11px;color:var(--muted);letter-spacing:.05em"></div>
-      </div>
-      <div class="field-lbl" style="margin-bottom:6px" id="quran-prompt-lbl"></div>
-      <textarea id="ta-quran" placeholder="Write your reflection…" rows="5" oninput="saveM2()" onblur="saveM2()"></textarea>
-    </div>
-  </div>
-  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m3')">Continue →</button></div>
-</div>
-
-<!-- M3: AFFIRMATIONS -->
-<div class="pg" id="pg-m3">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 3</div><div class="tb-right"><div class="dots" id="dots-m3"></div></div></div>
-  <div class="scrl">
-    <div style="padding:24px 20px 8px">
-      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">الهوية</div>
-      <div class="page-title">Affirmations</div>
-      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">3 minutes · Say each aloud · All 6 traits</div>
-    </div>
-    <div class="rule-h"></div>
-    <div style="padding:12px 20px">
-      <div style="padding:12px 0;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--dim);font-style:italic">Each tap casts a vote for a specific identity trait. Speak it — don't just tap.</div>
-      <div id="affirm-list"></div>
-    </div>
-  </div>
-  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m4')">Continue →</button></div>
-</div>
-
-<!-- M4: INTENTION -->
-<div class="pg" id="pg-m4">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 4</div><div class="tb-right"><div class="dots" id="dots-m4"></div></div></div>
-  <div class="scrl">
-    <div style="padding:24px 20px 8px">
-      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">النية</div>
-      <div class="page-title">Intention</div>
-      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Discipline + Honesty</div>
-    </div>
-    <div class="rule-h"></div>
-    <div style="padding:20px">
-      <div style="background:var(--s2);border-left:2px solid var(--am);padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:20px">
-        <p class="serif" style="font-size:15px;color:var(--muted);line-height:1.7">Implementation intention format: <span style="color:var(--txt)">"If [situation], I will [specific action]."</span> Not vague goals — concrete triggers.</p>
-      </div>
-      <div class="field-lbl" style="margin-bottom:6px" id="intent-prompt"></div>
-      <textarea id="ta-intent" placeholder="If I feel the urge to scroll, I will put my phone in the other room and open a book…" rows="5" oninput="saveM4()" onblur="saveM4()"></textarea>
-      <div style="margin-top:28px">
-        <div class="field-lbl" style="margin-bottom:6px" id="align-prompt"></div>
-        <div class="trait-grid" id="trait-grid-m4" style="margin-top:10px"></div>
-      </div>
-    </div>
-  </div>
-  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m5')">Continue →</button></div>
-</div>
-
-<!-- M5: YESTERDAY REVIEW -->
-<div class="pg" id="pg-m5">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Morning · Step 5</div><div class="tb-right"><div class="dots" id="dots-m5"></div></div></div>
-  <div class="scrl">
-    <div style="padding:24px 20px 8px">
-      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">المحاسبة</div>
-      <div class="page-title">Yesterday's Review</div>
-      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Honesty · Self-accountability</div>
-    </div>
-    <div class="rule-h"></div>
-    <div style="padding:20px">
-      <div class="score-big" id="score-disp-m5">5</div>
-      <input type="range" id="score-range-m5" min="1" max="10" value="5" oninput="updateScore5()" onchange="saveM5()"/>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;margin-bottom:24px">
-        <span class="mono" style="font-size:11px;color:var(--dim)">1 — Lost</span>
-        <span class="mono" style="font-size:11px;color:var(--dim)">10 — Excellent</span>
-      </div>
-      <div class="field-lbl" style="margin-bottom:6px" id="review-prompt"></div>
-      <textarea id="ta-review" placeholder="Be specific. What happened vs. what should have?" rows="5" oninput="saveM5()" onblur="saveM5()"></textarea>
-    </div>
-  </div>
-  <div class="act-bar"><button class="btn btn-am" onclick="completeMorning()">Complete Morning Ritual ✓</button></div>
-</div>
-
-<!-- ══════════════════════════════════ EVENING STEPS -->
-<!-- E1: INTENTION CHECK -->
-<div class="pg" id="pg-e1">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Evening · Step 1</div><div class="tb-right"><div class="dots" id="dots-e1"></div></div></div>
-  <div class="scrl">
-    <div style="padding:24px 20px 8px">
-      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">النتيجة</div>
-      <div class="page-title">Intention Review</div>
-      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Honesty · Discipline</div>
-    </div>
-    <div class="rule-h"></div>
-    <div style="padding:20px">
-      <div id="morning-intent-display" style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:20px">
-        <div class="field-lbl" style="margin-bottom:6px">This morning's intention was</div>
-        <div id="mid-intent" class="serif" style="font-size:17px;color:var(--muted);font-style:italic;line-height:1.6">No intention recorded this morning.</div>
-      </div>
-      <div style="display:flex;gap:10px;margin-bottom:20px">
-        <button class="btn btn-gr btn-sm" id="e1-did-btn" style="flex:1" onclick="setIntentDone(true)">✓ I did it</button>
-        <button class="btn btn-ghost btn-sm" id="e1-not-btn" style="flex:1" onclick="setIntentDone(false)">✗ I did not</button>
-      </div>
-      <div class="field-lbl" style="margin-bottom:6px" id="e1-reflect-prompt"></div>
-      <textarea id="ta-e1" placeholder="What happened?" rows="4" oninput="saveE1()" onblur="saveE1()"></textarea>
-    </div>
-  </div>
-  <div class="act-bar"><button class="btn btn-pu" onclick="nav.go('pg-e2')">Continue →</button></div>
-</div>
-
-<!-- E2: WHAT I AVOIDED -->
-<div class="pg" id="pg-e2">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Evening · Step 2</div><div class="tb-right"><div class="dots" id="dots-e2"></div></div></div>
-  <div class="scrl">
-    <div style="padding:24px 20px 8px">
-      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">التجنب</div>
-      <div class="page-title">What Was Avoided</div>
-      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Self-control · Honesty</div>
-    </div>
-    <div class="rule-h"></div>
-    <div style="padding:20px">
-      <div class="field-lbl" style="margin-bottom:6px" id="avoid-prompt"></div>
-      <textarea id="ta-avoid" placeholder="Name it specifically. Not avoiding it is also data." rows="5" oninput="saveE2()" onblur="saveE2()"></textarea>
-    </div>
-  </div>
-  <div class="act-bar"><button class="btn btn-pu" onclick="nav.go('pg-e3')">Continue →</button></div>
-</div>
-
-<!-- E3: GRATITUDE -->
-<div class="pg" id="pg-e3">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Evening · Step 3</div><div class="tb-right"><div class="dots" id="dots-e3"></div></div></div>
-  <div class="scrl">
-    <div style="padding:24px 20px 8px">
-      <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">الشكر</div>
-      <div class="page-title">Gratitude</div>
-      <div class="mono" style="color:var(--muted);font-size:12px;margin-top:4px">Gratitude · Brotherhood</div>
-    </div>
-    <div class="rule-h"></div>
-    <div style="padding:20px">
-      <div class="field-lbl" style="margin-bottom:6px" id="grat-prompt"></div>
-      <textarea id="ta-grat" placeholder="Three specific things — not generic…" rows="5" oninput="saveE3()" onblur="saveE3()"></textarea>
-    </div>
-  </div>
-  <div class="act-bar"><button class="btn btn-pu" onclick="completeEvening()">Complete Evening Check-in ✓</button></div>
-</div>
-
-<!-- ══════════════════════════════════ URGE MODE -->
-<div class="pg" id="pg-urge">
-  <div class="topbar"><button class="back-btn" onclick="cancelUrge()" aria-label="Cancel">✕</button><div class="tb-title" style="color:var(--pu)">Urge Mode</div></div>
-  <div class="scrl" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center">
-    <div id="urge-phase-1">
-      <div class="serif" style="font-size:32px;font-weight:300;margin-bottom:8px;line-height:1.3" id="urge-title"></div>
-      <div class="serif" style="font-size:18px;color:var(--muted);font-style:italic;margin-bottom:40px">is deciding right now. What does he choose?</div>
-      <div class="urge-timer-ring">
-        <svg class="urge-ring-svg" viewBox="0 0 200 200">
-          <circle cx="100" cy="100" r="88" fill="none" stroke="var(--bdr)" stroke-width="4"/>
-          <circle id="urge-arc" cx="100" cy="100" r="88" fill="none" stroke="var(--pu)" stroke-width="4" stroke-linecap="round"
-            stroke-dasharray="553" stroke-dashoffset="0"
-            transform="rotate(-90 100 100)" style="transition:stroke-dashoffset 1s linear"/>
-        </svg>
-        <div class="urge-countdown">
-          <span class="urge-count-n" id="urge-count">60</span>
-          <span class="urge-count-lbl">seconds</span>
-        </div>
-      </div>
-      <div class="serif" style="font-size:16px;color:var(--muted);font-style:italic;line-height:1.7">Wait. Breathe. The urge is not you.<br/>It is a wave. Watch it pass.</div>
-    </div>
-    <div id="urge-phase-2" style="display:none;width:100%">
-      <div class="serif" style="font-size:28px;font-weight:300;margin-bottom:24px;line-height:1.3">What did you choose?</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--muted);font-style:italic;margin-bottom:28px;line-height:1.7">Both answers are data. Both are logged without judgment.</div>
-      <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin:0 auto">
-        <button class="btn btn-gr" onclick="logUrge(true)">✓ I resisted — <span id="urge-name-btn"></span> held the line</button>
-        <button class="btn btn-ghost" onclick="logUrge(false)">I gave in — this is the data</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════ COMPLETE -->
-<div class="pg" id="pg-complete">
-  <div class="scrl">
-    <div class="cinner fu">
-      <div style="height:calc(48px + env(safe-area-inset-top))"></div>
-      <div class="c-emblem"><span>✦</span></div>
-      <div class="serif" style="font-size:40px;font-weight:300;line-height:1;margin-top:8px" id="complete-title">Complete</div>
-      <div class="serif" style="font-size:24px;color:var(--am)" id="complete-ar">جزاك الله خيراً</div>
-      <div class="serif" style="font-size:17px;color:var(--muted);font-style:italic;max-width:280px;text-align:center;line-height:1.7" id="complete-msg"></div>
-      <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:16px;width:100%;max-width:320px;text-align:left;margin:8px 0" id="complete-votes"></div>
-      <button class="btn btn-ghost" style="max-width:240px;margin-top:8px" onclick="nav.go('home',true)">Return Home</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════ HISTORY -->
-<div class="pg" id="pg-history">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">History</div></div>
-  <div class="rule-h"></div>
-  <div class="scrl"><div id="hist-list"></div></div>
-</div>
-
-<!-- ══════════════════════════════════ WALL -->
-<div class="pg" id="pg-wall">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">The Wall</div></div>
-  <div class="rule-h"></div>
-  <div class="scrl">
-    <div style="padding:24px 20px">
-      <div class="ar-bg" style="font-size:48px;margin-bottom:-10px">الجدار</div>
-      <div class="serif" style="font-size:32px;font-weight:300;margin-bottom:24px">Total Accountability</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px" id="wall-grid"></div>
-      <div class="field-lbl" style="margin-bottom:12px">Category Strengths</div>
-      <div id="wall-cats"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════ GOALS -->
-<div class="pg" id="pg-goals">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Goals</div></div>
-  <div class="rule-h"></div>
-  <div class="scrl">
-    <div style="padding:20px">
-      <div style="background:var(--s2);border-left:2px solid var(--am);padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:20px">
-        <p class="serif" style="font-size:16px;color:var(--muted);font-style:italic;line-height:1.7">"Every time you delay gratification, you cast a vote for Discipline. Every vote compounds. There are no shortcuts — only the accumulation of honest choices."</p>
-      </div>
-      <div style="display:flex;gap:10px;margin-bottom:20px">
-        <input id="goal-input" type="text" placeholder="Add a goal (delayed-gratification framing)…" style="flex:1;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:17px;outline:none"/>
-        <button class="btn btn-am btn-sm" style="width:52px;padding:0" onclick="addGoal()" aria-label="Add goal">+</button>
-      </div>
-      <div id="goal-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════ REFERENCE -->
-<div class="pg" id="pg-reference">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Reference Library</div></div>
-  <div class="rule-h"></div>
-  <div class="scrl">
-    <div class="ref-sec">
-      <div class="ref-sec-title">The Shadow Self — Who You Must Not Become</div>
-      <div style="margin-bottom:14px">
-        <span class="v-trait">Laziness</span><span class="v-trait">Distraction</span><span class="v-trait">Lust</span>
-        <span class="v-trait">Delay</span><span class="v-trait">Arrogance</span><span class="v-trait">Complaint</span>
-        <span class="v-trait">Envy</span><span class="v-trait">Inconsistency</span><span class="v-trait">Victim mindset</span>
-        <span class="v-trait">Short-sightedness</span><span class="v-trait">People-pleasing</span><span class="v-trait">Self-betrayal</span>
-      </div>
-      <div class="field-lbl" style="margin-bottom:8px">What he says</div>
-      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"I'll start tomorrow."</div></div>
-      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"I don't feel like it."</div></div>
-      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"Just this once won't hurt."</div></div>
-      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"Nobody sees me anyway."</div></div>
-      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic">"This isn't working."</div></div>
-      <div class="ref-item"><div class="ri-body serif" style="font-size:16px;font-style:italic;color:var(--muted)">"I can't help how I feel."</div></div>
-    </div>
-    <div class="ref-sec">
-      <div class="ref-sec-title">Ethics & Character</div>
-      <div class="ref-item"><div class="ri-title">Silence</div><div class="ri-body">Speak only when words add real value. Silence is mastery, not absence.</div></div>
-      <div class="ref-item"><div class="ri-title">Humility</div><div class="ri-body">Your achievements are from Allah. Your failures are yours. Never let success make you forget this.</div></div>
-      <div class="ref-item"><div class="ri-title">Gratitude</div><div class="ri-body">Count what you have before what you lack. الحمد لله in every moment.</div></div>
-      <div class="ref-item"><div class="ri-title">Discipline</div><div class="ri-body">Do what you said you would do, when you said you would, regardless of feeling.</div></div>
-      <div class="ref-item"><div class="ri-title">Self-Respect</div><div class="ri-body">Iron. Non-negotiable. You do not beg, chase, or compromise principles for approval.</div></div>
-    </div>
-    <div class="ref-sec">
-      <div class="ref-sec-title">Method</div>
-      <div class="ref-item"><div class="ri-title">Urge Control</div><div class="ri-body">The urge is not you. It is a wave. Observe it. Name it. Wait 90 seconds. Watch it lose power. Do not negotiate.</div></div>
-      <div class="ref-item"><div class="ri-title">Identity Voting</div><div class="ri-body">Every action is a vote for a type of person. The goal is not to be perfect — it is to have the majority of votes go toward who you are becoming.</div></div>
-      <div class="ref-item"><div class="ri-title">Khushu' in Salah</div><div class="ri-body">Before takbir: breathe and release. In qiyam: understand the words. In ruku': glorify fully. In sujud: pour your heart. This is your meeting with Allah.</div></div>
-      <div class="ref-item"><div class="ri-title">Self-distancing</div><div class="ri-body">When reflecting, use your name instead of "I". "[Name] felt this way." This reduces emotional reactivity and improves honest self-assessment.</div></div>
-    </div>
-    <div class="ref-sec">
-      <div class="ref-sec-title">Seven Rules</div>
-      <div class="ref-item"><div class="ri-title">I — Allah first in everything</div><div class="ri-body">Before any decision: is this pleasing to Allah?</div></div>
-      <div class="ref-item"><div class="ri-title">II — Pray on time, always</div><div class="ri-body">The five prayers are the skeleton of the day. Everything else is built around them.</div></div>
-      <div class="ref-item"><div class="ri-title">III — Keep promises to yourself</div><div class="ri-body">Your self-trust is built or destroyed in the promises no one else can hold you to.</div></div>
-      <div class="ref-item"><div class="ri-title">IV — Control desires</div><div class="ri-body">Every delayed gratification is a vote for Discipline. Every surrender weakens.</div></div>
-      <div class="ref-item"><div class="ri-title">V — Speak only when necessary</div><div class="ri-body">Guard your speech like you guard your time.</div></div>
-      <div class="ref-item"><div class="ri-title">VI — Improve every day</div><div class="ri-body">One domain — body, mind, deen, or provision — every single day.</div></div>
-      <div class="ref-item"><div class="ri-title">VII — Never quit after a bad day</div><div class="ri-body">After any failure — pray two raka'at, reset, begin again. The return defines you.</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════ WEEKLY REPORT -->
-<div class="pg" id="pg-weekly">
-  <div class="topbar"><button class="back-btn" onclick="nav.back()" aria-label="Back">←</button><div class="tb-title">Weekly Identity Report</div></div>
-  <div class="rule-h"></div>
-  <div class="scrl"><div style="padding:20px" id="weekly-inner"></div></div>
-</div>
 /* ── ABOUT ───────────────────────────────────── */
 #pg-about .about-inner{padding:24px 20px}
 
@@ -667,19 +221,13 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
 .pulse{animation:pulse 2s ease infinite}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  .pg{transition:none}
-  .fu{animation:none}
-}
 </style>
 </head>
 <body>
 <div id="app">
 
 <!-- ══════════════════════════════════ SETUP (first launch) -->
-<div class="pg" id="pg-setup" data-page="pg-setup">
+<div class="pg" id="pg-setup">
   <div class="setup-inner">
     <div class="ar-bg" style="margin-bottom:-16px;font-size:56px;color:var(--bdr2);text-align:center">المرآة</div>
     <h1 class="serif fu" style="font-size:42px;font-weight:300;line-height:1.1;margin-bottom:8px">The Mirror</h1>
@@ -694,13 +242,13 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
       <input id="setup-name" type="text" placeholder="e.g. Ibrahim, The Disciplined One, The Builder…" style="width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:20px;outline:none;transition:border-color var(--t);margin-bottom:20px"/>
       <div class="field-lbl" style="margin-bottom:8px">Your morning session time</div>
       <input id="setup-time" type="time" value="05:30" style="width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:24px;color-scheme:dark"/>
-      <button class="btn btn-am fu" style="animation-delay:.3s" onclick="completeSetup()" type="button">Begin — Enter The Mirror</button>
+      <button class="btn btn-am fu" style="animation-delay:.3s" onclick="completeSetup()">Begin — Enter The Mirror</button>
     </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════ HOME -->
-<div class="pg pg-off" id="pg-home" data-page="pg-home">
+<div class="pg off" id="pg-home">
   <div class="scrl">
     <!-- Header -->
     <div style="padding:20px 20px 12px;padding-top:calc(20px + env(safe-area-inset-top));display:flex;align-items:flex-start;justify-content:space-between">
@@ -711,8 +259,8 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
         <div id="home-date" style="font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.06em"></div>
       </div>
       <div style="display:flex;gap:8px;margin-top:8px">
-        <div class="nav-icon-btn" data-nav="pg-about" style="width:40px;height:40px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:15px">i</div>
-        <div class="nav-icon-btn" data-nav="pg-weekly" style="width:40px;height:40px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:14px">📊</div>
+        <div onclick="nav.go('about')" style="width:36px;height:36px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:15px">i</div>
+        <div onclick="nav.go('weekly')" style="width:36px;height:36px;border:1px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:14px">📊</div>
       </div>
     </div>
 
@@ -746,7 +294,7 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
       <span class="pill pill-am" id="morn-pill">0 / 5</span>
     </div>
     <div id="home-morning-steps" style="border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)"></div>
-    <div style="padding:14px 20px"><button class="btn btn-am" id="morn-btn" type="button"><span id="morn-btn-txt">Begin Morning Ritual</span><span>→</span></button></div>
+    <div style="padding:14px 20px"><button class="btn btn-am" id="morn-btn" onclick="startMorning()"><span id="morn-btn-txt">Begin Morning Ritual</span><span>→</span></button></div>
 
     <!-- Evening block -->
     <div style="padding:4px 20px 6px;display:flex;align-items:center;justify-content:space-between">
@@ -754,23 +302,23 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
       <span class="pill pill-pu" id="eve-pill">0 / 3</span>
     </div>
     <div id="home-eve-steps" style="border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)"></div>
-    <div style="padding:14px 20px"><button class="btn btn-pu" id="eve-btn" type="button"><span id="eve-btn-txt">Begin Evening Check-in</span><span>→</span></button></div>
+    <div style="padding:14px 20px"><button class="btn btn-pu" id="eve-btn" onclick="startEvening()"><span id="eve-btn-txt">Begin Evening Check-in</span><span>→</span></button></div>
 
     <div style="height:90px"></div>
   </div>
   <!-- Bottom nav -->
   <div class="bnav">
-    <div class="bn-btn" data-nav="pg-history"><div class="bn-ico">📜</div><div class="bn-lbl">History</div></div>
-    <div class="bn-btn" data-nav="pg-wall"><div class="bn-ico">🧱</div><div class="bn-lbl">Wall</div></div>
-    <div class="bn-btn" data-nav="pg-goals"><div class="bn-ico">🎯</div><div class="bn-lbl">Goals</div></div>
-    <div class="bn-btn" data-nav="pg-reference"><div class="bn-ico">📖</div><div class="bn-lbl">Library</div></div>
+    <div class="bn-btn" onclick="nav.go('history')"><div class="bn-ico">📜</div><div class="bn-lbl">History</div></div>
+    <div class="bn-btn" onclick="nav.go('wall')"><div class="bn-ico">🧱</div><div class="bn-lbl">Wall</div></div>
+    <div class="bn-btn" onclick="nav.go('goals')"><div class="bn-ico">🎯</div><div class="bn-lbl">Goals</div></div>
+    <div class="bn-btn" onclick="nav.go('reference')"><div class="bn-ico">📖</div><div class="bn-lbl">Library</div></div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════ MORNING STEPS -->
 <!-- M1: FAJR -->
-<div class="pg pg-off" id="pg-m1" data-page="pg-m1">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Morning · Step 1</div><div class="tb-right"><div class="dots" id="dots-m1"></div></div></div>
+<div class="pg off" id="pg-m1">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 1</div><div class="tb-right"><div class="dots" id="dots-m1"></div></div></div>
   <div class="scrl">
     <div style="padding:24px 20px 8px">
       <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">الفجر</div>
@@ -781,7 +329,7 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
     <div style="padding:24px 20px">
       <div style="display:flex;flex-direction:column;align-items:center;padding:24px 0 16px;gap:20px">
         <div class="serif" style="font-size:22px;text-align:center;line-height:1.4" id="m1-toggle-lbl">I prayed Fajr with khushu'</div>
-        <div class="tog" id="tog-fajr" style="width:62px;height:32px;border-radius:16px"></div>
+        <div class="tog" id="tog-fajr" onclick="toggleFajr()" style="width:62px;height:32px;border-radius:16px"></div>
         <div style="font-size:13px;color:var(--dim);font-style:italic;font-family:'Cormorant Garamond',serif;text-align:center">Pause before confirming. Did you truly pray with presence?</div>
       </div>
       <div style="background:var(--s2);border-left:2px solid var(--am);padding:16px;border-radius:0 8px 8px 0;margin-bottom:16px">
@@ -795,12 +343,12 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
       </div>
     </div>
   </div>
-  <div class="act-bar"><button class="btn btn-am" data-nav="pg-m2" type="button">Continue →</button></div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m2')">Continue →</button></div>
 </div>
 
 <!-- M2: QUR'AN -->
-<div class="pg pg-off" id="pg-m2" data-page="pg-m2">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Morning · Step 2</div><div class="tb-right"><div class="dots" id="dots-m2"></div></div></div>
+<div class="pg off" id="pg-m2">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 2</div><div class="tb-right"><div class="dots" id="dots-m2"></div></div></div>
   <div class="scrl">
     <div style="padding:24px 20px 8px">
       <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">القرآن</div>
@@ -816,15 +364,15 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
         <div id="verse-ref" style="font-size:11px;color:var(--muted);letter-spacing:.06em"></div>
       </div>
       <div class="field-lbl" style="margin-bottom:6px" id="quran-prompt-lbl"></div>
-      <textarea id="ta-quran" placeholder="Write your reflection…" rows="5"></textarea>
+      <textarea id="ta-quran" placeholder="Write your reflection…" rows="5" oninput="saveM2()" onblur="saveM2()"></textarea>
     </div>
   </div>
-  <div class="act-bar"><button class="btn btn-am" data-nav="pg-m3" data-save="saveM2" type="button">Continue →</button></div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m3')">Continue →</button></div>
 </div>
 
 <!-- M3: AFFIRMATIONS -->
-<div class="pg pg-off" id="pg-m3" data-page="pg-m3">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Morning · Step 3</div><div class="tb-right"><div class="dots" id="dots-m3"></div></div></div>
+<div class="pg off" id="pg-m3">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 3</div><div class="tb-right"><div class="dots" id="dots-m3"></div></div></div>
   <div class="scrl">
     <div style="padding:24px 20px 8px">
       <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">الهوية</div>
@@ -837,12 +385,12 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
       <div id="affirm-list"></div>
     </div>
   </div>
-  <div class="act-bar"><button class="btn btn-am" data-nav="pg-m4" type="button">Continue →</button></div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m4')">Continue →</button></div>
 </div>
 
 <!-- M4: INTENTION -->
-<div class="pg pg-off" id="pg-m4" data-page="pg-m4">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Morning · Step 4</div><div class="tb-right"><div class="dots" id="dots-m4"></div></div></div>
+<div class="pg off" id="pg-m4">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 4</div><div class="tb-right"><div class="dots" id="dots-m4"></div></div></div>
   <div class="scrl">
     <div style="padding:24px 20px 8px">
       <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">النية</div>
@@ -855,19 +403,19 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
         <p class="serif" style="font-size:15px;color:var(--muted);line-height:1.7">Implementation intention format: <span style="color:var(--txt)">"If [situation], I will [specific action]."</span> Not vague goals — concrete triggers.</p>
       </div>
       <div class="field-lbl" style="margin-bottom:6px" id="intent-prompt"></div>
-      <textarea id="ta-intent" placeholder="If I feel the urge to scroll, I will put my phone in the other room and open a book…" rows="5"></textarea>
+      <textarea id="ta-intent" placeholder="If I feel the urge to scroll, I will put my phone in the other room and open a book…" rows="5" oninput="saveM4()" onblur="saveM4()"></textarea>
       <div style="margin-top:28px">
         <div class="field-lbl" style="margin-bottom:6px" id="align-prompt"></div>
         <div class="trait-grid" id="trait-grid-m4" style="margin-top:10px"></div>
       </div>
     </div>
   </div>
-  <div class="act-bar"><button class="btn btn-am" data-nav="pg-m5" data-save="saveM4" type="button">Continue →</button></div>
+  <div class="act-bar"><button class="btn btn-am" onclick="nav.go('pg-m5')">Continue →</button></div>
 </div>
 
 <!-- M5: YESTERDAY REVIEW -->
-<div class="pg pg-off" id="pg-m5" data-page="pg-m5">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Morning · Step 5</div><div class="tb-right"><div class="dots" id="dots-m5"></div></div></div>
+<div class="pg off" id="pg-m5">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Morning · Step 5</div><div class="tb-right"><div class="dots" id="dots-m5"></div></div></div>
   <div class="scrl">
     <div style="padding:24px 20px 8px">
       <div class="ar-bg" style="font-size:56px;margin-bottom:-12px">المحاسبة</div>
@@ -877,22 +425,22 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
     <div class="rule-h"></div>
     <div style="padding:20px">
       <div class="score-big" id="score-disp-m5">5</div>
-      <input type="range" id="score-range-m5" min="1" max="10" value="5"/>
+      <input type="range" id="score-range-m5" min="1" max="10" value="5" oninput="updateScore5()" onchange="saveM5()"/>
       <div style="display:flex;justify-content:space-between;margin-top:6px;margin-bottom:24px">
         <span style="font-size:11px;color:var(--dim)">1 — Lost</span>
         <span style="font-size:11px;color:var(--dim)">10 — Excellent</span>
       </div>
       <div class="field-lbl" style="margin-bottom:6px" id="review-prompt"></div>
-      <textarea id="ta-review" placeholder="Be specific. What happened vs. what should have?" rows="5"></textarea>
+      <textarea id="ta-review" placeholder="Be specific. What happened vs. what should have?" rows="5" oninput="saveM5()" onblur="saveM5()"></textarea>
     </div>
   </div>
-  <div class="act-bar"><button class="btn btn-am" id="btn-complete-morning" type="button">Complete Morning Ritual ✓</button></div>
+  <div class="act-bar"><button class="btn btn-am" onclick="completeMorning()">Complete Morning Ritual ✓</button></div>
 </div>
 
 <!-- ══════════════════════════════════ EVENING STEPS -->
 <!-- E1: INTENTION CHECK -->
-<div class="pg pg-off" id="pg-e1" data-page="pg-e1">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Evening · Step 1</div><div class="tb-right"><div class="dots" id="dots-e1"></div></div></div>
+<div class="pg off" id="pg-e1">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Evening · Step 1</div><div class="tb-right"><div class="dots" id="dots-e1"></div></div></div>
   <div class="scrl">
     <div style="padding:24px 20px 8px">
       <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">النتيجة</div>
@@ -906,19 +454,19 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
         <div id="mid-intent" class="serif" style="font-size:17px;color:var(--muted);font-style:italic;line-height:1.6">No intention recorded this morning.</div>
       </div>
       <div style="display:flex;gap:10px;margin-bottom:20px">
-        <button class="btn btn-gr btn-sm" id="btn-intent-yes" style="flex:1" type="button">✓ I did it</button>
-        <button class="btn btn-ghost btn-sm" id="btn-intent-no" style="flex:1" type="button">✗ I did not</button>
+        <button class="btn btn-gr btn-sm" style="flex:1" onclick="setIntentDone(true)">✓ I did it</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="setIntentDone(false)">✗ I did not</button>
       </div>
       <div class="field-lbl" style="margin-bottom:6px" id="e1-reflect-prompt"></div>
-      <textarea id="ta-e1" placeholder="What happened?" rows="4"></textarea>
+      <textarea id="ta-e1" placeholder="What happened?" rows="4" oninput="saveE1()" onblur="saveE1()"></textarea>
     </div>
   </div>
-  <div class="act-bar"><button class="btn btn-pu" data-nav="pg-e2" data-save="saveE1" type="button">Continue →</button></div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="nav.go('pg-e2')">Continue →</button></div>
 </div>
 
 <!-- E2: WHAT I AVOIDED -->
-<div class="pg pg-off" id="pg-e2" data-page="pg-e2">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Evening · Step 2</div><div class="tb-right"><div class="dots" id="dots-e2"></div></div></div>
+<div class="pg off" id="pg-e2">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Evening · Step 2</div><div class="tb-right"><div class="dots" id="dots-e2"></div></div></div>
   <div class="scrl">
     <div style="padding:24px 20px 8px">
       <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">التجنب</div>
@@ -928,15 +476,15 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
     <div class="rule-h"></div>
     <div style="padding:20px">
       <div class="field-lbl" style="margin-bottom:6px" id="avoid-prompt"></div>
-      <textarea id="ta-avoid" placeholder="Name it specifically. Not avoiding it is also data." rows="5"></textarea>
+      <textarea id="ta-avoid" placeholder="Name it specifically. Not avoiding it is also data." rows="5" oninput="saveE2()" onblur="saveE2()"></textarea>
     </div>
   </div>
-  <div class="act-bar"><button class="btn btn-pu" data-nav="pg-e3" data-save="saveE2" type="button">Continue →</button></div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="nav.go('pg-e3')">Continue →</button></div>
 </div>
 
 <!-- E3: GRATITUDE -->
-<div class="pg pg-off" id="pg-e3" data-page="pg-e3">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Evening · Step 3</div><div class="tb-right"><div class="dots" id="dots-e3"></div></div></div>
+<div class="pg off" id="pg-e3">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Evening · Step 3</div><div class="tb-right"><div class="dots" id="dots-e3"></div></div></div>
   <div class="scrl">
     <div style="padding:24px 20px 8px">
       <div class="ar-bg" style="font-size:56px;margin-bottom:-12px;color:var(--pu2)">الشكر</div>
@@ -946,15 +494,15 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
     <div class="rule-h"></div>
     <div style="padding:20px">
       <div class="field-lbl" style="margin-bottom:6px" id="grat-prompt"></div>
-      <textarea id="ta-grat" placeholder="Three specific things — not generic…" rows="5"></textarea>
+      <textarea id="ta-grat" placeholder="Three specific things — not generic…" rows="5" oninput="saveE3()" onblur="saveE3()"></textarea>
     </div>
   </div>
-  <div class="act-bar"><button class="btn btn-pu" id="btn-complete-evening" type="button">Complete Evening Check-in ✓</button></div>
+  <div class="act-bar"><button class="btn btn-pu" onclick="completeEvening()">Complete Evening Check-in ✓</button></div>
 </div>
 
 <!-- ══════════════════════════════════ URGE MODE -->
-<div class="pg pg-off" id="pg-urge" data-page="pg-urge">
-  <div class="topbar"><div class="back-btn" id="btn-cancel-urge">✕ Cancel</div><div class="tb-title" style="color:var(--pu)">Urge Mode</div></div>
+<div class="pg off" id="pg-urge">
+  <div class="topbar"><div class="back-btn" onclick="cancelUrge()">✕ Cancel</div><div class="tb-title" style="color:var(--pu)">Urge Mode</div></div>
   <div class="scrl" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center">
     <div id="urge-phase-1">
       <div class="serif" style="font-size:32px;font-weight:300;margin-bottom:8px;line-height:1.3" id="urge-title"></div>
@@ -977,15 +525,15 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
       <div class="serif" style="font-size:28px;font-weight:300;margin-bottom:24px;line-height:1.3">What did you choose?</div>
       <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--muted);font-style:italic;margin-bottom:28px;line-height:1.7">Both answers are data. Both are logged without judgment.</div>
       <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin:0 auto">
-        <button class="btn btn-gr" id="btn-urge-resisted" type="button">✓ I resisted — <span id="urge-name-btn"></span> held the line</button>
-        <button class="btn btn-ghost" id="btn-urge-gave-in" type="button">I gave in — this is the data</button>
+        <button class="btn btn-gr" onclick="logUrge(true)">✓ I resisted — <span id="urge-name-btn"></span> held the line</button>
+        <button class="btn btn-ghost" onclick="logUrge(false)">I gave in — this is the data</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════ COMPLETE -->
-<div class="pg pg-off" id="pg-complete" data-page="pg-complete">
+<div class="pg off" id="pg-complete">
   <div class="scrl">
     <div class="cinner fu">
       <div style="height:calc(48px + env(safe-area-inset-top))"></div>
@@ -994,21 +542,21 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
       <div class="serif" style="font-size:24px;color:var(--am)" id="complete-ar">جزاك الله خيراً</div>
       <div class="serif" style="font-size:17px;color:var(--muted);font-style:italic;max-width:280px;text-align:center;line-height:1.7" id="complete-msg"></div>
       <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:16px;width:100%;max-width:320px;text-align:left;margin:8px 0" id="complete-votes"></div>
-      <button class="btn btn-ghost" style="max-width:240px;margin-top:8px" data-nav="pg-home" data-replace="1" type="button">Return Home</button>
+      <button class="btn btn-ghost" style="max-width:240px;margin-top:8px" onclick="nav.go('home',true)">Return Home</button>
     </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════ HISTORY -->
-<div class="pg pg-off" id="pg-history" data-page="pg-history">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">History</div></div>
+<div class="pg off" id="pg-history">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">History</div></div>
   <div class="rule-h"></div>
   <div class="scrl"><div id="hist-list"></div></div>
 </div>
 
 <!-- ══════════════════════════════════ WALL -->
-<div class="pg pg-off" id="pg-wall" data-page="pg-wall">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">The Wall</div></div>
+<div class="pg off" id="pg-wall">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">The Wall</div></div>
   <div class="rule-h"></div>
   <div class="scrl">
     <div style="padding:24px 20px">
@@ -1022,8 +570,8 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
 </div>
 
 <!-- ══════════════════════════════════ GOALS -->
-<div class="pg pg-off" id="pg-goals" data-page="pg-goals">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Goals</div></div>
+<div class="pg off" id="pg-goals">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Goals</div></div>
   <div class="rule-h"></div>
   <div class="scrl">
     <div style="padding:20px">
@@ -1032,7 +580,7 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
       </div>
       <div style="display:flex;gap:10px;margin-bottom:20px">
         <input id="goal-input" type="text" placeholder="Add a goal (delayed-gratification framing)…" style="flex:1;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:17px;outline:none"/>
-        <button class="btn btn-am btn-sm" id="btn-add-goal" style="width:52px;padding:0" type="button">+</button>
+        <button class="btn btn-am btn-sm" style="width:52px;padding:0" onclick="addGoal()">+</button>
       </div>
       <div id="goal-list"></div>
     </div>
@@ -1040,8 +588,8 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
 </div>
 
 <!-- ══════════════════════════════════ REFERENCE -->
-<div class="pg pg-off" id="pg-reference" data-page="pg-reference">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Reference Library</div></div>
+<div class="pg off" id="pg-reference">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Reference Library</div></div>
   <div class="rule-h"></div>
   <div class="scrl">
     <div class="ref-sec">
@@ -1089,15 +637,15 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
 </div>
 
 <!-- ══════════════════════════════════ WEEKLY REPORT -->
-<div class="pg pg-off" id="pg-weekly" data-page="pg-weekly">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">Weekly Identity Report</div></div>
+<div class="pg off" id="pg-weekly">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">Weekly Identity Report</div></div>
   <div class="rule-h"></div>
   <div class="scrl"><div style="padding:20px" id="weekly-inner"></div></div>
 </div>
 
 <!-- ══════════════════════════════════ ABOUT -->
-<div class="pg pg-off" id="pg-about" data-page="pg-about">
-  <div class="topbar"><div class="back-btn" data-back="1">←</div><div class="tb-title">About</div></div>
+<div class="pg off" id="pg-about">
+  <div class="topbar"><div class="back-btn" onclick="nav.back()">←</div><div class="tb-title">About</div></div>
   <div class="rule-h"></div>
   <div class="scrl">
     <div class="about-inner">
@@ -1117,7 +665,7 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
           <div class="ref-item"><div class="ri-title">Spaced resurfacing</div><div class="ri-body">Revisiting past reflections at intervals prevents identity drift and reinforces long-term commitments.</div></div>
         </div>
         <div style="margin-top:24px">
-          <button class="btn btn-ghost btn-sm" id="btn-reset-setup" type="button">Reset Name / Future Self</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetSetup()">Reset Name / Future Self</button>
         </div>
       </div>
     </div>
@@ -1128,8 +676,8 @@ button:focus-visible,.back-btn:focus-visible,.bn-btn:focus-visible,.trait-chip:f
 <div id="vote-toast">Vote cast</div>
 
 <!-- FABS -->
-<button id="urge-fab" type="button">🛡</button>
-<button id="eve-fab" type="button">🌙</button>
+<button id="urge-fab" onclick="openUrge()">🛡</button>
+<button id="eve-fab" onclick="startEvening()">🌙</button>
 
 </div><!-- #app -->
 
@@ -1175,11 +723,14 @@ const AFFIRMS = [
 const TRAITS = ['Disciplined','Consistent','Prays on time','Controls desires','Improves daily','Relies on Allah'];
 const TRAIT_CATS = ['discipline','taqwa','taqwa','control','discipline','taqwa'];
 
+const M_STEPS = ['pg-m1','pg-m2','pg-m3','pg-m4','pg-m5'];
+const E_STEPS = ['pg-e1','pg-e2','pg-e3'];
+
 // ════════════════════════════════════════════════════════
 // DATA LAYER
 // ════════════════════════════════════════════════════════
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||newStore()}catch(e){return newStore()}}
-function store(d){try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||newStore()}catch{return newStore()}}
+function store(d){localStorage.setItem(KEY,JSON.stringify(d))}
 function newStore(){return{setup:false,name:'',days:{},catScores:{taqwa:0,discipline:0,control:0,gratitude:0,honesty:0,brotherhood:0},streak:0,best:0,urgesResisted:0,urgesTotal:0,goals:[]}}
 
 function todayKey(){const n=new Date;return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')}
@@ -1207,115 +758,70 @@ function castVote(categories, d, label){
 }
 
 // ════════════════════════════════════════════════════════
-// NAVIGATION — simple, race-free, single source of truth.
-//
-// Every .pg has exactly one of: (no class) | .pg-off | .pg-next | .pg-prev
-// applyPageClass() is the ONLY place that ever sets these classes, and it
-// always resets every page before applying new states, so there's no way
-// for two taps to leave the DOM in an inconsistent place.
+// NAVIGATION
 // ════════════════════════════════════════════════════════
-let currentPage = 'pg-setup';
-let pageStack = ['pg-setup'];
-let navLock = false; // prevents double-fire during the brief transition window
+let currentPage='pg-setup';
+let pageStack=['pg-setup'];
 
 function safePush(state,url){
   if(!HISTORY_API_OK)return;
   try{history.pushState(state,'',url)}catch(e){HISTORY_API_OK=false}
 }
 
-function allPages(){
-  return Array.from(document.querySelectorAll('.pg'));
-}
-
-function applyPageClass(activeId, incomingId){
-  // Reset every page to .pg-off first — single source of truth, no stragglers.
-  allPages().forEach(el=>{
-    el.classList.remove('pg-off','pg-next','pg-prev');
-    el.classList.add('pg-off');
-  });
-  const activeEl = activeId ? document.getElementById(activeId) : null;
-  if(activeEl) activeEl.classList.remove('pg-off');
-}
-
-const nav = {
-  go(rawPage, replace){
-    if(navLock) return;
-    const page = rawPage.indexOf('pg-')===0 ? rawPage : 'pg-'+rawPage;
-    const nextEl = document.getElementById(page);
-    if(!nextEl) return;
-    if(page === currentPage){
-      // Already here — just re-run enter hook (e.g. refresh data) and exit.
-      onEnter(page);
-      return;
+const nav={
+  go(rawPage, replace=false){
+    const page = rawPage.startsWith('pg-') ? rawPage : 'pg-'+rawPage;
+    const prevEl=document.getElementById(currentPage);
+    const nextEl=document.getElementById(page);
+    if(!nextEl)return;
+    if(prevEl){
+      prevEl.classList.add('back-off');
+      setTimeout(()=>{prevEl.classList.add('off');prevEl.classList.remove('back-off')},260);
     }
-    navLock = true;
-
-    // Mark the page we're leaving for animation, and the page entering.
-    const prevId = currentPage;
-    const prevEl = document.getElementById(prevId);
-
-    allPages().forEach(el=>el.classList.remove('pg-off','pg-next','pg-prev'));
-    if(prevEl) prevEl.classList.add('pg-prev');
-    nextEl.classList.add('pg-next');
-
-    currentPage = page;
-    if(replace){ pageStack[pageStack.length-1] = page; }
-    else { pageStack.push(page); }
-    safePush({page}, '#'+page.replace('pg-',''));
+    nextEl.classList.remove('off','back-off');
+    nextEl.style.cssText='transform:translateX(100%);opacity:0;transition:none';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      nextEl.style.cssText='transform:translateX(0);opacity:1;transition:transform 260ms cubic-bezier(.4,0,.2,1),opacity 260ms';
+      setTimeout(()=>{nextEl.style.cssText=''},300);
+    }));
+    currentPage=page;
+    if(replace)pageStack[pageStack.length-1]=page;else pageStack.push(page);
+    safePush({page},'#'+page.replace('pg-',''));
     onEnter(page);
     updateFabs();
-
-    // After the transition window, settle into the final stable state:
-    // exactly one page with no special class, everything else .pg-off.
-    window.setTimeout(()=>{
-      allPages().forEach(el=>{
-        el.classList.remove('pg-off','pg-next','pg-prev');
-        if(el.id !== currentPage) el.classList.add('pg-off');
-      });
-      navLock = false;
-    }, 280);
   },
   back(){
-    if(navLock) return;
-    if(pageStack.length<=1){ nav.go('pg-home', true); return; }
-    navLock = true;
+    if(pageStack.length<=1){nav.go('pg-home',true);return}
     pageStack.pop();
-    const prev = pageStack[pageStack.length-1] || 'pg-home';
-    const curEl = document.getElementById(currentPage);
-    const prevEl = document.getElementById(prev);
-
-    allPages().forEach(el=>el.classList.remove('pg-off','pg-next','pg-prev'));
-    if(prevEl) prevEl.classList.add('pg-next');
-    if(curEl) curEl.classList.add('pg-prev');
-
-    currentPage = prev;
-    safePush({page:prev}, '#'+prev.replace('pg-',''));
+    const prev=pageStack[pageStack.length-1]||'pg-home';
+    const curEl=document.getElementById(currentPage);
+    const prevEl=document.getElementById(prev);
+    if(curEl){
+      curEl.style.cssText='transform:translateX(0);opacity:1;transition:none';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        curEl.style.cssText='transform:translateX(100%);opacity:0;transition:transform 260ms cubic-bezier(.4,0,.2,1),opacity 260ms';
+        setTimeout(()=>{curEl.classList.add('off');curEl.style.cssText=''},260);
+      }));
+    }
+    if(prevEl){prevEl.classList.remove('off','back-off');prevEl.style.cssText=''}
+    currentPage=prev;
+    safePush({page:prev},'#'+prev.replace('pg-',''));
     onEnter(prev);
     updateFabs();
-
-    window.setTimeout(()=>{
-      allPages().forEach(el=>{
-        el.classList.remove('pg-off','pg-next','pg-prev');
-        if(el.id !== currentPage) el.classList.add('pg-off');
-      });
-      navLock = false;
-    }, 280);
   }
 };
 
-window.addEventListener('popstate', e=>{
-  const raw = (e.state && e.state.page) || 'pg-home';
-  const target = raw.indexOf('pg-')===0 ? raw : 'pg-'+raw;
-  if(target===currentPage) return;
-  const el = document.getElementById(target);
-  if(!el){ safePush({page:currentPage}, '#'+currentPage.replace('pg-','')); return; }
-  allPages().forEach(p=>{
-    p.classList.remove('pg-off','pg-next','pg-prev');
-    if(p.id!==target) p.classList.add('pg-off');
-  });
-  const idx = pageStack.indexOf(target);
-  pageStack = idx>=0 ? pageStack.slice(0, idx+1) : [target];
-  currentPage = target;
+window.addEventListener('popstate',e=>{
+  const p=e.state?.page||(e.state?.page)||'pg-home';
+  const target=p.startsWith('pg-')?p:'pg-'+p;
+  if(target===currentPage)return;
+  const el=document.getElementById(target);
+  if(!el){safePush({page:currentPage},'#'+currentPage.replace('pg-',''));return}
+  const old=document.getElementById(currentPage);
+  if(old)old.classList.add('off');
+  el.classList.remove('off','back-off');
+  pageStack=pageStack.slice(0,Math.max(1,pageStack.indexOf(target)+1));
+  currentPage=target;
   onEnter(target);
   updateFabs();
 });
@@ -1331,94 +837,6 @@ function updateFabs(){
 }
 
 // ════════════════════════════════════════════════════════
-// EVENT DELEGATION — every interactive control is wired here,
-// once, at startup. No inline onclick="" attributes anywhere,
-// so nothing can fail silently due to a stale/garbled handler.
-// ════════════════════════════════════════════════════════
-function wireEvents(){
-  document.body.addEventListener('click', function(e){
-    const navBtn = e.target.closest('[data-nav]');
-    if(navBtn){
-      const saveFn = navBtn.getAttribute('data-save');
-      if(saveFn && typeof window[saveFn]==='function') window[saveFn]();
-      const replace = navBtn.getAttribute('data-replace')==='1';
-      nav.go(navBtn.getAttribute('data-nav'), replace);
-      return;
-    }
-    const backBtn = e.target.closest('[data-back]');
-    if(backBtn){ nav.back(); return; }
-
-    if(e.target.closest('#btn-cancel-urge')){ cancelUrge(); return; }
-    if(e.target.closest('#btn-urge-resisted')){ logUrge(true); return; }
-    if(e.target.closest('#btn-urge-gave-in')){ logUrge(false); return; }
-    if(e.target.closest('#urge-fab')){ openUrge(); return; }
-    if(e.target.closest('#eve-fab')){ startEvening(); return; }
-
-    if(e.target.closest('#morn-btn')){ startMorning(); return; }
-    if(e.target.closest('#eve-btn')){ startEvening(); return; }
-    if(e.target.closest('#btn-complete-morning')){ completeMorning(); return; }
-    if(e.target.closest('#btn-complete-evening')){ completeEvening(); return; }
-    if(e.target.closest('#btn-intent-yes')){ setIntentDone(true); return; }
-    if(e.target.closest('#btn-intent-no')){ setIntentDone(false); return; }
-    if(e.target.closest('#btn-add-goal')){ addGoal(); return; }
-    if(e.target.closest('#btn-reset-setup')){ resetSetup(); return; }
-    if(e.target.closest('#tog-fajr')){ toggleFajr(); return; }
-
-    const traitChip = e.target.closest('[data-trait]');
-    if(traitChip){ pickTrait(traitChip.getAttribute('data-trait'), parseInt(traitChip.getAttribute('data-trait-idx'),10)); return; }
-
-    const affItem = e.target.closest('[data-affirm-idx]');
-    if(affItem){ tapAffirm(parseInt(affItem.getAttribute('data-affirm-idx'),10)); return; }
-
-    const goalStatus = e.target.closest('[data-goal-toggle]');
-    if(goalStatus){ toggleGoal(parseInt(goalStatus.getAttribute('data-goal-toggle'),10)); return; }
-    const goalDel = e.target.closest('[data-goal-del]');
-    if(goalDel){ deleteGoal(parseInt(goalDel.getAttribute('data-goal-del'),10)); return; }
-
-    const hHdr = e.target.closest('[data-hist-toggle]');
-    if(hHdr){
-      const body = hHdr.parentElement.querySelector('.h-body');
-      if(body) body.classList.toggle('open');
-      return;
-    }
-  });
-
-  // Setup button (kept as its own listener since it's a one-time, special-cased action)
-  const setupBtn = document.querySelector('[data-action="complete-setup"]');
-  if(setupBtn) setupBtn.addEventListener('click', completeSetup);
-
-  // Live-saving fields (debounced-free, just save on input/blur)
-  bindAutosave('ta-quran','saveM2');
-  bindAutosave('ta-intent','saveM4');
-  bindAutosave('ta-e1','saveE1');
-  bindAutosave('ta-avoid','saveE2');
-  bindAutosave('ta-grat','saveE3');
-
-  const scoreRange = document.getElementById('score-range-m5');
-  if(scoreRange){
-    scoreRange.addEventListener('input', updateScore5);
-    scoreRange.addEventListener('change', saveM5);
-  }
-  const taReview = document.getElementById('ta-review');
-  if(taReview){
-    taReview.addEventListener('input', saveM5);
-    taReview.addEventListener('blur', saveM5);
-  }
-
-  const goalInput = document.getElementById('goal-input');
-  if(goalInput){
-    goalInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ addGoal(); } });
-  }
-}
-
-function bindAutosave(id, fnName){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.addEventListener('input', ()=>{ if(typeof window[fnName]==='function') window[fnName](); });
-  el.addEventListener('blur', ()=>{ if(typeof window[fnName]==='function') window[fnName](); });
-}
-
-// ════════════════════════════════════════════════════════
 // PAGE ENTER HOOKS
 // ════════════════════════════════════════════════════════
 function onEnter(p){
@@ -1427,7 +845,7 @@ function onEnter(p){
     'pg-m1':enterM1,'pg-m2':enterM2,'pg-m3':enterM3,'pg-m4':enterM4,'pg-m5':enterM5,
     'pg-e1':enterE1,'pg-e2':enterE2,'pg-e3':enterE3,
     'pg-history':renderHistory,'pg-wall':renderWall,'pg-goals':renderGoals,
-    'pg-weekly':renderWeekly,'pg-about':renderAbout,'pg-complete':function(){}
+    'pg-weekly':renderWeekly,'pg-about':renderAbout,'pg-complete':()=>{}
   };
   (hooks[p]||function(){})();
 }
@@ -1436,15 +854,14 @@ function onEnter(p){
 // SETUP
 // ════════════════════════════════════════════════════════
 function completeSetup(){
-  const nameEl = document.getElementById('setup-name');
-  const n = nameEl ? nameEl.value.trim() : '';
-  if(!n){ if(nameEl) nameEl.style.borderColor='var(--rd)'; return; }
+  const n=document.getElementById('setup-name').value.trim();
+  if(!n){document.getElementById('setup-name').style.borderColor='var(--rd)';return}
   const d=load();d.setup=true;d.name=n;store(d);
-  nav.go('pg-home', true);
+  nav.go('pg-home',true);
 }
 function resetSetup(){
   const d=load();d.setup=false;store(d);
-  nav.go('pg-setup', true);
+  nav.go('pg-setup',true);
 }
 
 // ════════════════════════════════════════════════════════
@@ -1453,7 +870,6 @@ function resetSetup(){
 let toastTimeout;
 function showVoteToast(msg){
   const t=document.getElementById('vote-toast');
-  if(!t) return;
   t.textContent=msg;t.classList.add('show');
   clearTimeout(toastTimeout);
   toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);
@@ -1471,6 +887,7 @@ function drawRadar(svgId, scores, prevScores){
   const angle=(i)=>i*PI2/n - Math.PI/2;
   const pt=(i,radius)=>[cx+radius*Math.cos(angle(i)),cy+radius*Math.sin(angle(i))];
 
+  // Grid rings
   [0.2,0.4,0.6,0.8,1].forEach(frac=>{
     const pts=Array.from({length:n},(_,i)=>pt(i,r*frac)).map(p=>p.join(',')).join(' ');
     const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
@@ -1479,17 +896,20 @@ function drawRadar(svgId, scores, prevScores){
     svg.appendChild(poly);
   });
 
+  // Axes
   Array.from({length:n},(_,i)=>{
-    const xy=pt(i,r);
+    const [x,y]=pt(i,r);
     const line=document.createElementNS('http://www.w3.org/2000/svg','line');
     line.setAttribute('x1',cx);line.setAttribute('y1',cy);
-    line.setAttribute('x2',xy[0]);line.setAttribute('y2',xy[1]);
+    line.setAttribute('x2',x);line.setAttribute('y2',y);
     line.setAttribute('stroke','#1c1c2c');line.setAttribute('stroke-width','1');
     svg.appendChild(line);
   });
 
+  // Max for normalization
   const max=Math.max(1,...Object.values(scores));
 
+  // Previous week polygon (faint)
   if(prevScores){
     const pm=Math.max(1,...Object.values(prevScores));
     const prevPts=CATS.map((c,i)=>{const v=(prevScores[c.id]||0)/pm;return pt(i,r*Math.min(v,1))}).map(p=>p.join(',')).join(' ');
@@ -1499,27 +919,29 @@ function drawRadar(svgId, scores, prevScores){
     svg.appendChild(prevPoly);
   }
 
+  // Main polygon
   const pts=CATS.map((c,i)=>{const v=(scores[c.id]||0)/max;return pt(i,r*Math.min(Math.max(v,0.04),1))}).map(p=>p.join(',')).join(' ');
   const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
   const grad=document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
-  grad.setAttribute('id','radar-grad-'+svgId);grad.setAttribute('x1','0%');grad.setAttribute('y1','0%');grad.setAttribute('x2','100%');grad.setAttribute('y2','100%');
+  grad.setAttribute('id','radar-grad');grad.setAttribute('x1','0%');grad.setAttribute('y1','0%');grad.setAttribute('x2','100%');grad.setAttribute('y2','100%');
   const s1=document.createElementNS('http://www.w3.org/2000/svg','stop');s1.setAttribute('offset','0%');s1.setAttribute('stop-color','#d4924a');s1.setAttribute('stop-opacity','.35');
   const s2=document.createElementNS('http://www.w3.org/2000/svg','stop');s2.setAttribute('offset','100%');s2.setAttribute('stop-color','#6a5acd');s2.setAttribute('stop-opacity','.35');
   grad.appendChild(s1);grad.appendChild(s2);defs.appendChild(grad);svg.appendChild(defs);
   const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-  poly.setAttribute('points',pts);poly.setAttribute('fill','url(#radar-grad-'+svgId+')');
+  poly.setAttribute('points',pts);poly.setAttribute('fill','url(#radar-grad)');
   poly.setAttribute('stroke','#d4924a');poly.setAttribute('stroke-width','1.5');
   svg.appendChild(poly);
 
+  // Dots + labels
   CATS.forEach((c,i)=>{
     const v=(scores[c.id]||0)/max;
-    const xy=pt(i,r*Math.min(Math.max(v,.04),1));
+    const [x,y]=pt(i,r*Math.min(Math.max(v,.04),1));
     const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    dot.setAttribute('cx',xy[0]);dot.setAttribute('cy',xy[1]);dot.setAttribute('r','4');
+    dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.setAttribute('r','4');
     dot.setAttribute('fill',c.color);svg.appendChild(dot);
-    const lxy=pt(i,r*1.22);
+    const [lx,ly]=pt(i,r*1.22);
     const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-    txt.setAttribute('x',lxy[0]);txt.setAttribute('y',lxy[1]);txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('x',lx);txt.setAttribute('y',ly);txt.setAttribute('text-anchor','middle');
     txt.setAttribute('dominant-baseline','middle');txt.setAttribute('fill',c.color);
     txt.setAttribute('font-size','9');txt.setAttribute('font-family','DM Sans,sans-serif');
     txt.setAttribute('font-weight','600');txt.setAttribute('letter-spacing','0.08em');
@@ -1543,58 +965,60 @@ function renderHome(){
   const name=d.name||'You';
   const h=new Date().getHours();
   const greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-  const greetEl=document.getElementById('home-greeting');
-  if(greetEl)greetEl.textContent=greet+',';
+  document.getElementById('home-greeting').textContent=greet+',';
   const nameEl=document.getElementById('home-name');
   if(nameEl)nameEl.textContent=name+' — The Mirror';
-  const dateEl=document.getElementById('home-date');
-  if(dateEl)dateEl.textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  const stStreak=document.getElementById('st-streak'); if(stStreak)stStreak.textContent=d.streak||0;
-  const stBest=document.getElementById('st-best'); if(stBest)stBest.textContent=d.best||0;
-  const stUrges=document.getElementById('st-urges'); if(stUrges)stUrges.textContent=d.urgesResisted||0;
+  document.getElementById('home-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('st-streak').textContent=d.streak||0;
+  document.getElementById('st-best').textContent=d.best||0;
+  document.getElementById('st-urges').textContent=d.urgesResisted||0;
 
+  // Radar
   drawRadar('radar-svg',d.catScores||{});
   renderRadarLegend(d.catScores||{});
 
-  const mDone=[today.fajr,today.quranDone,today.affirms&&today.affirms.length===8,!!today.trait,!!today.review].filter(Boolean).length;
-  const mornPill=document.getElementById('morn-pill'); if(mornPill)mornPill.textContent=mDone+' / 5';
+  // Morning steps
+  const mDone=[today.fajr,today.quranDone,today.affirms?.length===8,!!today.trait,!!today.review||!!today.mornDone].filter(Boolean).length;
+  document.getElementById('morn-pill').textContent=mDone+' / 5';
   const mSteps=[
     {ico:'🕌',name:'Fajr Prayer',sub:'With khushu\'',done:today.fajr},
     {ico:'📖',name:'Qur\'an',sub:'Verse & reflection',done:today.quranDone},
-    {ico:'⚡',name:'Affirmations',sub:'8 identity votes',done:today.affirms&&today.affirms.length===8},
+    {ico:'⚡',name:'Affirmations',sub:'8 identity votes',done:today.affirms?.length===8},
     {ico:'✦',name:'Intention',sub:'If/then format',done:!!today.intent},
     {ico:'⚖',name:'Yesterday\'s Review',sub:'Honest accounting',done:!!today.review}
   ];
-  const mStepsEl=document.getElementById('home-morning-steps');
-  if(mStepsEl)mStepsEl.innerHTML=mSteps.map(s=>`
+  document.getElementById('home-morning-steps').innerHTML=mSteps.map(s=>`
     <div class="step-row${s.done?' done':''}">
       <span class="step-ico">${s.done?'<span style="color:var(--gr)">✓</span>':s.ico}</span>
       <div class="step-info"><div class="step-nm">${s.name}</div><div class="step-sub">${s.sub}</div></div>
     </div>`).join('');
   const mBtn=document.getElementById('morn-btn');
   const mBtnTxt=document.getElementById('morn-btn-txt');
-  if(today.mornDone){ if(mBtn)mBtn.className='btn btn-ghost'; if(mBtnTxt)mBtnTxt.textContent='Morning Complete ✓'; }
-  else { if(mBtn)mBtn.className='btn btn-am'; if(mBtnTxt)mBtnTxt.textContent=mDone>0?'Continue Morning →':'Begin Morning Ritual'; }
+  if(today.mornDone){if(mBtn){mBtn.className='btn btn-ghost';mBtn.onclick=null}if(mBtnTxt)mBtnTxt.textContent='Morning Complete ✓'}
+  else{if(mBtn){mBtn.className='btn btn-am';mBtn.onclick=startMorning}if(mBtnTxt)mBtnTxt.textContent=mDone>0?'Continue Morning →':'Begin Morning Ritual'}
 
+  // Evening steps
   const eDone=[today.intentDone!==null,!!today.avoided,!!today.gratitude].filter(Boolean).length;
-  const evePill=document.getElementById('eve-pill'); if(evePill)evePill.textContent=eDone+' / 3';
+  document.getElementById('eve-pill').textContent=eDone+' / 3';
   const eSteps=[
     {ico:'🎯',name:'Intention Review',sub:'Did you do it?',done:today.intentDone!==null},
     {ico:'🛡',name:'What Was Avoided',sub:'Self-control accounting',done:!!today.avoided},
     {ico:'🙏',name:'Gratitude',sub:'Three specific things',done:!!today.gratitude}
   ];
-  const eStepsEl=document.getElementById('home-eve-steps');
-  if(eStepsEl)eStepsEl.innerHTML=eSteps.map(s=>`
+  document.getElementById('home-eve-steps').innerHTML=eSteps.map(s=>`
     <div class="step-row${s.done?' done':''}">
       <span class="step-ico">${s.done?'<span style="color:var(--pu)">✓</span>':s.ico}</span>
       <div class="step-info"><div class="step-nm">${s.name}</div><div class="step-sub">${s.sub}</div></div>
     </div>`).join('');
   const eBtn=document.getElementById('eve-btn');
   const eBtnTxt=document.getElementById('eve-btn-txt');
-  if(today.eveDone){ if(eBtn)eBtn.className='btn btn-ghost'; if(eBtnTxt)eBtnTxt.textContent='Evening Complete ✓'; }
-  else { if(eBtn)eBtn.className='btn btn-pu'; if(eBtnTxt)eBtnTxt.textContent=eDone>0?'Continue Evening →':'Begin Evening Check-in'; }
+  if(today.eveDone){if(eBtn){eBtn.className='btn btn-ghost';eBtn.onclick=null}if(eBtnTxt)eBtnTxt.textContent='Evening Complete ✓'}
+  else{if(eBtn){eBtn.className='btn btn-pu';eBtn.onclick=startEvening}if(eBtnTxt)eBtnTxt.textContent=eDone>0?'Continue Evening →':'Begin Evening Check-in'}
 
+  // Drift detector
   checkDrift(d,name);
+
+  // Resurface
   renderResurface(d,name);
 }
 
@@ -1602,7 +1026,7 @@ function checkDrift(d,name){
   const days=Object.keys(d.days).sort();
   let missedStreak=0;
   days.slice(-4).forEach(k=>{
-    if(k!==todayKey()&&!(d.days[k]&&d.days[k].intent))missedStreak++;
+    if(k!==todayKey()&&!d.days[k]?.intent)missedStreak++;
   });
   const driftEl=document.getElementById('drift-alert');
   const driftMsg=document.getElementById('drift-msg');
@@ -1617,6 +1041,7 @@ function renderResurface(d,name){
   if(!el)return;
   const days=Object.keys(d.days).filter(k=>k!==todayKey()).sort();
   if(days.length<3){el.innerHTML='';return}
+  // Surface every 3-5 days based on day number
   const dayNum=Math.floor(Date.now()/86400000);
   if(dayNum%4!==0){el.innerHTML='';return}
   const pastDay=days[Math.floor(Math.random()*days.length)];
@@ -1637,13 +1062,14 @@ function startMorning(){
   const d=load(); const today=getToday(d);
   if(!today.fajr)nav.go('pg-m1');
   else if(!today.quranDone)nav.go('pg-m2');
-  else if(!today.affirms||today.affirms.length<8)nav.go('pg-m3');
+  else if(today.affirms?.length<8)nav.go('pg-m3');
   else if(!today.intent)nav.go('pg-m4');
   else nav.go('pg-m5');
 }
 
 function renderStepDots(id, stepIdx, steps){
-  const today=getToday(load());
+  const {rec:today}={rec:getToday(load())};
+  const done=[today.fajr,today.quranDone,today.affirms?.length===8,!!today.trait,!!today.review];
   const el=document.getElementById(id);
   if(!el)return;
   el.innerHTML=Array.from({length:steps},(_,i)=>`<div class="dot ${i<stepIdx?'done':(i===stepIdx?'cur':'idle')}"></div>`).join('');
@@ -1654,7 +1080,7 @@ function enterM1(){
   renderStepDots('dots-m1',0,5);
   const d=load();const today=getToday(d);
   const t=document.getElementById('tog-fajr');
-  if(t)t.className='tog'+(today.fajr?' on':'');
+  if(t){t.className='tog'+(today.fajr?' on':'');t.style.cssText='width:62px;height:32px;border-radius:16px'}
   const n=d.name||'You';
   const lbl=document.getElementById('m1-toggle-lbl');
   if(lbl)lbl.textContent=`${n} prayed Fajr with khushu'`;
@@ -1665,7 +1091,7 @@ function toggleFajr(){
   if(today.fajr)castVote(['taqwa','discipline'],d,'Fajr with khushu\'');
   else store(d);
   const t=document.getElementById('tog-fajr');
-  if(t)t.className='tog'+(today.fajr?' on':'');
+  if(t){t.className='tog'+(today.fajr?' on':'');t.style.cssText='width:62px;height:32px;border-radius:16px'}
 }
 
 // M2
@@ -1673,9 +1099,9 @@ function enterM2(){
   renderStepDots('dots-m2',1,5);
   const d=load();const name=d.name||'You';
   const v=VERSES[Math.floor(Date.now()/86400000)%7];
-  const ar=document.getElementById('verse-ar'); if(ar)ar.textContent=v.ar;
-  const en=document.getElementById('verse-en'); if(en)en.textContent=v.en;
-  const ref=document.getElementById('verse-ref'); if(ref)ref.textContent=v.ref;
+  document.getElementById('verse-ar').textContent=v.ar;
+  document.getElementById('verse-en').textContent=v.en;
+  document.getElementById('verse-ref').textContent=v.ref;
   const pl=document.getElementById('quran-prompt-lbl');
   if(pl)pl.textContent=`What does this verse mean for ${name} today?`;
   const ta=document.getElementById('ta-quran');
@@ -1684,11 +1110,9 @@ function enterM2(){
 function saveM2(){
   const d=load();const today=getToday(d);
   const ta=document.getElementById('ta-quran');
-  const val = ta?ta.value:'';
-  const wasLong = val.length>10 && today.quranRef!==val;
-  today.quranRef=val;
+  today.quranRef=ta?ta.value:'';
   today.quranDone=true;
-  if(wasLong)castVote(['taqwa','gratitude'],d,'Qur\'an reflection');
+  if(ta&&ta.value.length>10)castVote(['taqwa','gratitude'],d,'Qur\'an reflection');
   else store(d);
 }
 
@@ -1698,13 +1122,12 @@ function enterM3(){
   const d=load();const name=d.name||'You';
   const today=getToday(d);
   const saved=today.affirms||[];
-  const list=document.getElementById('affirm-list');
-  if(list)list.innerHTML=AFFIRMS.map((a,i)=>{
-    const done=saved.indexOf(i)!==-1;
+  document.getElementById('affirm-list').innerHTML=AFFIRMS.map((a,i)=>{
+    const done=saved.includes(i);
     const txt=a.txt.replace(/\[N\]/g,name);
-    return`<div class="aff-item${done?' done':''}" data-affirm-idx="${i}">
+    return`<div class="aff-item${done?' done':''}" onclick="tapAffirm(${i})">
       <div class="aff-circle"><span class="aff-chk">✓</span></div>
-      <div class="aff-txt">${esc(txt)}</div>
+      <div class="aff-txt">${txt}</div>
     </div>`;
   }).join('');
 }
@@ -1728,19 +1151,16 @@ function enterM4(){
   if(ap)ap.textContent=`Which trait is ${name} voting for today?`;
   const ta=document.getElementById('ta-intent');
   if(ta)ta.value=today.intent||'';
-  const grid=document.getElementById('trait-grid-m4');
-  if(grid)grid.innerHTML=TRAITS.map((t,i)=>`
-    <div class="trait-chip${today.trait===t?' sel':''}" data-trait="${esc(t)}" data-trait-idx="${i}">
+  document.getElementById('trait-grid-m4').innerHTML=TRAITS.map((t,i)=>`
+    <div class="trait-chip${today.trait===t?' sel':''}" onclick="pickTrait('${t}',${i})">
       <div class="trait-name">${t}</div>
     </div>`).join('');
 }
 function saveM4(){
   const d=load();const today=getToday(d);
   const ta=document.getElementById('ta-intent');
-  const val = ta?ta.value:'';
-  const wasNew = val.length>5 && today.intent!==val;
-  today.intent=val;
-  if(wasNew)castVote(['discipline','honesty'],d,'Intention set');else store(d);
+  today.intent=ta?ta.value:'';
+  if(today.intent.length>5)castVote(['discipline','honesty'],d,'Intention set');else store(d);
 }
 function pickTrait(t,i){
   const d=load();const today=getToday(d);
@@ -1766,26 +1186,25 @@ function updateScore5(){
   const sr=document.getElementById('score-range-m5');
   const sd=document.getElementById('score-disp-m5');
   if(!sr||!sd)return;
-  const v=parseInt(sr.value,10);
+  const v=parseInt(sr.value);
   sd.textContent=v;sd.className='score-big'+(v<=3?' s-lo':v<=6?' s-mi':' s-hi');
 }
 function saveM5(){
   const d=load();const today=getToday(d);
   const sr=document.getElementById('score-range-m5');
   const ta=document.getElementById('ta-review');
-  today.score=sr?parseInt(sr.value,10):5;
-  const val = ta?ta.value:'';
-  const wasNew = val.length>5 && today.review!==val;
-  today.review=val;
-  if(wasNew)castVote(['honesty'],d,'Honest self-review');else store(d);
+  today.score=sr?parseInt(sr.value):5;
+  today.review=ta?ta.value:'';
+  if(today.review.length>5)castVote(['honesty'],d,'Honest self-review');else store(d);
 }
 function completeMorning(){
   saveM5();
   const d=load();const today=getToday(d);
   today.mornDone=true;
+  // Streak
   const yest=new Date;yest.setDate(yest.getDate()-1);
   const yk=yest.getFullYear()+'-'+String(yest.getMonth()+1).padStart(2,'0')+'-'+String(yest.getDate()).padStart(2,'0');
-  d.streak=(d.days[yk]&&d.days[yk].mornDone)?(d.streak||0)+1:1;
+  d.streak=d.days[yk]?.mornDone?(d.streak||0)+1:1;
   if(d.streak>(d.best||0))d.best=d.streak;
   store(d);
   showComplete('Morning Ritual','Completed','جزاك الله خيراً',today.votes,'The votes you cast this morning compound. Every morning you show up, your identity shifts.',d);
@@ -1815,20 +1234,17 @@ function enterE1(){
   if(rp)rp.textContent=`What stopped ${name} — or what made it possible?`;
   const ta=document.getElementById('ta-e1');
   if(ta)ta.value=today.eveReflect||'';
-  const yesBtn=document.getElementById('btn-intent-yes');
-  const noBtn=document.getElementById('btn-intent-no');
-  if(yesBtn)yesBtn.style.opacity = today.intentDone===true?'1':(today.intentDone===false?'0.4':'1');
-  if(noBtn)noBtn.style.opacity = today.intentDone===false?'1':(today.intentDone===true?'0.4':'1');
 }
+let intentDoneVal=null;
 function setIntentDone(v){
+  intentDoneVal=v;
   const d=load();const today=getToday(d);
   today.intentDone=v;
   const cats=v?['discipline','honesty']:['honesty'];
   castVote(cats,d,v?'Intention completed':'Honest: intention missed');
-  const yesBtn=document.getElementById('btn-intent-yes');
-  const noBtn=document.getElementById('btn-intent-no');
-  if(yesBtn)yesBtn.style.opacity = v?'1':'0.4';
-  if(noBtn)noBtn.style.opacity = v?'0.4':'1';
+  document.querySelectorAll('#pg-e1 .btn').forEach((b,i)=>{
+    b.style.opacity=(i===0&&v)||(i===1&&!v)?'1':'0.4';
+  });
 }
 function saveE1(){
   const d=load();const today=getToday(d);
@@ -1848,10 +1264,8 @@ function enterE2(){
 function saveE2(){
   const d=load();const today=getToday(d);
   const ta=document.getElementById('ta-avoid');
-  const val = ta?ta.value:'';
-  const wasNew = val.length>5 && today.avoided!==val;
-  today.avoided=val;
-  if(wasNew)castVote(['control','honesty'],d,'Avoidance named');else store(d);
+  today.avoided=ta?ta.value:'';
+  if(today.avoided.length>5)castVote(['control','honesty'],d,'Avoidance named');else store(d);
 }
 function enterE3(){
   renderEveDots('dots-e3',2);
@@ -1865,10 +1279,8 @@ function enterE3(){
 function saveE3(){
   const d=load();const today=getToday(d);
   const ta=document.getElementById('ta-grat');
-  const val = ta?ta.value:'';
-  const wasNew = val.length>5 && today.gratitude!==val;
-  today.gratitude=val;
-  if(wasNew)castVote(['gratitude','brotherhood'],d,'Gratitude practiced');else store(d);
+  today.gratitude=ta?ta.value:'';
+  if(today.gratitude.length>5)castVote(['gratitude','brotherhood'],d,'Gratitude practiced');else store(d);
 }
 function completeEvening(){
   saveE3();
@@ -1891,7 +1303,7 @@ function showComplete(type,status,ar,votes,msg,d){
   if(v&&votes){
     const cats=Object.keys(votes).filter(k=>votes[k]>0).map(k=>{
       const cat=CATS.find(c=>c.id===k);
-      return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)"><div style="width:8px;height:8px;border-radius:50%;background:${cat?cat.color:'#fff'};flex-shrink:0"></div><span style="font-size:13px;color:var(--muted)">+${votes[k]} vote${votes[k]>1?'s':''} for</span> <span style="font-size:13px;font-weight:500">${cat?cat.name:k}</span></div>`;
+      return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)"><div style="width:8px;height:8px;border-radius:50%;background:${cat?.color||'#fff'};flex-shrink:0"></div><span style="font-size:13px;color:var(--muted)">+${votes[k]} vote${votes[k]>1?'s':''} for</span> <span style="font-size:13px;font-weight:500">${cat?.name||k}</span></div>`;
     }).join('');
     v.innerHTML=`<div class="field-lbl" style="margin-bottom:6px">Votes Cast This Session</div>${cats||'<span style="font-size:13px;color:var(--muted)">Complete steps to cast votes.</span>'}`;
   }
@@ -1908,10 +1320,8 @@ function openUrge(){
   const ut=document.getElementById('urge-title');
   const unb=document.getElementById('urge-name-btn');
   if(ut)ut.textContent=name;if(unb)unb.textContent=name;
-  const p1=document.getElementById('urge-phase-1');
-  const p2=document.getElementById('urge-phase-2');
-  if(p1)p1.style.display='';
-  if(p2)p2.style.display='none';
+  document.getElementById('urge-phase-1').style.display='';
+  document.getElementById('urge-phase-2').style.display='none';
   const arc=document.getElementById('urge-arc');
   if(arc)arc.style.strokeDashoffset='0';
   urgeSeconds=60;
@@ -1926,8 +1336,8 @@ function openUrge(){
     if(arc)arc.style.strokeDashoffset=String(total*(1-urgeSeconds/60));
     if(urgeSeconds<=0){
       clearInterval(urgeTimer);urgeTimer=null;
-      if(p1)p1.style.display='none';
-      if(p2)p2.style.display='';
+      document.getElementById('urge-phase-1').style.display='none';
+      document.getElementById('urge-phase-2').style.display='';
     }
   },1000);
 }
@@ -1940,7 +1350,7 @@ function logUrge(resisted){
   const d=load();
   d.urgesTotal=(d.urgesTotal||0)+1;
   if(resisted){d.urgesResisted=(d.urgesResisted||0)+1;castVote(['control','discipline'],d,'Urge resisted')}
-  else{castVote(['honesty'],d,'Urge logged honestly')}
+  else{castVote(['honesty'],d,'Urge logged honestly');store(d)}
   nav.back();
 }
 
@@ -1951,7 +1361,6 @@ function renderHistory(){
   const d=load();const name=d.name||'You';
   const days=Object.keys(d.days).sort((a,b)=>b.localeCompare(a));
   const el=document.getElementById('hist-list');
-  if(!el)return;
   if(!days.length){el.innerHTML=`<div class="empty-msg">Your journey begins<br/>with your first morning.</div>`;return}
   el.innerHTML=days.map(k=>{
     const r=d.days[k];
@@ -1961,16 +1370,16 @@ function renderHistory(){
     const lbl=date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
     const status=r.mornDone?'✓ Morning done':r.fajr?'In progress':'Not started';
     return`<div class="h-card">
-      <div class="h-hdr" data-hist-toggle="1">
+      <div class="h-hdr" onclick="this.nextElementSibling.classList.toggle('open')">
         <div><div class="h-date">${lbl}</div><div class="h-status">${status}</div></div>
         ${sc?`<div class="h-sc" style="background:${scC}22;color:${scC}">${sc}</div>`:''}
       </div>
       <div class="h-body">
         ${r.intent?`<div class="h-field"><div class="h-flbl">Intention</div><div class="h-fval">${esc(r.intent)}</div></div>`:''}
         ${r.quranRef?`<div class="h-field"><div class="h-flbl">Qur'an Reflection</div><div class="h-fval">${esc(r.quranRef)}</div></div>`:''}
-        ${r.avoided?`<div class="h-field"><div class="h-flbl">What ${esc(name)} Avoided</div><div class="h-fval">${esc(r.avoided)}</div></div>`:''}
+        ${r.avoided?`<div class="h-field"><div class="h-flbl">What ${name} Avoided</div><div class="h-fval">${esc(r.avoided)}</div></div>`:''}
         ${r.gratitude?`<div class="h-field"><div class="h-flbl">Gratitude</div><div class="h-fval">${esc(r.gratitude)}</div></div>`:''}
-        ${r.votes&&Object.keys(r.votes).length?`<div class="h-field"><div class="h-flbl">Votes Cast</div><div class="h-fval" style="font-size:13px;color:var(--muted)">${Object.entries(r.votes).filter(function(e){return e[1]>0}).map(function(e){const cat=CATS.find(function(c){return c.id===e[0]});return (cat?cat.name:e[0])+': +'+e[1]}).join(' · ')}</div></div>`:''}
+        ${r.votes&&Object.keys(r.votes).length?`<div class="h-field"><div class="h-flbl">Votes Cast</div><div class="h-fval" style="font-size:13px;color:var(--muted)">${Object.entries(r.votes).filter(([,v])=>v>0).map(([k,v])=>`${CATS.find(c=>c.id===k)?.name||k}: +${v}`).join(' · ')}</div></div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1982,22 +1391,22 @@ function renderHistory(){
 function renderWall(){
   const d=load();
   const days=Object.keys(d.days);
-  const mornDone=days.filter(k=>d.days[k]&&d.days[k].mornDone).length;
-  const eveDone=days.filter(k=>d.days[k]&&d.days[k].eveDone).length;
+  const mornDone=days.filter(k=>d.days[k]?.mornDone).length;
+  const eveDone=days.filter(k=>d.days[k]?.eveDone).length;
   const total=Object.values(d.catScores||{}).reduce((a,b)=>a+b,0);
   const grid=document.getElementById('wall-grid');
   if(grid)grid.innerHTML=[
     ['Total Days',days.length],['Mornings',mornDone],['Evenings',eveDone],
     ['Streak',d.streak||0],['Best',d.best||0],['Urges Won',d.urgesResisted||0],
     ['Total Votes',total],['Urges Total',d.urgesTotal||0]
-  ].map(pair=>`<div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:16px;text-align:center"><div style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--am);line-height:1">${pair[1]}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">${pair[0]}</div></div>`).join('');
+  ].map(([l,v])=>`<div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:16px;text-align:center"><div style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--am);line-height:1">${v}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">${l}</div></div>`).join('');
   const cats=document.getElementById('wall-cats');
   if(cats){
     const max=Math.max(1,...Object.values(d.catScores||{}));
     cats.innerHTML=CATS.map(c=>`<div class="report-category-bar">
       <span class="rcb-name">${c.name}</span>
-      <div class="rcb-track"><div class="rcb-fill" style="width:${Math.round((d.catScores[c.id]||0)/max*100)}%;background:${c.color}"></div></div>
-      <span class="rcb-val">${d.catScores[c.id]||0}</span>
+      <div class="rcb-track"><div class="rcb-fill" style="width:${Math.round((d.catScores?.[c.id]||0)/max*100)}%;background:${c.color}"></div></div>
+      <span class="rcb-val">${d.catScores?.[c.id]||0}</span>
     </div>`).join('');
   }
 }
@@ -2007,22 +1416,20 @@ function renderWall(){
 // ════════════════════════════════════════════════════════
 function renderGoals(){
   const d=load();const goals=d.goals||[];
-  const el=document.getElementById('goal-list');
-  if(!el)return;
-  el.innerHTML=goals.length?goals.map((g,i)=>`
+  document.getElementById('goal-list').innerHTML=goals.length?goals.map((g,i)=>`
     <div class="goal-item">
-      <div class="goal-status${g.done?' done':''}" data-goal-toggle="${i}"></div>
-      <div class="goal-txt" style="${g.done?'text-decoration:line-through;color:var(--muted)':''}">${esc(g.txt)}</div>
-      <div class="goal-del" data-goal-del="${i}">×</div>
+      <div class="goal-status${g.done?' done':''}" onclick="toggleGoal(${i})"></div>
+      <div class="goal-txt${g.done?' ':''}'" style="${g.done?'text-decoration:line-through;color:var(--muted)':''}">${esc(g.txt)}</div>
+      <div class="goal-del" onclick="deleteGoal(${i})">×</div>
     </div>`).join(''):`<div class="empty-msg" style="padding:48px 0;font-size:18px">Add your first goal.</div>`;
 }
 function addGoal(){
   const inp=document.getElementById('goal-input');
-  const txt=inp?inp.value.trim():'';if(!txt)return;
+  const txt=inp.value.trim();if(!txt)return;
   const d=load();if(!d.goals)d.goals=[];
   d.goals.push({txt,done:false});store(d);
   castVote(['discipline'],d,'Goal added');
-  if(inp)inp.value='';renderGoals();
+  inp.value='';renderGoals();
 }
 function toggleGoal(i){
   const d=load();if(!d.goals)return;
@@ -2049,17 +1456,18 @@ function renderWeekly(){
     const k2=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');
     lastWeek.push(k2);
   }
-  const weekVotes={};const prevVotes={};
+  const weekVotes={}; const prevVotes={};
   CATS.forEach(c=>{weekVotes[c.id]=0;prevVotes[c.id]=0});
-  thisWeek.forEach(k=>{const r=d.days[k];if(r&&r.votes)Object.entries(r.votes).forEach(function(e){if(weekVotes[e[0]]!==undefined)weekVotes[e[0]]+=e[1]})});
-  lastWeek.forEach(k=>{const r=d.days[k];if(r&&r.votes)Object.entries(r.votes).forEach(function(e){if(prevVotes[e[0]]!==undefined)prevVotes[e[0]]+=e[1]})});
+  thisWeek.forEach(k=>{const r=d.days[k];if(r?.votes)Object.entries(r.votes).forEach(([cat,v])=>{if(weekVotes[cat]!==undefined)weekVotes[cat]+=v})});
+  lastWeek.forEach(k=>{const r=d.days[k];if(r?.votes)Object.entries(r.votes).forEach(([cat,v])=>{if(prevVotes[cat]!==undefined)prevVotes[cat]+=v})});
 
   const maxV=Math.max(1,...Object.values(weekVotes));
   const strongest=CATS.reduce((a,c)=>(weekVotes[c.id]||0)>(weekVotes[a.id]||0)?c:a,CATS[0]);
   const weakest=CATS.reduce((a,c)=>(weekVotes[c.id]||0)<(weekVotes[a.id]||0)?c:a,CATS[0]);
 
-  let bestJournal='';
-  thisWeek.forEach(k=>{const r=d.days[k];if(r&&r.quranRef&&r.quranRef.length>bestJournal.length){bestJournal=r.quranRef;}});
+  // Find best journal entry
+  let bestJournal='';let bestDay='';
+  thisWeek.forEach(k=>{const r=d.days[k];if(r?.quranRef&&r.quranRef.length>(bestJournal.length)){bestJournal=r.quranRef;bestDay=k}});
 
   el.innerHTML=`
     <div class="ar-bg" style="font-size:44px;margin-bottom:-8px;opacity:.4">التقرير</div>
@@ -2067,7 +1475,7 @@ function renderWeekly(){
     <svg id="weekly-radar" viewBox="0 0 280 280" style="width:100%;max-width:280px;display:block;margin:0 auto"></svg>
     <div style="height:16px"></div>
     <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--am);margin-bottom:10px">This week, ${esc(name)} voted most for</div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--am);margin-bottom:10px">This week, ${name} voted most for</div>
       <div style="display:flex;gap:12px;align-items:center"><div style="width:10px;height:10px;border-radius:50%;background:${strongest.color}"></div><span class="serif" style="font-size:22px">${strongest.name}</span></div>
     </div>
     <div style="background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:14px">
@@ -2084,7 +1492,7 @@ function renderWeekly(){
       <span class="rcb-val">${weekVotes[c.id]||0}</span>
     </div>`).join('')}</div>`;
 
-  setTimeout(()=>drawRadar('weekly-radar',weekVotes,prevVotes),50);
+  setTimeout(()=>drawRadar('weekly-radar',weekVotes,prevVotes),100);
 }
 
 // ════════════════════════════════════════════════════════
@@ -2098,67 +1506,59 @@ function renderAbout(){
 // ════════════════════════════════════════════════════════
 // UTILITIES
 // ════════════════════════════════════════════════════════
-function esc(s){const d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
 // ════════════════════════════════════════════════════════
-// PWA (best-effort, never blocks app init)
+// PWA
 // ════════════════════════════════════════════════════════
 function regPWA(){
-  try{
-    const icon=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#09090f"/><path d="M256 80C168 80 100 148 100 236c0 88 72 160 160 160 20 0 39-3 56-9-60-16-104-72-104-132 0-72 60-128 132-120C330 98 295 80 256 80Z" fill="#d4924a"/></svg>`;
-    const iconUrl=URL.createObjectURL(new Blob([icon],{type:'image/svg+xml'}));
-    const mf=JSON.stringify({name:'The Mirror',short_name:'Mirror',start_url:'.',display:'standalone',background_color:'#09090f',theme_color:'#09090f',icons:[{src:iconUrl,sizes:'512x512',type:'image/svg+xml'}]});
-    const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([mf],{type:'application/json'}));document.head.appendChild(l);
-  }catch(e){}
-  try{
-    if('serviceWorker' in navigator && location.protocol!=='file:'){
-      const sw=`self.addEventListener('install',e=>e.waitUntil(caches.open('mirror-v1').then(c=>c.addAll(['.']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
-      navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})));
-    }
-  }catch(e){}
+  const icon=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#09090f"/><path d="M256 80C168 80 100 148 100 236c0 88 72 160 160 160 20 0 39-3 56-9-60-16-104-72-104-132 0-72 60-128 132-120C330 98 295 80 256 80Z" fill="#d4924a"/></svg>`;
+  const mf=JSON.stringify({name:'The Mirror',short_name:'Mirror',start_url:'.',display:'standalone',background_color:'#09090f',theme_color:'#09090f',icons:[{src:URL.createObjectURL(new Blob([icon],{type:'image/svg+xml'})),sizes:'512x512',type:'image/svg+xml'}]});
+  try{const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([mf],{type:'application/json'}));document.head.appendChild(l)}catch(e){}
+  if('serviceWorker' in navigator){
+    const sw=`self.addEventListener('install',e=>e.waitUntil(caches.open('mirror-v1').then(c=>c.addAll(['.']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+    try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})))}catch(e){}
+  }
 }
 
 // ════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════
-function init(){
-  // Make sure setup carries the data-action hook used by wireEvents
-  const setupBtn = document.querySelector('#pg-setup .btn-am');
-  if(setupBtn) setupBtn.setAttribute('data-action','complete-setup');
-
-  wireEvents();
+window.addEventListener('DOMContentLoaded',()=>{
   regPWA();
-
+  safePush({page:'pg-setup'},'#setup');
   const d=load();
-  if(d.setup && d.name){
-    // Land directly on home, no transition animation on first paint.
-    document.getElementById('pg-setup').classList.add('pg-off');
-    document.getElementById('pg-home').classList.remove('pg-off');
-    currentPage='pg-home';
-    pageStack=['pg-home'];
-    safePush({page:'pg-home'},'#home');
-    onEnter('pg-home');
+  if(d.setup&&d.name){
+    document.getElementById('pg-setup').classList.add('off');
+    nav.go('pg-home',true);
   } else {
-    document.getElementById('pg-setup').classList.remove('pg-off');
-    currentPage='pg-setup';
-    pageStack=['pg-setup'];
-    safePush({page:'pg-setup'},'#setup');
+    document.getElementById('pg-setup').classList.remove('off');
   }
   updateFabs();
-}
-
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+});
 
 // Capacitor back button (for APK)
 try{
-  if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App){
-    window.Capacitor.Plugins.App.addListener('backButton', function(args){
-      if(currentPage!=='pg-home'){ nav.back(); }
-      else if(window.Capacitor.Plugins.App.exitApp){ window.Capacitor.Plugins.App.exitApp(); }
+  if(window.Capacitor?.Plugins?.App){
+    window.Capacitor.Plugins.App.addListener('backButton',({canGoBack})=>{
+      if(currentPage!=='pg-home')nav.back();
+      else if(window.Capacitor?.Plugins?.App?.exitApp)let lastBack = 0;
+
+window.Capacitor.Plugins.App.addListener('backButton', () => {
+  if(currentPage !== 'pg-home'){
+    nav.back();
+    return;
+  }
+
+  const now = Date.now();
+
+  if(now - lastBack < 2000){
+    window.Capacitor.Plugins.App.exitApp();
+  } else {
+    lastBack = now;
+    alert('Press back again to exit');
+  }
+});
     });
   }
 }catch(e){}
