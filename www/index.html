@@ -1,2032 +1,2250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="theme-color" content="#0c0c14"/>
-<title>The Mirror — المرآة</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
-<style>
-/* ── RESET ────────────────────────────────────────────── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;font-size:15px}
-
-/* ── TOKENS ───────────────────────────────────────────── */
-:root{
-  --ink:     #0c0c14;
-  --ink1:    #121220;
-  --ink2:    #1a1a2e;
-  --ink3:    #24243c;
-  --border:  #2a2a44;
-  --border2: #363658;
-  --text:    #e8e2d5;
-  --text2:   #a09a8e;
-  --text3:   #5a5470;
-  --amber:   #c8922a;
-  --amber2:  #e0a83a;
-  --amber-bg:rgba(200,146,42,0.10);
-  --amber-bg2:rgba(200,146,42,0.05);
-  --green:   #3d9970;
-  --green-bg:rgba(61,153,112,0.12);
-  --red:     #b84040;
-  --purple:  #6a5acd;
-  --spine-w: 3px;
-  --nav-h:   62px;
-}
-
-body{background:var(--ink);color:var(--text)}
-
-/* ── APP SHELL ────────────────────────────────────────── */
-#app{
-  position:fixed;inset:0;
-  display:flex;flex-direction:column;
-  overflow:hidden;
-}
-
-/* ── PAGE SYSTEM ──────────────────────────────────────── */
-/* All pages are in a single scrollable container above nav */
-#pages{
-  flex:1;
-  position:relative;
-  overflow:hidden;
-}
-.page{
-  display:none;
-  position:absolute;
-  inset:0;
-  overflow-y:auto;
-  overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-  animation:pgIn 180ms ease both;
-}
-.page::-webkit-scrollbar{display:none}
-.page.active{display:block}
-@keyframes pgIn{from{opacity:0}to{opacity:1}}
-
-/* ── BOTTOM NAV ───────────────────────────────────────── */
-#bnav{
-  height:var(--nav-h);
-  flex-shrink:0;
-  display:flex;
-  background:var(--ink1);
-  border-top:1px solid var(--border);
-  padding-bottom:env(safe-area-inset-bottom);
-}
-.bnav-btn{
-  flex:1;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;
-  background:none;border:none;
-  color:var(--text3);
-  font-family:'Inter',sans-serif;
-  font-size:9px;font-weight:600;
-  letter-spacing:.1em;text-transform:uppercase;
-  cursor:pointer;
-  transition:color .15s;
-  padding:8px 4px;
-}
-.bnav-btn .ico{font-size:19px;line-height:1}
-.bnav-btn.active,.bnav-btn:active{color:var(--amber)}
-
-/* ── VERTICAL SPINE ────────────────────────────────────── */
-/* The signature element — a 3px amber left border on all inner pages,
-   referencing a journal spine and calligraphy margin lines */
-.spine-layout{
-  display:flex;
-  min-height:100%;
-}
-.spine{
-  width:var(--spine-w);
-  background:var(--amber);
-  flex-shrink:0;
-  opacity:.6;
-}
-.spine-content{
-  flex:1;
-  min-width:0;
-  padding:0 0 calc(var(--nav-h) + 24px) 0;
-}
-
-/* ── TOPBAR ───────────────────────────────────────────── */
-.topbar{
-  display:flex;align-items:center;gap:12px;
-  padding:16px 20px 12px;
-  padding-top:calc(16px + env(safe-area-inset-top));
-  border-bottom:1px solid var(--border);
-  position:sticky;top:0;
-  background:var(--ink1);
-  z-index:10;
-}
-.back-btn{
-  width:38px;height:38px;min-width:38px;
-  border:1px solid var(--border);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--text2);
-  font-size:17px;
-  transition:border-color .15s,color .15s;
-  background:none;
-}
-.back-btn:active{border-color:var(--amber);color:var(--amber)}
-.topbar-title{
-  font-family:'Inter',sans-serif;
-  font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--text3);flex:1;
-}
-.topbar-right{font-size:11px;color:var(--text3)}
-
-/* Step dots */
-.step-dots{display:flex;gap:4px;align-items:center}
-.sdot{height:3px;border-radius:2px;transition:all .2s}
-.sdot.done{background:var(--green);width:14px}
-.sdot.cur{background:var(--amber);width:22px}
-.sdot.idle{background:var(--border2);width:8px}
-
-/* ── TYPOGRAPHY ───────────────────────────────────────── */
-.display{font-family:'Playfair Display',serif;font-weight:400}
-.display-i{font-family:'Playfair Display',serif;font-weight:400;font-style:italic}
-.arabic{font-family:'Amiri',serif;direction:rtl;unicode-bidi:isolate}
-.eyebrow{
-  font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--amber);
-}
-.rule{height:1px;background:var(--border);margin:0}
-
-/* ── BUTTONS ──────────────────────────────────────────── */
-.btn{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  min-height:50px;padding:13px 20px;
-  border-radius:8px;border:none;
-  cursor:pointer;
-  font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
-  letter-spacing:.01em;
-  transition:opacity .15s,transform .1s;
-  width:100%;
-}
-.btn:active{opacity:.82;transform:scale(.98)}
-.btn-amber{background:var(--amber);color:#0c0c14}
-.btn-green{background:var(--green);color:#fff}
-.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text)}
-.btn-outline:active{border-color:var(--amber)}
-.btn-sm{min-height:38px;padding:9px 16px;font-size:13px;border-radius:6px}
-.btn-danger{background:transparent;border:1px solid var(--red);color:var(--red)}
-
-/* ── CARDS ────────────────────────────────────────────── */
-.card{
-  background:var(--ink2);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:18px;
-}
-.card+.card{margin-top:8px}
-.card-amber{border-color:rgba(200,146,42,.3);background:var(--amber-bg2)}
-
-/* ── TAGS / PILLS ─────────────────────────────────────── */
-.tag{
-  display:inline-flex;align-items:center;
-  padding:3px 9px;border-radius:20px;
-  font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-}
-.tag-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(200,146,42,.25)}
-.tag-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(61,153,112,.25)}
-.tag-muted{background:var(--ink3);color:var(--text3);border:1px solid var(--border)}
-
-/* ── TOGGLE ───────────────────────────────────────────── */
-.toggle{
-  width:48px;height:26px;
-  background:var(--ink3);border:1px solid var(--border2);
-  border-radius:13px;position:relative;cursor:pointer;
-  transition:background .2s;flex-shrink:0;
-}
-.toggle.on{background:var(--amber);border-color:var(--amber)}
-.toggle::after{
-  content:'';position:absolute;
-  top:3px;left:3px;width:18px;height:18px;
-  border-radius:50%;background:#fff;
-  transition:transform .2s;
-}
-.toggle.on::after{transform:translateX(22px)}
-
-/* ── TEXTAREA / INPUT ─────────────────────────────────── */
-textarea,input[type=text],input[type=time]{
-  width:100%;background:var(--ink3);
-  border:1px solid var(--border);border-radius:8px;
-  padding:12px 14px;color:var(--text);
-  font-family:'Inter',sans-serif;font-size:14px;line-height:1.7;
-  outline:none;resize:none;
-  transition:border-color .15s;
-}
-textarea::placeholder,input::placeholder{color:var(--text3)}
-textarea:focus,input:focus{border-color:var(--amber)}
-input[type=time]{color-scheme:dark}
-
-/* ── RANGE SLIDER ─────────────────────────────────────── */
-input[type=range]{
-  width:100%;-webkit-appearance:none;appearance:none;
-  height:2px;background:var(--border2);border-radius:1px;outline:none;
-  accent-color:var(--amber);
-}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:24px;height:24px;
-  border-radius:50%;background:var(--amber);
-  box-shadow:0 0 12px rgba(200,146,42,.4);
-  cursor:pointer;
-}
-
-/* ── CHECKLIST ROW ────────────────────────────────────── */
-.check-row{
-  display:flex;align-items:flex-start;gap:13px;
-  padding:12px 0;border-bottom:1px solid var(--border);
-  cursor:pointer;user-select:none;
-}
-.check-row:first-child{padding-top:0}
-.check-row:last-child{border-bottom:none;padding-bottom:0}
-.check-circle{
-  width:22px;height:22px;min-width:22px;
-  border-radius:50%;border:1.5px solid var(--border2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;color:transparent;
-  transition:all .15s;margin-top:1px;
-}
-.check-row.done .check-circle{
-  background:var(--green);border-color:var(--green);color:#fff;
-}
-.check-sq{
-  width:20px;height:20px;min-width:20px;
-  border-radius:4px;border:1.5px solid var(--border2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;color:transparent;
-  transition:all .15s;margin-top:1px;
-}
-.check-row.done .check-sq{
-  background:var(--amber);border-color:var(--amber);color:#0c0c14;
-}
-.check-label{font-size:14px;line-height:1.5;color:var(--text)}
-.check-row.done .check-label{text-decoration:line-through;color:var(--text3)}
-
-/* ── STEP ROW ─────────────────────────────────────────── */
-.step-row{
-  display:flex;align-items:center;gap:14px;
-  padding:13px 20px;border-bottom:1px solid var(--border);
-}
-.step-row:last-child{border-bottom:none}
-.step-ico{font-size:17px;width:24px;text-align:center;flex-shrink:0}
-.step-name{font-size:14px;font-weight:500;color:var(--text)}
-.step-sub{font-size:12px;color:var(--text3);margin-top:1px}
-.step-row.done .step-name{color:var(--text3)}
-.step-row.done .step-ico{opacity:.4}
-
-/* ── SCORE BIG ────────────────────────────────────────── */
-.score-display{
-  font-family:'Playfair Display',serif;font-size:72px;font-weight:400;
-  text-align:center;line-height:1;padding:16px 0 12px;
-}
-.score-lo{color:var(--red)}.score-mid{color:var(--amber)}.score-hi{color:var(--green)}
-
-/* ── HISTORY CARD ─────────────────────────────────────── */
-.hist-item{border-bottom:1px solid var(--border)}
-.hist-hdr{
-  display:flex;align-items:center;gap:12px;
-  padding:14px 20px;cursor:pointer;
-}
-.hist-date{font-size:13px;font-weight:500;flex:1}
-.hist-tag{font-size:11px;color:var(--text3)}
-.hist-score{
-  width:30px;height:30px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:600;flex-shrink:0;
-}
-.hist-body{
-  padding:0 20px 18px;
-  display:none;border-top:1px solid var(--border);
-}
-.hist-body.open{display:block}
-.hist-field{margin-top:14px}
-.hist-flbl{
-  font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--text3);margin-bottom:5px;
-}
-.hist-fval{
-  font-family:'Playfair Display',serif;font-size:16px;
-  color:var(--text);line-height:1.7;
-}
-
-/* ── RADAR ────────────────────────────────────────────── */
-.radar-legend{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;
-  padding:12px 20px 0;
-}
-.rl-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
-.rl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
-/* ── WALL GRID ────────────────────────────────────────── */
-.wall-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-}
-.wall-cell{
-  background:var(--ink2);border:1px solid var(--border);
-  border-radius:10px;padding:16px 14px;text-align:center;
-}
-.wall-n{
-  font-family:'Playfair Display',serif;font-size:38px;font-weight:400;
-  color:var(--amber);line-height:1;
-}
-.wall-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
-
-/* ── CATEGORY BAR ─────────────────────────────────────── */
-.cat-bar{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
-.cat-bar:last-child{border-bottom:none}
-.cat-nm{font-size:12px;font-weight:500;width:96px;flex-shrink:0}
-.cat-track{flex:1;height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
-.cat-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.cat-val{font-size:11px;color:var(--text3);width:24px;text-align:right;flex-shrink:0}
-
-/* ── GOAL ITEM ────────────────────────────────────────── */
-.goal-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)}
-.goal-item:last-child{border-bottom:none}
-.goal-bubble{
-  width:20px;height:20px;min-width:20px;
-  border-radius:50%;border:1.5px solid var(--border2);
-  margin-top:2px;cursor:pointer;
-  transition:all .15s;
-}
-.goal-bubble.done{background:var(--green);border-color:var(--green)}
-.goal-txt{flex:1;font-size:14px;line-height:1.5;color:var(--text)}
-.goal-txt.done{text-decoration:line-through;color:var(--text3)}
-.goal-del{
-  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
-  color:var(--text3);cursor:pointer;font-size:17px;flex-shrink:0;
-  transition:color .15s;
-}
-.goal-del:active{color:var(--red)}
-
-/* ── TRAIT GRID ───────────────────────────────────────── */
-.trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.trait-chip{
-  padding:13px 12px;
-  background:var(--ink2);border:1.5px solid var(--border);border-radius:8px;
-  text-align:center;cursor:pointer;
-  font-size:13px;font-weight:500;color:var(--text2);
-  transition:all .15s;
-}
-.trait-chip.sel{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
-.trait-chip:active{transform:scale(.97)}
-
-/* ── AFFIRM LIST ──────────────────────────────────────── */
-.aff-item{
-  display:flex;align-items:flex-start;gap:13px;
-  padding:13px 0;border-bottom:1px solid var(--border);
-  cursor:pointer;
-}
-.aff-item:last-child{border-bottom:none}
-.aff-circle{
-  width:26px;height:26px;min-width:26px;
-  border-radius:50%;border:1.5px solid var(--border2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;color:transparent;
-  transition:all .15s;margin-top:2px;
-}
-.aff-item.done .aff-circle{background:var(--green);border-color:var(--green);color:#fff}
-.aff-txt{
-  font-family:'Playfair Display',serif;font-size:16px;
-  color:var(--text);line-height:1.55;
-}
-.aff-item.done .aff-txt{color:var(--text3)}
-
-/* ── QUOTE BLOCK ──────────────────────────────────────── */
-.quote-block{
-  border-left:2px solid var(--amber);
-  padding:12px 16px;
-  background:var(--amber-bg2);
-  border-radius:0 6px 6px 0;
-}
-.quote-block p{
-  font-family:'Playfair Display',serif;font-style:italic;
-  font-size:15px;color:var(--text2);line-height:1.75;
-}
-
-/* ── URGE SCREEN ──────────────────────────────────────── */
-.urge-ring-wrap{position:relative;width:190px;height:190px;margin:0 auto}
-.urge-ring-wrap svg{width:190px;height:190px}
-.urge-countdown{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-}
-.urge-n{font-family:'Playfair Display',serif;font-size:52px;color:var(--text);line-height:1}
-.urge-lbl{font-size:10px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase}
-
-/* ── SETUP ────────────────────────────────────────────── */
-#pg-setup{background:var(--ink)}
-
-/* ── COMPLETE ─────────────────────────────────────────── */
-.complete-inner{
-  display:flex;flex-direction:column;align-items:center;
-  padding:56px 28px 40px;text-align:center;gap:16px;
-}
-.c-glyph{
-  width:72px;height:72px;border-radius:50%;
-  border:1px solid var(--amber);
-  display:flex;align-items:center;justify-content:center;
-  font-size:26px;color:var(--amber);
-  position:relative;
-}
-.c-glyph::before{
-  content:'';position:absolute;inset:-8px;
-  border-radius:50%;border:1px solid rgba(200,146,42,.2);
-}
-
-/* ── RESURFACED MEMORY ────────────────────────────────── */
-.resurface{
-  margin:16px 20px;padding:16px;
-  background:var(--ink2);border:1px solid rgba(200,146,42,.2);
-  border-radius:10px;
-}
-.resurface-lbl{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:8px}
-.resurface-body{
-  font-family:'Playfair Display',serif;font-style:italic;
-  font-size:16px;color:var(--text2);line-height:1.65;
-}
-
-/* ── DRIFT ALERT ──────────────────────────────────────── */
-.drift-alert{
-  margin:12px 20px 0;
-  padding:13px 15px;
-  background:var(--ink2);border:1px solid rgba(200,146,42,.25);border-radius:8px;
-}
-.drift-lbl{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:5px}
-.drift-msg{font-size:13px;color:var(--text2);line-height:1.6}
-
-/* ── SECTION HEADER ───────────────────────────────────── */
-.sec-hdr{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:20px 20px 10px;
-}
-
-/* ── EMPTY STATE ──────────────────────────────────────── */
-.empty{
-  padding:64px 28px;text-align:center;
-  font-family:'Playfair Display',serif;font-style:italic;
-  font-size:20px;color:var(--text3);line-height:1.6;
-}
-
-/* ── WEEKLY RADAR ─────────────────────────────────────── */
-#weekly-radar{display:block;width:100%;max-width:260px;margin:0 auto}
-
-/* ── MISC ─────────────────────────────────────────────── */
-.px{padding:0 20px}
-.px20{padding:20px}
-.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
-.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}
-.row{display:flex;align-items:center;gap:8px}
-.row-between{display:flex;align-items:center;justify-content:space-between}
-.w100{width:100%}
-.muted{color:var(--text3)}
-.small{font-size:12px}
-.gap8{gap:8px}
-
-/* ── TOAST ────────────────────────────────────────────── */
-#toast{
-  position:fixed;bottom:calc(var(--nav-h) + 14px);
-  left:50%;transform:translateX(-50%) translateY(8px);
-  background:var(--ink3);border:1px solid var(--amber);border-radius:40px;
-  padding:9px 18px;font-size:13px;font-weight:500;color:var(--amber);
-  white-space:nowrap;
-  opacity:0;pointer-events:none;z-index:999;
-  transition:opacity .2s,transform .2s;
-}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* Ref section */
-.ref-sec-title{
-  font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--amber);padding-bottom:10px;border-bottom:1px solid var(--border);
-  margin-bottom:14px;
-}
-.ref-item{padding:12px 0;border-bottom:1px solid rgba(42,42,68,.6)}
-.ref-item:last-child{border-bottom:none}
-.ref-title{font-size:14px;font-weight:500;margin-bottom:4px}
-.ref-body{font-size:13px;color:var(--text2);line-height:1.7}
-.shadow-tag{
-  display:inline-block;padding:3px 9px;
-  border:1px solid var(--border);border-radius:4px;
-  font-size:11px;color:var(--text3);margin:2px;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#09090f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>The Mirror</title>
+    <link rel="manifest" href="data:application/json,{}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090f;
+            --bg-light: #12121a;
+            --bg-card: #1a1a25;
+            --text: #e8e6e3;
+            --text-muted: #8a8a9a;
+            --dawn: #d4924a;
+            --dusk: #6a5acd;
+            --gold: #c9a84c;
+            --violet: #7b68ee;
+            --gradient-gold-violet: linear-gradient(135deg, #c9a84c, #7b68ee);
+            --border: rgba(255, 255, 255, 0.05);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+        a { color: inherit; text-decoration: none; }
+        button {
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            background: none;
+            color: inherit;
+        }
+        input, textarea {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            width: 100%;
+            outline: none;
+            transition: var(--transition);
+        }
+        input:focus, textarea:focus {
+            border-color: var(--dawn);
+            box-shadow: 0 0 0 2px rgba(212, 146, 74, 0.1);
+        }
+        textarea { min-height: 120px; resize: vertical; }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            min-height: 100vh;
+        }
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            padding-bottom: 100px;
+        }
+        .page.active { display: block; opacity: 1; transform: translateY(0); }
+        .splash {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        .splash.hidden { opacity: 0; pointer-events: none; }
+        .splash-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+            background: var(--gradient-gold-violet);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .splash-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .header {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-title { font-size: 24px; font-weight: 400; }
+        .header-nav { display: flex; gap: 16px; }
+        .header-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .header-btn:hover { background: rgba(255, 255, 255, 0.1); }
+        .radar-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto 30px;
+        }
+        .radar-canvas { width: 100%; height: auto; }
+        .vote-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            transition: transform 0.4s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+        .vote-notification.show { transform: translateX(-50%) translateY(0); }
+        .vote-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            margin-bottom: 4px;
+            background: var(--gradient-gold-violet);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .vote-strength { font-size: 12px; color: var(--text-muted); }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: var(--transition);
+        }
+        .card:hover { border-color: rgba(255, 255, 255, 0.1); }
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 14px;
+            transition: var(--transition);
+            text-align: center;
+        }
+        .btn-primary { background: var(--dawn); color: #000; }
+        .btn-primary:hover {
+            background: #e0a05a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 146, 74, 0.3);
+        }
+        .btn-secondary { background: var(--bg-light); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
+        .btn-full { width: 100%; }
+        .ritual-step { margin-bottom: 24px; }
+        .step-header { display: flex; align-items: center; margin-bottom: 12px; }
+        .step-number {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        .step-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+        }
+        .step-prompt {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .nav-tabs {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            z-index: 50;
+        }
+        .nav-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 0;
+            font-size: 11px;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .nav-tab.active { color: var(--dawn); }
+        .nav-tab-icon { width: 24px; height: 24px; margin-bottom: 4px; }
+        .urge-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: var(--dusk);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(106, 90, 205, 0.4);
+            z-index: 60;
+            transition: var(--transition);
+        }
+        .urge-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 24px rgba(106, 90, 205, 0.5);
+        }
+        .resurface-card {
+            background: linear-gradient(135deg, rgba(201, 168, 76, 0.1), rgba(123, 104, 238, 0.1));
+            border: 1px solid rgba(201, 168, 76, 0.2);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .resurface-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+        .resurface-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-style: italic;
+            line-height: 1.4;
+        }
+        .drift-alert {
+            background: rgba(106, 90, 205, 0.1);
+            border: 1px solid rgba(106, 90, 205, 0.2);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .drift-alert.show { display: block; }
+        .drift-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--violet);
+            margin-bottom: 8px;
+        }
+        .drift-text { font-size: 14px; line-height: 1.5; }
+        .timer-container { text-align: center; margin: 40px 0; }
+        .timer-circle {
+            position: relative;
+            width: 200px; height: 200px;
+            margin: 0 auto 20px;
+        }
+        .timer-svg {
+            width: 100%; height: 100%;
+            transform: rotate(-90deg);
+        }
+        .timer-bg { fill: none; stroke: var(--bg-light); stroke-width: 4; }
+        .timer-progress {
+            fill: none;
+            stroke: var(--dusk);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+        .timer-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+        }
+        .report-comparison { display: flex; gap: 20px; margin-bottom: 30px; }
+        .report-chart { flex: 1; }
+        .report-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .report-insight {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .report-insight-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .report-insight-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .about-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            line-height: 1.6;
+            font-style: italic;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-item {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            margin-bottom: 4px;
+            background: var(--gradient-gold-violet);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+        .reference-item {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .reference-item:hover { background: rgba(255, 255, 255, 0.05); }
+        .reference-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        .reference-preview {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .observation-note {
+            background: rgba(201, 168, 76, 0.05);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 var(--radius) var(--radius) 0;
+            padding: 12px 16px;
+            margin-top: 16px;
+        }
+        .observation-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+        .observation-input {
+            background: transparent;
+            border: none;
+            padding: 0;
+            width: 100%;
+            min-height: 40px;
+            resize: none;
+        }
+        .observation-input:focus { box-shadow: none; }
+        .progress-bar {
+            height: 4px;
+            background: var(--bg-light);
+            border-radius: 2px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-gold-violet);
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        @media (max-width: 480px) {
+            .container { padding: 0 16px; }
+            .splash-title { font-size: 36px; }
+            .report-comparison { flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-
-<!-- ═══════════════════════════════════ PAGES -->
-<div id="pages">
-
-<!-- ─── SETUP ───────────────────────────────────────── -->
-<div class="page active" id="pg-setup">
-  <div style="padding:56px 28px 32px;padding-top:calc(56px + env(safe-area-inset-top))">
-    <div class="arabic" style="font-size:38px;color:var(--border2);text-align:center;margin-bottom:-6px;line-height:1">المرآة</div>
-    <h1 class="display" style="font-size:44px;line-height:1.1;margin-bottom:8px">The Mirror</h1>
-    <p class="display-i" style="font-size:17px;color:var(--text2);line-height:1.7;margin-bottom:32px">A long-term identity system.<br/>Not a motivation app.</p>
-    <div class="quote-block mb16">
-      <p>"The app is the mirror. You are still the one who has to look into it. The actual rewiring happens in the 2 minutes you spend being honest with yourself — not in the code."</p>
+    <div class="splash" id="splash">
+        <div class="splash-title">THE MIRROR</div>
+        <div class="splash-subtitle">Identity Reprogramming System</div>
     </div>
-    <div style="margin-bottom:14px">
-      <div class="eyebrow mb8">Name your future self</div>
-      <input type="text" id="setup-name" placeholder="Ibrahim, The Builder, The Disciplined One…"/>
-    </div>
-    <div style="margin-bottom:28px">
-      <div class="eyebrow mb8">Morning session time</div>
-      <input type="time" id="setup-time" value="05:30"/>
-    </div>
-    <button class="btn btn-amber" onclick="completeSetup()">Enter The Mirror →</button>
-  </div>
-</div>
 
-<!-- ─── HOME ─────────────────────────────────────────── -->
-<div class="page" id="pg-home">
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content">
-      <!-- Header -->
-      <div style="padding:20px 20px 14px;padding-top:calc(20px + env(safe-area-inset-top))">
-        <div class="row-between" style="align-items:flex-start">
-          <div>
-            <div class="arabic" style="font-size:26px;color:var(--border2);line-height:1;margin-bottom:2px">المرآة</div>
-            <div class="display" style="font-size:30px;line-height:1.15" id="home-greeting">Good morning</div>
-            <div style="font-size:12px;color:var(--amber);font-weight:600;margin-top:3px" id="home-name"></div>
-            <div style="font-size:11px;color:var(--text3);margin-top:1px" id="home-date"></div>
-          </div>
-          <div style="display:flex;gap:7px;margin-top:6px">
-            <button class="btn btn-outline btn-sm" style="width:38px;min-height:38px;padding:0;border-radius:50%" onclick="goTo('pg-weekly')">📊</button>
-            <button class="btn btn-outline btn-sm" style="width:38px;min-height:38px;padding:0;border-radius:50%" onclick="goTo('pg-about')">i</button>
-          </div>
+    <div class="vote-notification" id="voteNotification">
+        <div class="vote-title" id="voteTitle">Vote cast for: Taqwa</div>
+        <div class="vote-strength" id="voteStrength">Current strength: 42</div>
+    </div>
+
+    <div class="container">
+        <div class="page active" id="homePage">
+            <header class="header">
+                <h1 class="header-title">The Mirror</h1>
+                <div class="header-nav">
+                    <button class="header-btn" onclick="navigateTo('about')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="drift-alert" id="driftAlert">
+                <div class="drift-title">Pattern noticed</div>
+                <div class="drift-text" id="driftText">3 days of unfinished intentions. [Name] would lower the target, not abandon it. Adjust today's goal?</div>
+            </div>
+
+            <div class="resurface-card" id="resurfaceCard" style="display: none;">
+                <div class="resurface-label">From your past</div>
+                <div class="resurface-text" id="resurfaceText">"3 weeks ago you wrote: '...'"</div>
+            </div>
+
+            <div class="radar-container">
+                <canvas id="radarChart" class="radar-canvas" width="320" height="320"></canvas>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <button class="btn btn-primary btn-full" onclick="navigateTo('morningRitual')" style="margin-bottom: 12px;">
+                    Morning Ritual
+                </button>
+                <button class="btn btn-secondary btn-full" onclick="navigateTo('eveningRitual')">
+                    Evening Ritual
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Today's Votes</div>
+                <div class="card-subtitle">Actions cast as identity votes</div>
+                <div id="todayVotes" style="font-size: 32px; font-family: 'Cormorant Garamond', serif;">0</div>
+            </div>
         </div>
-      </div>
 
-      <!-- Resurface -->
-      <div id="resurface-wrap"></div>
+        <div class="page" id="morningRitual">
+            <header class="header">
+                <h1 class="header-title">Morning Ritual</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
 
-      <!-- Radar -->
-      <div style="padding:4px 0 0">
-        <svg id="radar-svg" viewBox="0 0 260 260" style="display:block;width:100%;max-width:260px;margin:0 auto"></svg>
-      </div>
-      <div class="radar-legend" id="radar-legend"></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="morningProgress" style="width: 0%;"></div>
+            </div>
 
-      <!-- Stats row -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:20px">
-        <div style="background:var(--ink1);padding:14px 8px;text-align:center">
-          <div class="display" style="font-size:30px;color:var(--amber)" id="st-streak">0</div>
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Streak</div>
+            <div class="ritual-step" id="morningStep1">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Fajr</div>
+                </div>
+                <div class="step-prompt" id="fajrPrompt">Did [Name] wake for Fajr today?</div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-primary" onclick="completeMorningStep(1, true)">Yes</button>
+                    <button class="btn btn-secondary" onclick="completeMorningStep(1, false)">No</button>
+                </div>
+            </div>
+
+            <div class="ritual-step" id="morningStep2" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Quran Reflection</div>
+                </div>
+                <div class="step-prompt" id="quranPrompt">What did [Name] read, and what did it reveal about his current state?</div>
+                <textarea id="quranInput" placeholder="Write your reflection..."></textarea>
+                <button class="btn btn-primary btn-full" style="margin-top: 12px;" onclick="completeMorningStep(2, true)">Continue</button>
+            </div>
+
+            <div class="ritual-step" id="morningStep3" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Affirmations</div>
+                </div>
+                <div class="step-prompt" id="affirmationPrompt">[Name] doesn't negotiate with his feelings. He acts according to what he knows is right.</div>
+                <textarea id="affirmationInput" placeholder="Write your own affirmation for today..."></textarea>
+                <button class="btn btn-primary btn-full" style="margin-top: 12px;" onclick="completeMorningStep(3, true)">Continue</button>
+            </div>
+
+            <div class="ritual-step" id="morningStep4" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Intention Setting</div>
+                </div>
+                <div class="step-prompt">If [situation], then [Name] will [action]. Be specific.</div>
+                <textarea id="intentionInput" placeholder="If [situation], then [Name] will [action]..."></textarea>
+                <button class="btn btn-primary btn-full" style="margin-top: 12px;" onclick="completeMorningStep(4, true)">Continue</button>
+            </div>
+
+            <div class="ritual-step" id="morningStep5" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Yesterday Review</div>
+                </div>
+                <div class="step-prompt">What did [Name] do yesterday that he's proud of? What would he do differently?</div>
+                <textarea id="reviewInput" placeholder="Reflect on yesterday..."></textarea>
+                <button class="btn btn-primary btn-full" style="margin-top: 12px;" onclick="completeMorningStep(5, true)">Complete Ritual</button>
+            </div>
+
+            <div class="observation-note" id="morningObservation" style="display: none;">
+                <div class="observation-label">Observation Note</div>
+                <textarea class="observation-input" id="morningObservationInput" placeholder="Any additional observations..." oninput="saveObservation('morning', this.value)"></textarea>
+            </div>
         </div>
-        <div style="background:var(--ink1);padding:14px 8px;text-align:center">
-          <div class="display" style="font-size:30px;color:var(--amber)" id="st-best">0</div>
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Best</div>
+
+        <div class="page" id="eveningRitual">
+            <header class="header">
+                <h1 class="header-title">Evening Ritual</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="eveningProgress" style="width: 0%;"></div>
+            </div>
+
+            <div class="ritual-step" id="eveningStep1">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Intention Check</div>
+                </div>
+                <div class="step-prompt">Did [Name] follow through on his intention today?</div>
+                <textarea id="intentionCheckInput" placeholder="Reflect on today's intention..."></textarea>
+                <button class="btn btn-primary btn-full" style="margin-top: 12px;" onclick="completeEveningStep(1, true)">Continue</button>
+            </div>
+
+            <div class="ritual-step" id="eveningStep2" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">What I Avoided</div>
+                </div>
+                <div class="step-prompt">What did [Name] avoid today that he needs to face tomorrow?</div>
+                <textarea id="avoidedInput" placeholder="What was avoided..."></textarea>
+                <button class="btn btn-primary btn-full" style="margin-top: 12px;" onclick="completeEveningStep(2, true)">Continue</button>
+            </div>
+
+            <div class="ritual-step" id="eveningStep3" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Gratitude</div>
+                </div>
+                <div class="step-prompt">What is [Name] grateful for today that he often overlooks?</div>
+                <textarea id="gratitudeInput" placeholder="Express gratitude..."></textarea>
+                <button class="btn btn-primary btn-full" style="margin-top: 12px;" onclick="completeEveningStep(3, true)">Complete Ritual</button>
+            </div>
+
+            <div class="observation-note" id="eveningObservation" style="display: none;">
+                <div class="observation-label">Observation Note</div>
+                <textarea class="observation-input" id="eveningObservationInput" placeholder="Any additional observations..." oninput="saveObservation('evening', this.value)"></textarea>
+            </div>
         </div>
-        <div style="background:var(--ink1);padding:14px 8px;text-align:center">
-          <div class="display" style="font-size:30px;color:var(--amber)" id="st-urges">0</div>
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Urges Won</div>
+
+        <div class="page" id="urgeMode">
+            <header class="header">
+                <h1 class="header-title">Urge Mode</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
+
+            <div id="urgeInitial" class="card">
+                <div class="card-title" id="urgeInitialTitle">[Name] is deciding right now.</div>
+                <div class="card-subtitle">What does he choose?</div>
+                <div style="text-align: center; margin: 24px 0;">
+                    <div class="stat-value" id="urgeCounter">0</div>
+                    <div class="stat-label">Urges resisted this month</div>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="startUrgeTimer()">Start 60-Second Timer</button>
+            </div>
+
+            <div id="urgeTimer" style="display: none;">
+                <div class="timer-container">
+                    <div class="timer-circle">
+                        <svg class="timer-svg" viewBox="0 0 200 200">
+                            <circle class="timer-bg" cx="100" cy="100" r="90"></circle>
+                            <circle class="timer-progress" id="timerProgress" cx="100" cy="100" r="90" 
+                                    stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+                        </svg>
+                        <div class="timer-text" id="timerText">60</div>
+                    </div>
+                    <div class="card-subtitle">Breathe. Observe. Don't act yet.</div>
+                </div>
+            </div>
+
+            <div id="urgeChoice" style="display: none;" class="card">
+                <div class="card-title">Which choice did you make?</div>
+                <div class="card-subtitle">Both options are logged honestly. No judgment.</div>
+                <button class="btn btn-primary btn-full" style="margin-bottom: 12px;" onclick="logUrgeChoice(true)">
+                    Yes, I resisted
+                </button>
+                <button class="btn btn-secondary btn-full" onclick="logUrgeChoice(false)">
+                    No, I gave in
+                </button>
+            </div>
         </div>
-      </div>
 
-      <!-- Drift -->
-      <div id="drift-wrap"></div>
+        <div class="page" id="wallPage">
+            <header class="header">
+                <h1 class="header-title">The Wall</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
 
-      <!-- Morning section -->
-      <div class="sec-hdr mt12">
-        <div class="eyebrow">Morning Ritual</div>
-        <span class="tag tag-amber" id="morn-tag">0 / 5</span>
-      </div>
-      <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)" id="home-morn-steps"></div>
-      <div class="px" style="padding-top:14px;padding-bottom:4px">
-        <button class="btn btn-amber" id="morn-btn" onclick="startMorning()">
-          <span id="morn-btn-txt">Begin Morning Ritual</span><span>→</span>
-        </button>
-      </div>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalVotes">0</div>
+                    <div class="stat-label">Total Votes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bestMonth">0</div>
+                    <div class="stat-label">Best Month</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalUrges">0</div>
+                    <div class="stat-label">Urges Resisted</div>
+                </div>
+            </div>
 
-      <!-- Evening section -->
-      <div class="sec-hdr mt16">
-        <div class="eyebrow" style="color:var(--purple)">Evening Check-in</div>
-        <span class="tag" style="background:rgba(106,90,205,.12);color:var(--purple);border:1px solid rgba(106,90,205,.25)" id="eve-tag">0 / 3</span>
-      </div>
-      <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)" id="home-eve-steps"></div>
-      <div class="px" style="padding-top:14px;padding-bottom:4px">
-        <button class="btn" id="eve-btn" onclick="startEvening()"
-          style="background:var(--purple);color:#fff">
-          <span id="eve-btn-txt">Begin Evening Check-in</span><span>→</span>
-        </button>
-      </div>
+            <div class="card">
+                <div class="card-title">Identity Breakdown</div>
+                <div id="identityBreakdown"></div>
+            </div>
 
-      <!-- Urge button -->
-      <div class="px mt16">
-        <button class="btn btn-outline" onclick="goTo('pg-urge')" style="border-color:rgba(106,90,205,.4);color:var(--purple)">
-          🛡 Open Urge Protocol
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- ─── MORNING STEP 1: FAJR ──────────────────────────── -->
-<div class="page" id="pg-m1">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Morning · Step 1 of 5</div>
-    <div class="topbar-right"><div class="step-dots" id="dots-m1"></div></div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:44px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">الفجر</div>
-      <div class="display" style="font-size:32px;margin-bottom:4px">Fajr Prayer</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:24px">5 min · Taqwa</div>
-
-      <div class="card mb16" style="text-align:center;padding:28px 20px">
-        <div class="display" style="font-size:20px;margin-bottom:20px;line-height:1.4" id="fajr-lbl">I prayed Fajr with khushu'</div>
-        <div class="toggle" id="tog-fajr" onclick="toggleFajr()" style="margin:0 auto"></div>
-        <div style="font-size:12px;color:var(--text3);font-style:italic;margin-top:16px;font-family:'Playfair Display',serif">
-          Pause before confirming. Did you truly pray with presence?
+            <div class="observation-note">
+                <div class="observation-label">Observation Note</div>
+                <textarea class="observation-input" id="wallObservationInput" placeholder="Any observations about your progress..." oninput="saveObservation('wall', this.value)"></textarea>
+            </div>
         </div>
-      </div>
 
-      <div class="quote-block mb16">
-        <p>Before takbir — release the day. In qiyam — understand each word. In sujud — stay one extra breath. This is the closest you will be to Allah today.</p>
-      </div>
+        <div class="page" id="goalsPage">
+            <header class="header">
+                <h1 class="header-title">Goals</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
 
-      <div class="eyebrow mb8">Morning Adhkar</div>
-      <div class="card">
-        <div style="font-size:13px;color:var(--text2);line-height:2.1">
-          Ayat al-Kursi (×1)<br/>
-          <span class="arabic" style="font-size:16px;color:var(--amber)">الإخلاص · الفلق · الناس</span> (×3 each)<br/>
-          <span class="arabic" style="font-size:15px">أصبحنا وأصبح الملك لله</span><br/>
-          Istighfar (×3) · Salawat (×10)
+            <div class="card">
+                <div class="card-title">Delayed Gratification Principle</div>
+                <div class="card-subtitle">What [Name] resists now builds what he becomes later.</div>
+            </div>
+
+            <div id="goalsList"></div>
+
+            <button class="btn btn-secondary btn-full" onclick="addGoal()" style="margin-top: 16px;">Add New Goal</button>
+
+            <div class="observation-note">
+                <div class="observation-label">Observation Note</div>
+                <textarea class="observation-input" id="goalsObservationInput" placeholder="Any observations about your goals..." oninput="saveObservation('goals', this.value)"></textarea>
+            </div>
         </div>
-      </div>
+
+        <div class="page" id="referencePage">
+            <header class="header">
+                <h1 class="header-title">Reference Library</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="reference-item" onclick="showReference('ethics')">
+                <div class="reference-title">Ethics</div>
+                <div class="reference-preview">Islamic principles that guide moral decision-making and character development.</div>
+            </div>
+
+            <div class="reference-item" onclick="showReference('method')">
+                <div class="reference-title">Method</div>
+                <div class="reference-preview">The behavioral psychology behind identity-based habit formation and reprogramming.</div>
+            </div>
+
+            <div class="reference-item" onclick="showReference('shadow')">
+                <div class="reference-title">Villain/Shadow</div>
+                <div class="reference-preview">Understanding the parts of yourself that work against your stated values.</div>
+            </div>
+
+            <div class="observation-note">
+                <div class="observation-label">Observation Note</div>
+                <textarea class="observation-input" id="referenceObservationInput" placeholder="Any observations from your reading..." oninput="saveObservation('reference', this.value)"></textarea>
+            </div>
+        </div>
+
+        <div class="page" id="referenceDetail">
+            <header class="header">
+                <h1 class="header-title" id="referenceDetailTitle">Reference</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="card" id="referenceDetailContent"></div>
+        </div>
+
+        <div class="page" id="weeklyReport">
+            <header class="header">
+                <h1 class="header-title">Weekly Report</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="report-comparison">
+                <div class="report-chart">
+                    <div class="report-label">This Week</div>
+                    <canvas id="thisWeekChart" width="150" height="150"></canvas>
+                </div>
+                <div class="report-chart">
+                    <div class="report-label">Last Week</div>
+                    <canvas id="lastWeekChart" width="150" height="150"></canvas>
+                </div>
+            </div>
+
+            <div class="report-insight">
+                <div class="report-insight-title">Strongest Category</div>
+                <div class="report-insight-text" id="strongestCategory">Taqwa</div>
+            </div>
+
+            <div class="report-insight">
+                <div class="report-insight-title">Weakest Category</div>
+                <div class="report-insight-text" id="weakestCategory">Brotherhood</div>
+            </div>
+
+            <div class="report-insight">
+                <div class="report-insight-title">Representative Entry</div>
+                <div class="report-insight-text" id="representativeEntry">"..."</div>
+            </div>
+
+            <div class="report-insight">
+                <div class="report-insight-title">Vote Distribution</div>
+                <div class="report-insight-text" id="voteDistribution">This week, you cast more votes for: [X]. Fewer for: [Y].</div>
+            </div>
+        </div>
+
+        <div class="page" id="aboutPage">
+            <header class="header">
+                <h1 class="header-title">About The Mirror</h1>
+                <button class="header-btn" onclick="navigateBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="about-text">
+                "This app can structure your reflection and make consistency easier — but the actual rewiring happens in the 2 minutes you spend being honest with yourself in it, not in the code. The radar chart, the named future self, the urge timer — these are scaffolding to make that honesty easier to sustain for months instead of days. The app is the mirror. You are still the one who has to look into it."
+            </div>
+
+            <div class="card">
+                <div class="card-title">Identity Categories</div>
+                <div class="card-subtitle">The 6 traits being trained</div>
+                <div style="margin-top: 12px;">
+                    <div style="margin-bottom: 8px;"><strong>Taqwa</strong> — Consciousness of Allah</div>
+                    <div style="margin-bottom: 8px;"><strong>Discipline</strong> — Acting regardless of feeling</div>
+                    <div style="margin-bottom: 8px;"><strong>Self-control</strong> — Delay, restraint, silence</div>
+                    <div style="margin-bottom: 8px;"><strong>Gratitude</strong> — Humility, appreciation</div>
+                    <div style="margin-bottom: 8px;"><strong>Honesty</strong> — Self-accountability, no excuses</div>
+                    <div><strong>Brotherhood</strong> — Relationships, generosity, character</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">The Core Principle</div>
+                <div class="card-subtitle">How the app works</div>
+                <div style="margin-top: 12px;">
+                    Every single action in the app is framed as a vote for an identity, not a task to complete. The radar chart shows your identity shape evolving over time. This is not gamification — every number maps to a real identity category.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Self-Distancing</div>
+                <div class="card-subtitle">Why the third-person framing</div>
+                <div style="margin-top: 12px;">
+                    All reflective prompts use second/third person framing (e.g., "What did [Name] avoid today?") instead of first-person. This is deliberate — self-distancing reduces emotional reactivity and improves honest self-assessment.
+                </div>
+            </div>
+
+            <button class="btn btn-secondary btn-full" style="margin-top: 24px;" onclick="resetApp()">
+                Reset All Data
+            </button>
+        </div>
+
+        <div class="page" id="setupPage">
+            <header class="header">
+                <h1 class="header-title">Welcome</h1>
+            </header>
+
+            <div class="card">
+                <div class="card-title">Name Your Future Self</div>
+                <div class="card-subtitle">This name replaces "the man you want to become" everywhere in the app.</div>
+                <input type="text" id="futureSelfName" placeholder="Enter a name..." style="margin-top: 16px;">
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="completeSetup()">
+                Begin The Mirror
+            </button>
+        </div>
     </div>
-  </div>
-  <div style="padding:14px 20px;padding-bottom:calc(14px + env(safe-area-inset-bottom));position:sticky;bottom:0;background:var(--ink)">
-    <button class="btn btn-amber" onclick="goTo('pg-m2')">Continue →</button>
-  </div>
-</div>
 
-<!-- ─── MORNING STEP 2: QUR'AN ────────────────────────── -->
-<div class="page" id="pg-m2">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Morning · Step 2 of 5</div>
-    <div class="topbar-right"><div class="step-dots" id="dots-m2"></div></div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:44px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">القرآن</div>
-      <div class="display" style="font-size:32px;margin-bottom:4px">Qur'an</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:24px">5 min · Taqwa + Gratitude</div>
-
-      <div class="card card-amber mb16">
-        <div class="eyebrow mb8">Today's Verse</div>
-        <div class="arabic" style="font-size:22px;color:var(--amber);line-height:1.9;margin-bottom:10px;text-align:right" id="verse-ar"></div>
-        <div class="display-i" style="font-size:17px;color:var(--text);line-height:1.6;margin-bottom:6px" id="verse-en"></div>
-        <div style="font-size:10px;color:var(--text3);letter-spacing:.06em" id="verse-ref"></div>
-      </div>
-
-      <div class="eyebrow mb8" id="quran-prompt-lbl">What does this verse mean for you today?</div>
-      <textarea id="ta-quran" rows="6" placeholder="Write your reflection…" oninput="saveM2()" onblur="saveM2()"></textarea>
-    </div>
-  </div>
-  <div style="padding:14px 20px;position:sticky;bottom:0;background:var(--ink)">
-    <button class="btn btn-amber" onclick="goTo('pg-m3')">Continue →</button>
-  </div>
-</div>
-
-<!-- ─── MORNING STEP 3: AFFIRMATIONS ─────────────────── -->
-<div class="page" id="pg-m3">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Morning · Step 3 of 5</div>
-    <div class="topbar-right"><div class="step-dots" id="dots-m3"></div></div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:44px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">الهوية</div>
-      <div class="display" style="font-size:32px;margin-bottom:4px">Affirmations</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:8px">3 min · Say each aloud</div>
-      <p class="display-i" style="font-size:14px;color:var(--text3);margin-bottom:20px">Each tap casts a vote for a specific identity trait. Speak it — don't just tap.</p>
-      <div id="affirm-list"></div>
-    </div>
-  </div>
-  <div style="padding:14px 20px;position:sticky;bottom:0;background:var(--ink)">
-    <button class="btn btn-amber" onclick="goTo('pg-m4')">Continue →</button>
-  </div>
-</div>
-
-<!-- ─── MORNING STEP 4: INTENTION ────────────────────── -->
-<div class="page" id="pg-m4">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Morning · Step 4 of 5</div>
-    <div class="topbar-right"><div class="step-dots" id="dots-m4"></div></div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:44px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">النية</div>
-      <div class="display" style="font-size:32px;margin-bottom:4px">Intention</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:20px">Discipline + Honesty</div>
-
-      <div class="quote-block mb20">
-        <p>Implementation intention format: <span style="color:var(--text)">"If [situation], I will [specific action]."</span> Not vague goals — concrete triggers.</p>
-      </div>
-
-      <div class="eyebrow mb8" id="intent-prompt-lbl">Set your implementation intention</div>
-      <textarea id="ta-intent" rows="5" placeholder="If I feel the urge to scroll, I will put my phone in the other room and open a book…" oninput="saveM4()" onblur="saveM4()"></textarea>
-
-      <div class="eyebrow mt20 mb12" id="align-prompt-lbl">Which trait are you voting for today?</div>
-      <div class="trait-grid" id="trait-grid-m4"></div>
-    </div>
-  </div>
-  <div style="padding:14px 20px;position:sticky;bottom:0;background:var(--ink)">
-    <button class="btn btn-amber" onclick="goTo('pg-m5')">Continue →</button>
-  </div>
-</div>
-
-<!-- ─── MORNING STEP 5: REVIEW ────────────────────────── -->
-<div class="page" id="pg-m5">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Morning · Step 5 of 5</div>
-    <div class="topbar-right"><div class="step-dots" id="dots-m5"></div></div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:44px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">المحاسبة</div>
-      <div class="display" style="font-size:32px;margin-bottom:4px">Yesterday's Review</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:20px">Honesty · Self-accountability</div>
-
-      <div class="score-display score-mid" id="score-disp">5</div>
-      <input type="range" id="score-range" min="1" max="10" value="5" oninput="updateScore()" onchange="saveM5()"/>
-      <div style="display:flex;justify-content:space-between;margin-bottom:24px">
-        <span style="font-size:10px;color:var(--text3)">1 — Lost</span>
-        <span style="font-size:10px;color:var(--text3)">10 — Excellent</span>
-      </div>
-
-      <div class="eyebrow mb8" id="review-prompt-lbl">What happened yesterday vs. what should have?</div>
-      <textarea id="ta-review" rows="6" placeholder="Be specific. What actually happened?" oninput="saveM5()" onblur="saveM5()"></textarea>
-    </div>
-  </div>
-  <div style="padding:14px 20px;position:sticky;bottom:0;background:var(--ink)">
-    <button class="btn btn-green" onclick="completeMorning()">Complete Morning Ritual ✓</button>
-  </div>
-</div>
-
-<!-- ─── EVENING STEP 1: INTENTION REVIEW ─────────────── -->
-<div class="page" id="pg-e1">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Evening · Step 1 of 3</div>
-    <div class="topbar-right"><div class="step-dots" id="dots-e1"></div></div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine" style="background:var(--purple)"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:44px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">النتيجة</div>
-      <div class="display" style="font-size:32px;margin-bottom:4px">Intention Review</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:20px">Honesty · Discipline</div>
-
-      <div class="card mb16">
-        <div class="eyebrow mb8" style="color:var(--text3)">This morning's intention was</div>
-        <div class="display-i" style="font-size:16px;color:var(--text2);line-height:1.65" id="mid-intent">No intention recorded this morning.</div>
-      </div>
-
-      <div class="row mb20" style="gap:10px">
-        <button class="btn btn-green btn-sm" style="flex:1" onclick="setIntentDone(true)">✓ I did it</button>
-        <button class="btn btn-outline btn-sm" style="flex:1" onclick="setIntentDone(false)">✗ I didn't</button>
-      </div>
-
-      <div class="eyebrow mb8" id="e1-reflect-lbl">What happened — or what made it possible?</div>
-      <textarea id="ta-e1" rows="4" placeholder="Write honestly…" oninput="saveE1()" onblur="saveE1()"></textarea>
-    </div>
-  </div>
-  <div style="padding:14px 20px;position:sticky;bottom:0;background:var(--ink)">
-    <button class="btn" style="background:var(--purple);color:#fff" onclick="goTo('pg-e2')">Continue →</button>
-  </div>
-</div>
-
-<!-- ─── EVENING STEP 2: AVOIDANCE ─────────────────────── -->
-<div class="page" id="pg-e2">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Evening · Step 2 of 3</div>
-    <div class="topbar-right"><div class="step-dots" id="dots-e2"></div></div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine" style="background:var(--purple)"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:44px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">التجنب</div>
-      <div class="display" style="font-size:32px;margin-bottom:4px">What Was Avoided</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:20px">Self-control · Honesty</div>
-      <div class="eyebrow mb8" id="avoid-lbl">What did you avoid today that you need to face?</div>
-      <textarea id="ta-avoid" rows="6" placeholder="Name it specifically. Not avoiding it is also data." oninput="saveE2()" onblur="saveE2()"></textarea>
-    </div>
-  </div>
-  <div style="padding:14px 20px;position:sticky;bottom:0;background:var(--ink)">
-    <button class="btn" style="background:var(--purple);color:#fff" onclick="goTo('pg-e3')">Continue →</button>
-  </div>
-</div>
-
-<!-- ─── EVENING STEP 3: GRATITUDE ─────────────────────── -->
-<div class="page" id="pg-e3">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Evening · Step 3 of 3</div>
-    <div class="topbar-right"><div class="step-dots" id="dots-e3"></div></div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine" style="background:var(--purple)"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:44px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">الشكر</div>
-      <div class="display" style="font-size:32px;margin-bottom:4px">Gratitude</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:20px">Gratitude · Brotherhood</div>
-      <div class="eyebrow mb8" id="grat-lbl">Three specific things you are genuinely grateful for</div>
-      <textarea id="ta-grat" rows="7" placeholder="1. …&#10;2. …&#10;3. …" oninput="saveE3()" onblur="saveE3()"></textarea>
-    </div>
-  </div>
-  <div style="padding:14px 20px;position:sticky;bottom:0;background:var(--ink)">
-    <button class="btn btn-green" onclick="completeEvening()">Complete Evening Check-in ✓</button>
-  </div>
-</div>
-
-<!-- ─── URGE PROTOCOL ──────────────────────────────────── -->
-<div class="page" id="pg-urge">
-  <div class="topbar">
-    <button class="back-btn" onclick="cancelUrge()">✕</button>
-    <div class="topbar-title" style="color:var(--purple)">Urge Protocol</div>
-  </div>
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;min-height:70vh">
-    <div id="urge-ph1">
-      <div class="display" style="font-size:28px;margin-bottom:6px;line-height:1.3" id="urge-name-display"></div>
-      <div class="display-i" style="font-size:17px;color:var(--text2);margin-bottom:40px">is deciding right now.</div>
-      <div class="urge-ring-wrap mb16">
-        <svg viewBox="0 0 190 190">
-          <circle cx="95" cy="95" r="82" fill="none" stroke="var(--border)" stroke-width="4"/>
-          <circle id="urge-arc" cx="95" cy="95" r="82" fill="none" stroke="var(--purple)" stroke-width="4"
-            stroke-linecap="round" stroke-dasharray="515" stroke-dashoffset="0"
-            transform="rotate(-90 95 95)" style="transition:stroke-dashoffset 1s linear"/>
+    <button class="urge-btn" id="urgeButton" onclick="navigateTo('urgeMode')" style="display: none;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
         </svg>
-        <div class="urge-countdown">
-          <span class="urge-n" id="urge-count">60</span>
-          <span class="urge-lbl">seconds</span>
-        </div>
-      </div>
-      <div class="display-i" style="font-size:15px;color:var(--text3);line-height:1.75">Wait. Breathe. The urge is not you.<br/>It is a wave. Watch it pass.</div>
-    </div>
-    <div id="urge-ph2" style="display:none;width:100%">
-      <div class="display" style="font-size:28px;margin-bottom:20px">What did you choose?</div>
-      <div class="display-i" style="font-size:14px;color:var(--text3);margin-bottom:32px;line-height:1.7">Both answers are data. Both are logged without judgment.</div>
-      <div style="display:flex;flex-direction:column;gap:12px;max-width:300px;margin:0 auto">
-        <button class="btn btn-green" onclick="logUrge(true)">✓ I resisted — held the line</button>
-        <button class="btn btn-outline" onclick="logUrge(false)">I gave in — logging it honestly</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ─── COMPLETE ───────────────────────────────────────── -->
-<div class="page" id="pg-complete">
-  <div class="complete-inner">
-    <div style="height:env(safe-area-inset-top)"></div>
-    <div class="c-glyph">✦</div>
-    <div class="display" style="font-size:38px;line-height:1" id="complete-title">Complete</div>
-    <div class="arabic" style="font-size:26px;color:var(--amber)" id="complete-ar">جزاك الله خيراً</div>
-    <div class="display-i" style="font-size:16px;color:var(--text2);max-width:280px;line-height:1.7" id="complete-msg"></div>
-    <div class="card w100" style="max-width:340px;text-align:left" id="complete-votes"></div>
-    <button class="btn btn-outline" style="max-width:220px" onclick="goTo('pg-home')">← Return Home</button>
-  </div>
-</div>
-
-<!-- ─── HISTORY ────────────────────────────────────────── -->
-<div class="page" id="pg-history">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">History</div>
-  </div>
-  <div id="hist-list"></div>
-</div>
-
-<!-- ─── WALL ───────────────────────────────────────────── -->
-<div class="page" id="pg-wall">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">The Wall</div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:40px;color:var(--border2);margin-bottom:-6px;display:block;text-align:right">الجدار</div>
-      <div class="display" style="font-size:30px;margin-bottom:20px">Total Accountability</div>
-      <div class="wall-grid mb20" id="wall-grid"></div>
-      <div class="eyebrow mb12">Category Strengths</div>
-      <div id="wall-cats"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ─── GOALS ──────────────────────────────────────────── -->
-<div class="page" id="pg-goals">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Goals</div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div class="display" style="font-size:28px;margin-bottom:12px;margin-top:4px">Goals</div>
-      <div class="quote-block mb20">
-        <p>"Every time you delay gratification, you cast a vote for Discipline. Every vote compounds."</p>
-      </div>
-      <div class="row mb20">
-        <input type="text" id="goal-input" placeholder="Add a goal (delayed-gratification framing)…" style="border-radius:8px 0 0 8px;border-right:none"/>
-        <button class="btn btn-amber btn-sm" style="width:48px;min-height:50px;border-radius:0 8px 8px 0;flex-shrink:0;padding:0;font-size:20px" onclick="addGoal()">+</button>
-      </div>
-      <div id="goal-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ─── REFERENCE LIBRARY ──────────────────────────────── -->
-<div class="page" id="pg-reference">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Reference Library</div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-
-      <div style="padding-top:16px" class="mb16">
-        <div class="ref-sec-title">The Shadow Self — Who You Must Not Become</div>
-        <div style="margin-bottom:12px">
-          <span class="shadow-tag">Laziness</span><span class="shadow-tag">Distraction</span>
-          <span class="shadow-tag">Lust</span><span class="shadow-tag">Delay</span>
-          <span class="shadow-tag">Arrogance</span><span class="shadow-tag">Complaint</span>
-          <span class="shadow-tag">Envy</span><span class="shadow-tag">Inconsistency</span>
-          <span class="shadow-tag">Victim mindset</span><span class="shadow-tag">People-pleasing</span>
-          <span class="shadow-tag">Self-betrayal</span>
-        </div>
-        <div class="eyebrow mb8">What he says</div>
-        <div class="ref-item"><p class="display-i" style="font-size:15px;color:var(--text3)">"I'll start tomorrow."</p></div>
-        <div class="ref-item"><p class="display-i" style="font-size:15px;color:var(--text3)">"I don't feel like it."</p></div>
-        <div class="ref-item"><p class="display-i" style="font-size:15px;color:var(--text3)">"Just this once won't hurt."</p></div>
-        <div class="ref-item"><p class="display-i" style="font-size:15px;color:var(--text3)">"Nobody sees me anyway."</p></div>
-        <div class="ref-item"><p class="display-i" style="font-size:15px;color:var(--text3)">"I can't help how I feel."</p></div>
-      </div>
-
-      <div class="mb16">
-        <div class="ref-sec-title">Ethics & Character</div>
-        <div class="ref-item"><div class="ref-title">Silence</div><div class="ref-body">Speak only when words add real value. Silence is mastery, not absence.</div></div>
-        <div class="ref-item"><div class="ref-title">Humility</div><div class="ref-body">Your achievements are from Allah. Your failures are yours. Never let success make you forget this.</div></div>
-        <div class="ref-item"><div class="ref-title">Gratitude</div><div class="ref-body">Count what you have before what you lack. الحمد لله in every moment.</div></div>
-        <div class="ref-item"><div class="ref-title">Discipline</div><div class="ref-body">Do what you said you would do, when you said you would, regardless of feeling.</div></div>
-        <div class="ref-item"><div class="ref-title">Self-Respect</div><div class="ref-body">Iron. Non-negotiable. You do not beg, chase, or compromise principles for approval.</div></div>
-      </div>
-
-      <div class="mb16">
-        <div class="ref-sec-title">Method</div>
-        <div class="ref-item"><div class="ref-title">Urge Control</div><div class="ref-body">The urge is not you. It is a wave. Observe it. Name it. Wait 90 seconds. Watch it lose power. Do not negotiate.</div></div>
-        <div class="ref-item"><div class="ref-title">Identity Voting</div><div class="ref-body">Every action is a vote for a type of person. The goal is not to be perfect — it is to have the majority of votes go toward who you are becoming.</div></div>
-        <div class="ref-item"><div class="ref-title">Khushu' in Salah</div><div class="ref-body">Before takbir: breathe and release. In qiyam: understand the words. In ruku': glorify fully. In sujud: pour your heart.</div></div>
-        <div class="ref-item"><div class="ref-title">Self-distancing</div><div class="ref-body">When reflecting, use your name instead of "I". "[Name] felt this way." This reduces emotional reactivity and improves honest self-assessment.</div></div>
-      </div>
-
-      <div class="mb16">
-        <div class="ref-sec-title">Seven Rules</div>
-        <div class="ref-item"><div class="ref-title">I — Allah first in everything</div><div class="ref-body">Before any decision: is this pleasing to Allah?</div></div>
-        <div class="ref-item"><div class="ref-title">II — Pray on time, always</div><div class="ref-body">The five prayers are the skeleton of the day. Everything else is built around them.</div></div>
-        <div class="ref-item"><div class="ref-title">III — Keep promises to yourself</div><div class="ref-body">Your self-trust is built or destroyed in the promises no one else can hold you to.</div></div>
-        <div class="ref-item"><div class="ref-title">IV — Control desires</div><div class="ref-body">Every delayed gratification is a vote for Discipline. Every surrender weakens.</div></div>
-        <div class="ref-item"><div class="ref-title">V — Speak only when necessary</div><div class="ref-body">Guard your speech like you guard your time.</div></div>
-        <div class="ref-item"><div class="ref-title">VI — Improve every day</div><div class="ref-body">One domain — body, mind, deen, or provision — every single day.</div></div>
-        <div class="ref-item"><div class="ref-title">VII — Never quit after a bad day</div><div class="ref-body">After any failure — pray two raka'at, reset, begin again. The return defines you.</div></div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- ─── WEEKLY REPORT ──────────────────────────────────── -->
-<div class="page" id="pg-weekly">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Weekly Identity Report</div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div style="padding-top:16px">
-        <svg id="weekly-radar" viewBox="0 0 260 260"></svg>
-        <div id="weekly-inner"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ─── ABOUT ───────────────────────────────────────────── -->
-<div class="page" id="pg-about">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">About</div>
-  </div>
-  <div class="spine-layout">
-    <div class="spine"></div>
-    <div class="spine-content px20">
-      <div class="arabic" style="font-size:40px;color:var(--border2);margin-top:12px;margin-bottom:-6px;display:block;text-align:right">المرآة</div>
-      <div class="display" style="font-size:28px;margin-bottom:20px">What This App Is</div>
-      <div class="card card-amber mb20">
-        <div class="display-i" style="font-size:16px;color:var(--text2);line-height:1.8">"This app can structure your reflection and make consistency easier — but the actual rewiring happens in the 2 minutes you spend being honest with yourself in it, not in the code. The radar chart, the named future self, the urge timer — these are scaffolding to make that honesty easier to sustain for months instead of days. The app is the mirror. You are still the one who has to look into it."</div>
-      </div>
-      <div class="eyebrow mb12">6 Identity Categories</div>
-      <div id="about-cats"></div>
-      <div class="mt20 mb20">
-        <div class="eyebrow mb12">Behavioural Science Basis</div>
-        <div class="ref-item"><div class="ref-title">Identity-based habits</div><div class="ref-body">Every logged action is framed as a "vote" for an identity, not a task completed.</div></div>
-        <div class="ref-item"><div class="ref-title">Implementation intentions</div><div class="ref-body">"If [X], then I will [Y]" format doubles follow-through vs. vague goals (Gollwitzer, 1999).</div></div>
-        <div class="ref-item"><div class="ref-title">Self-distancing</div><div class="ref-body">Referring to yourself by name reduces emotional reactivity and improves honest self-assessment.</div></div>
-        <div class="ref-item"><div class="ref-title">Spaced resurfacing</div><div class="ref-body">Revisiting past reflections at intervals prevents identity drift and reinforces long-term commitments.</div></div>
-      </div>
-      <button class="btn btn-outline btn-sm mb16" onclick="resetSetup()">Reset Name / Future Self</button>
-    </div>
-  </div>
-</div>
-
-</div><!-- /pages -->
-
-<!-- ── BOTTOM NAV ──────────────────────────────────────── -->
-<nav id="bnav">
-  <button class="bnav-btn" id="nav-home" onclick="navTo('pg-home')"><span class="ico">🏠</span>Home</button>
-  <button class="bnav-btn" id="nav-hist" onclick="navTo('pg-history')"><span class="ico">📜</span>History</button>
-  <button class="bnav-btn" id="nav-wall" onclick="navTo('pg-wall')"><span class="ico">🧱</span>Wall</button>
-  <button class="bnav-btn" id="nav-goals" onclick="navTo('pg-goals')"><span class="ico">🎯</span>Goals</button>
-  <button class="bnav-btn" id="nav-ref" onclick="navTo('pg-reference')"><span class="ico">📖</span>Library</button>
-</nav>
-
-<!-- TOAST -->
-<div id="toast"></div>
-
-</div><!-- /app -->
-
-<script>
-'use strict';
-// ═══════════════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════════════
-const KEY = 'mirror_v2';
-
-const CATS = [
-  {id:'taqwa',     name:'Taqwa',       color:'#c8922a'},
-  {id:'discipline',name:'Discipline',  color:'#e0a83a'},
-  {id:'control',   name:'Self-Control',color:'#9b7fd4'},
-  {id:'gratitude', name:'Gratitude',   color:'#6a5acd'},
-  {id:'honesty',   name:'Honesty',     color:'#3d9970'},
-  {id:'brotherhood',name:'Brotherhood',color:'#cd5a7a'},
-];
-
-const VERSES = [
-  {ar:'وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ', en:'Perhaps you dislike a thing and it is good for you.', ref:'Al-Baqarah 2:216'},
-  {ar:'إِنَّ مَعَ الْعُسْرِ يُسْرًا', en:'Indeed, with hardship comes ease.', ref:'Ash-Sharh 94:6'},
-  {ar:'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', en:'Whoever fears Allah — He will make for him a way out.', ref:'At-Talaq 65:2'},
-  {ar:'وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ', en:'Man will only have what he strives for.', ref:'An-Najm 53:39'},
-  {ar:'فَاصْبِرْ إِنَّ وَعْدَ اللَّهِ حَقٌّ', en:'So be patient. Indeed, the promise of Allah is truth.', ref:'Ghafir 40:77'},
-  {ar:'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ', en:'Indeed, Allah is with the patient.', ref:'Al-Baqarah 2:153'},
-  {ar:'وَتَوَكَّلْ عَلَى اللَّهِ ۚ وَكَفَىٰ بِاللَّهِ وَكِيلًا', en:'Rely upon Allah — sufficient is Allah as Disposer of affairs.', ref:'Al-Ahzab 33:3'},
-];
-
-const AFFIRMS = [
-  {txt:'[N] builds Taqwa with every prayer and every silent moment of remembrance.', cats:['taqwa']},
-  {txt:'[N] acts regardless of how he feels. Feelings are weather. Discipline is architecture.', cats:['discipline']},
-  {txt:'[N] does not negotiate with his desires. Silence before an urge is a vote for self-control.', cats:['control','discipline']},
-  {txt:'[N] is grateful for exactly what he has — and works hard for what is yet to come.', cats:['gratitude']},
-  {txt:'[N] tells himself the truth. He accounts for his own failures before blaming anything else.', cats:['honesty']},
-  {txt:'[N] shows up for his brothers. He gives generously and asks for nothing in return.', cats:['brotherhood']},
-  {txt:'[N] keeps every promise he makes to himself. His word to himself is iron.', cats:['discipline','honesty']},
-  {txt:'[N] delays gratification today to compound into the man he is building tomorrow.', cats:['control','discipline']},
-];
-
-const TRAITS = ['Disciplined','Consistent','Prays on time','Controls desires','Improves daily','Relies on Allah'];
-const TRAIT_CATS = ['discipline','taqwa','taqwa','control','discipline','taqwa'];
-
-function load() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || newStore(); }
-  catch { return newStore(); }
-}
-function save(d) {
-  try { localStorage.setItem(KEY, JSON.stringify(d)); }
-  catch(e) { console.warn('Storage error', e); }
-}
-function newStore() {
-  return {
-    setup: false, name: '',
-    days: {},
-    catScores: {taqwa:0,discipline:0,control:0,gratitude:0,honesty:0,brotherhood:0},
-    streak: 0, best: 0,
-    urgesResisted: 0, urgesTotal: 0,
-    goals: [],
-  };
-}
-function todayKey() {
-  const n = new Date();
-  return n.getFullYear() + '-' +
-    String(n.getMonth()+1).padStart(2,'0') + '-' +
-    String(n.getDate()).padStart(2,'0');
-}
-function getDay(d, key) {
-  if (!key) key = todayKey();
-  if (!d.days[key]) d.days[key] = {
-    fajr:false, quranRef:'', quranDone:false,
-    affirms:[], intent:'', trait:'', score:5, review:'', mornDone:false,
-    intentDone:null, eveReflect:'', avoided:'', gratitude:'', eveDone:false,
-    votes:{},
-  };
-  return d.days[key];
-}
-
-// ═══════════════════════════════════════════════════════
-// NAVIGATION — simple, reliable, no race conditions
-// ═══════════════════════════════════════════════════════
-let _cur = 'pg-setup';
-let _prev = null;
-
-// Pages that belong to the bottom nav (show nav when on these)
-const NAV_PAGES = new Set(['pg-home','pg-history','pg-wall','pg-goals','pg-reference']);
-const NAV_MAP = {
-  'pg-home':'nav-home','pg-history':'nav-hist',
-  'pg-wall':'nav-wall','pg-goals':'nav-goals','pg-reference':'nav-ref',
-};
-
-function showPage(id) {
-  // Hide all pages
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  // Show target
-  const el = document.getElementById(id);
-  if (!el) { console.error('Page not found:', id); return; }
-  el.classList.add('active');
-  // Scroll to top of page
-  el.scrollTop = 0;
-  // Nav visibility
-  const nav = document.getElementById('bnav');
-  nav.style.display = NAV_PAGES.has(id) ? 'flex' : 'none';
-  // Active nav button
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
-  if (NAV_MAP[id]) {
-    const btn = document.getElementById(NAV_MAP[id]);
-    if (btn) btn.classList.add('active');
-  }
-  _prev = _cur;
-  _cur = id;
-  // Run enter hook
-  const hooks = {
-    'pg-home': renderHome,
-    'pg-m1': enterM1, 'pg-m2': enterM2, 'pg-m3': enterM3, 'pg-m4': enterM4, 'pg-m5': enterM5,
-    'pg-e1': enterE1, 'pg-e2': enterE2, 'pg-e3': enterE3,
-    'pg-history': renderHistory, 'pg-wall': renderWall, 'pg-goals': renderGoals,
-    'pg-weekly': renderWeekly, 'pg-about': renderAbout,
-    'pg-urge': enterUrge,
-  };
-  if (hooks[id]) hooks[id]();
-}
-
-// goTo: navigate forward
-function goTo(id) { showPage(id); }
-
-// navTo: navigate via bottom nav (always goes to nav pages)
-function navTo(id) { showPage(id); }
-
-// goBack: go to previous page, fallback to home
-function goBack() {
-  if (_prev && _prev !== _cur) showPage(_prev);
-  else showPage('pg-home');
-}
-
-// ═══════════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════════
-let _toastTimer;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
-}
-
-// ═══════════════════════════════════════════════════════
-// VOTE
-// ═══════════════════════════════════════════════════════
-function castVote(cats, d, label) {
-  const today = getDay(d);
-  cats.forEach(c => {
-    if (!d.catScores) d.catScores = {};
-    d.catScores[c] = (d.catScores[c] || 0) + 1;
-    today.votes[c] = (today.votes[c] || 0) + 1;
-  });
-  save(d);
-  const names = cats.map(c => CATS.find(x => x.id === c)?.name || c).join(' + ');
-  toast('Vote cast for: ' + names);
-}
-
-// ═══════════════════════════════════════════════════════
-// SETUP
-// ═══════════════════════════════════════════════════════
-function completeSetup() {
-  const n = document.getElementById('setup-name').value.trim();
-  if (!n) {
-    document.getElementById('setup-name').style.borderColor = 'var(--red)';
-    return;
-  }
-  const d = load();
-  d.setup = true;
-  d.name = n;
-  save(d);
-  showPage('pg-home');
-}
-function resetSetup() {
-  if (!confirm('Reset your name and start over? Your data is kept.')) return;
-  const d = load();
-  d.setup = false;
-  save(d);
-  showPage('pg-setup');
-}
-
-// ═══════════════════════════════════════════════════════
-// RADAR
-// ═══════════════════════════════════════════════════════
-function drawRadar(svgId, scores) {
-  const svg = document.getElementById(svgId);
-  if (!svg) return;
-  const cx = 130, cy = 130, r = 96, n = 6;
-  svg.innerHTML = '';
-  const angle = i => i * Math.PI * 2 / n - Math.PI / 2;
-  const pt = (i, radius) => [cx + radius * Math.cos(angle(i)), cy + radius * Math.sin(angle(i))];
-
-  // Grid rings
-  [0.25, 0.5, 0.75, 1].forEach(f => {
-    const pts = Array.from({length:n}, (_,i) => pt(i, r*f).join(',')).join(' ');
-    const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    poly.setAttribute('points', pts);
-    poly.setAttribute('fill', 'none');
-    poly.setAttribute('stroke', '#2a2a44');
-    poly.setAttribute('stroke-width', '1');
-    svg.appendChild(poly);
-  });
-
-  // Axes
-  Array.from({length:n}, (_,i) => {
-    const [x,y] = pt(i, r);
-    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-    line.setAttribute('x1', cx); line.setAttribute('y1', cy);
-    line.setAttribute('x2', x); line.setAttribute('y2', y);
-    line.setAttribute('stroke', '#2a2a44'); line.setAttribute('stroke-width', '1');
-    svg.appendChild(line);
-  });
-
-  const max = Math.max(1, ...Object.values(scores));
-
-  // Fill polygon
-  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
-  const grad = document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
-  grad.setAttribute('id', svgId + '-g');
-  grad.setAttribute('x1','0%'); grad.setAttribute('y1','0%');
-  grad.setAttribute('x2','100%'); grad.setAttribute('y2','100%');
-  const s1 = document.createElementNS('http://www.w3.org/2000/svg','stop');
-  s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#c8922a'); s1.setAttribute('stop-opacity','.3');
-  const s2 = document.createElementNS('http://www.w3.org/2000/svg','stop');
-  s2.setAttribute('offset','100%'); s2.setAttribute('stop-color','#6a5acd'); s2.setAttribute('stop-opacity','.3');
-  grad.appendChild(s1); grad.appendChild(s2);
-  defs.appendChild(grad); svg.appendChild(defs);
-
-  const pts = CATS.map((c,i) => {
-    const v = (scores[c.id] || 0) / max;
-    return pt(i, r * Math.max(v, 0.05)).join(',');
-  }).join(' ');
-  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
-  poly.setAttribute('points', pts);
-  poly.setAttribute('fill', `url(#${svgId}-g)`);
-  poly.setAttribute('stroke', '#c8922a');
-  poly.setAttribute('stroke-width', '1.5');
-  svg.appendChild(poly);
-
-  // Dots + labels
-  CATS.forEach((c, i) => {
-    const v = (scores[c.id] || 0) / max;
-    const [x, y] = pt(i, r * Math.max(v, 0.05));
-    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    dot.setAttribute('cx', x); dot.setAttribute('cy', y);
-    dot.setAttribute('r', '4'); dot.setAttribute('fill', c.color);
-    svg.appendChild(dot);
-
-    const [lx, ly] = pt(i, r * 1.2);
-    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-    txt.setAttribute('x', lx); txt.setAttribute('y', ly);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.setAttribute('dominant-baseline', 'middle');
-    txt.setAttribute('fill', c.color);
-    txt.setAttribute('font-size', '9');
-    txt.setAttribute('font-family', 'Inter,sans-serif');
-    txt.setAttribute('font-weight', '600');
-    txt.setAttribute('letter-spacing', '.08em');
-    txt.textContent = c.name.toUpperCase();
-    svg.appendChild(txt);
-  });
-}
-
-// ═══════════════════════════════════════════════════════
-// HOME
-// ═══════════════════════════════════════════════════════
-function renderHome() {
-  const d = load();
-  const today = getDay(d);
-  const name = d.name || 'You';
-  const h = new Date().getHours();
-  const greet = h < 12 ? 'Good morning,' : h < 17 ? 'Good afternoon,' : 'Good evening,';
-  document.getElementById('home-greeting').textContent = greet;
-  document.getElementById('home-name').textContent = name + ' — The Mirror';
-  document.getElementById('home-date').textContent = new Date().toLocaleDateString('en-US',
-    {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-  document.getElementById('st-streak').textContent = d.streak || 0;
-  document.getElementById('st-best').textContent = d.best || 0;
-  document.getElementById('st-urges').textContent = d.urgesResisted || 0;
-
-  drawRadar('radar-svg', d.catScores || {});
-  renderRadarLegend(d.catScores || {});
-
-  // Resurface
-  renderResurface(d, name);
-
-  // Drift
-  renderDrift(d, name);
-
-  // Morning steps
-  const mDone = [
-    today.fajr,
-    today.quranDone,
-    today.affirms?.length >= 8,
-    !!today.intent,
-    !!today.review
-  ].filter(Boolean).length;
-
-  document.getElementById('morn-tag').textContent = mDone + ' / 5';
-  const mSteps = [
-    {ico:'🕌', name:'Fajr Prayer', sub:'With khushu\'', done: today.fajr},
-    {ico:'📖', name:'Qur\'an', sub:'Verse & reflection', done: today.quranDone},
-    {ico:'⚡', name:'Affirmations', sub:'8 identity votes', done: today.affirms?.length >= 8},
-    {ico:'✦', name:'Intention', sub:'If/then format', done: !!today.intent},
-    {ico:'⚖', name:'Yesterday\'s Review', sub:'Honest accounting', done: !!today.review},
-  ];
-  document.getElementById('home-morn-steps').innerHTML = mSteps.map(s => `
-    <div class="step-row ${s.done ? 'done' : ''}">
-      <span class="step-ico">${s.done ? '<span style="color:var(--green)">✓</span>' : s.ico}</span>
-      <div>
-        <div class="step-name">${s.name}</div>
-        <div class="step-sub">${s.sub}</div>
-      </div>
-    </div>`).join('');
-
-  const mBtn = document.getElementById('morn-btn');
-  const mTxt = document.getElementById('morn-btn-txt');
-  if (today.mornDone) {
-    mBtn.className = 'btn btn-outline';
-    mBtn.onclick = null;
-    mTxt.textContent = 'Morning Complete ✓';
-  } else {
-    mBtn.className = 'btn btn-amber';
-    mBtn.onclick = startMorning;
-    mTxt.textContent = mDone > 0 ? 'Continue Morning →' : 'Begin Morning Ritual';
-  }
-
-  // Evening steps
-  const eDone = [today.intentDone !== null, !!today.avoided, !!today.gratitude].filter(Boolean).length;
-  document.getElementById('eve-tag').textContent = eDone + ' / 3';
-  const eSteps = [
-    {ico:'🎯', name:'Intention Review', sub:'Did you follow through?', done: today.intentDone !== null},
-    {ico:'🛡', name:'What Was Avoided', sub:'Self-control accounting', done: !!today.avoided},
-    {ico:'🙏', name:'Gratitude', sub:'Three specific things', done: !!today.gratitude},
-  ];
-  document.getElementById('home-eve-steps').innerHTML = eSteps.map(s => `
-    <div class="step-row ${s.done ? 'done' : ''}">
-      <span class="step-ico">${s.done ? '<span style="color:var(--purple)">✓</span>' : s.ico}</span>
-      <div>
-        <div class="step-name">${s.name}</div>
-        <div class="step-sub">${s.sub}</div>
-      </div>
-    </div>`).join('');
-
-  const eBtn = document.getElementById('eve-btn');
-  const eTxt = document.getElementById('eve-btn-txt');
-  if (today.eveDone) {
-    eBtn.className = 'btn btn-outline';
-    eBtn.onclick = null;
-    eTxt.textContent = 'Evening Complete ✓';
-  } else {
-    eBtn.className = 'btn';
-    eBtn.style.background = 'var(--purple)';
-    eBtn.style.color = '#fff';
-    eBtn.onclick = startEvening;
-    eTxt.textContent = eDone > 0 ? 'Continue Evening →' : 'Begin Evening Check-in';
-  }
-}
-
-function renderRadarLegend(scores) {
-  const el = document.getElementById('radar-legend');
-  if (!el) return;
-  const max = Math.max(1, ...Object.values(scores));
-  el.innerHTML = CATS.map(c => `
-    <div class="rl-item">
-      <div class="rl-dot" style="background:${c.color}"></div>
-      ${c.name}: <b style="color:${c.color};margin-left:2px">${Math.round((scores[c.id]||0)/max*100)}%</b>
-    </div>`).join('');
-}
-
-function renderResurface(d, name) {
-  const el = document.getElementById('resurface-wrap');
-  if (!el) return;
-  const days = Object.keys(d.days).filter(k => k !== todayKey()).sort();
-  if (days.length < 2) { el.innerHTML = ''; return; }
-  const dayNum = Math.floor(Date.now() / 86400000);
-  if (dayNum % 3 !== 0) { el.innerHTML = ''; return; }
-  const rec = d.days[days[Math.floor(Math.random() * days.length)]];
-  if (!rec) { el.innerHTML = ''; return; }
-  const msg = rec.quranRef?.length > 10 ? rec.quranRef : rec.intent;
-  if (!msg) { el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="resurface">
-    <div class="resurface-lbl">${name} wrote, some time ago</div>
-    <div class="resurface-body">"${esc(msg.slice(0,140))}${msg.length>140?'…':''}"</div>
-  </div>`;
-}
-
-function renderDrift(d, name) {
-  const el = document.getElementById('drift-wrap');
-  if (!el) return;
-  const days = Object.keys(d.days).sort();
-  let missed = 0;
-  days.slice(-4).forEach(k => {
-    if (k !== todayKey() && !d.days[k]?.intent) missed++;
-  });
-  if (missed >= 3) {
-    el.innerHTML = `<div class="drift-alert">
-      <div class="drift-lbl">Pattern Noticed</div>
-      <div class="drift-msg">${missed} days without a completed intention. ${name} would lower the target, not abandon it.</div>
-    </div>`;
-  } else {
-    el.innerHTML = '';
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-// STEP DOTS
-// ═══════════════════════════════════════════════════════
-function renderDots(elId, cur, total) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  el.innerHTML = Array.from({length: total}, (_, i) => {
-    const cls = i < cur ? 'sdot done' : i === cur ? 'sdot cur' : 'sdot idle';
-    return `<div class="${cls}"></div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════════════
-// MORNING
-// ═══════════════════════════════════════════════════════
-function startMorning() {
-  const d = load();
-  const t = getDay(d);
-  if (!t.fajr) goTo('pg-m1');
-  else if (!t.quranDone) goTo('pg-m2');
-  else if ((t.affirms||[]).length < 8) goTo('pg-m3');
-  else if (!t.intent) goTo('pg-m4');
-  else goTo('pg-m5');
-}
-
-function enterM1() {
-  renderDots('dots-m1', 0, 5);
-  const d = load();
-  const t = document.getElementById('tog-fajr');
-  if (t) t.className = 'toggle' + (getDay(d).fajr ? ' on' : '');
-  document.getElementById('fajr-lbl').textContent = (d.name || 'You') + " prayed Fajr with khushu'";
-}
-function toggleFajr() {
-  const d = load();
-  const today = getDay(d);
-  today.fajr = !today.fajr;
-  if (today.fajr) castVote(['taqwa','discipline'], d, 'Fajr with presence');
-  else save(d);
-  const t = document.getElementById('tog-fajr');
-  if (t) t.className = 'toggle' + (today.fajr ? ' on' : '');
-}
-
-function enterM2() {
-  renderDots('dots-m2', 1, 5);
-  const d = load();
-  const name = d.name || 'You';
-  const v = VERSES[Math.floor(Date.now() / 86400000) % VERSES.length];
-  document.getElementById('verse-ar').textContent = v.ar;
-  document.getElementById('verse-en').textContent = v.en;
-  document.getElementById('verse-ref').textContent = v.ref;
-  document.getElementById('quran-prompt-lbl').textContent = `What does this verse mean for ${name} today?`;
-  document.getElementById('ta-quran').value = getDay(d).quranRef || '';
-}
-function saveM2() {
-  const d = load();
-  const today = getDay(d);
-  const ta = document.getElementById('ta-quran');
-  today.quranRef = ta ? ta.value : '';
-  today.quranDone = true;
-  if (today.quranRef.length > 10) castVote(['taqwa','gratitude'], d, 'Qur\'an reflection');
-  else save(d);
-}
-
-function enterM3() {
-  renderDots('dots-m3', 2, 5);
-  const d = load();
-  const name = d.name || 'You';
-  const today = getDay(d);
-  const saved = today.affirms || [];
-  document.getElementById('affirm-list').innerHTML = AFFIRMS.map((a, i) => {
-    const done = saved.includes(i);
-    const txt = a.txt.replace(/\[N\]/g, name);
-    return `<div class="aff-item ${done ? 'done' : ''}" onclick="tapAffirm(${i})">
-      <div class="aff-circle">✓</div>
-      <div class="aff-txt">${esc(txt)}</div>
-    </div>`;
-  }).join('');
-}
-function tapAffirm(i) {
-  const d = load();
-  const today = getDay(d);
-  if (!today.affirms) today.affirms = [];
-  const idx = today.affirms.indexOf(i);
-  if (idx === -1) { today.affirms.push(i); castVote(AFFIRMS[i].cats, d, 'Affirmation spoken'); }
-  else { today.affirms.splice(idx, 1); save(d); }
-  enterM3();
-}
-
-function enterM4() {
-  renderDots('dots-m4', 3, 5);
-  const d = load();
-  const name = d.name || 'You';
-  const today = getDay(d);
-  document.getElementById('intent-prompt-lbl').textContent = `${name}'s implementation intention today`;
-  document.getElementById('align-prompt-lbl').textContent = `Which trait is ${name} voting for?`;
-  document.getElementById('ta-intent').value = today.intent || '';
-  document.getElementById('trait-grid-m4').innerHTML = TRAITS.map((t, i) => `
-    <div class="trait-chip ${today.trait === t ? 'sel' : ''}" onclick="pickTrait('${t}', ${i})">${t}</div>
-  `).join('');
-}
-function saveM4() {
-  const d = load();
-  const today = getDay(d);
-  const ta = document.getElementById('ta-intent');
-  today.intent = ta ? ta.value : '';
-  if (today.intent.length > 5) castVote(['discipline','honesty'], d, 'Intention set');
-  else save(d);
-}
-function pickTrait(t, i) {
-  const d = load();
-  const today = getDay(d);
-  today.trait = t;
-  castVote([TRAIT_CATS[i] || 'discipline'], d, 'Trait: ' + t);
-  enterM4();
-}
-
-function enterM5() {
-  renderDots('dots-m5', 4, 5);
-  const d = load();
-  const name = d.name || 'You';
-  const today = getDay(d);
-  document.getElementById('review-prompt-lbl').textContent =
-    `What did ${name} do yesterday vs. what should he have done?`;
-  const sr = document.getElementById('score-range');
-  if (sr) sr.value = today.score || 5;
-  updateScore();
-  document.getElementById('ta-review').value = today.review || '';
-}
-function updateScore() {
-  const sr = document.getElementById('score-range');
-  const sd = document.getElementById('score-disp');
-  if (!sr || !sd) return;
-  const v = parseInt(sr.value);
-  sd.textContent = v;
-  sd.className = 'score-display ' + (v <= 3 ? 'score-lo' : v <= 6 ? 'score-mid' : 'score-hi');
-}
-function saveM5() {
-  const d = load();
-  const today = getDay(d);
-  const sr = document.getElementById('score-range');
-  const ta = document.getElementById('ta-review');
-  today.score = sr ? parseInt(sr.value) : 5;
-  today.review = ta ? ta.value : '';
-  if (today.review.length > 5) castVote(['honesty'], d, 'Honest self-review');
-  else save(d);
-}
-function completeMorning() {
-  saveM5();
-  const d = load();
-  const today = getDay(d);
-  today.mornDone = true;
-
-  // Streak
-  const yest = new Date();
-  yest.setDate(yest.getDate() - 1);
-  const yk = yest.getFullYear() + '-' +
-    String(yest.getMonth()+1).padStart(2,'0') + '-' +
-    String(yest.getDate()).padStart(2,'0');
-  d.streak = (d.days[yk]?.mornDone) ? (d.streak || 0) + 1 : 1;
-  if (d.streak > (d.best || 0)) d.best = d.streak;
-  save(d);
-
-  showComplete('Morning Ritual', 'Complete', 'جزاك الله خيراً',
-    'The votes you cast this morning compound. Every morning you show up, your identity shifts.',
-    today.votes);
-}
-
-// ═══════════════════════════════════════════════════════
-// EVENING
-// ═══════════════════════════════════════════════════════
-function startEvening() {
-  const d = load();
-  const t = getDay(d);
-  if (t.intentDone === null) goTo('pg-e1');
-  else if (!t.avoided) goTo('pg-e2');
-  else goTo('pg-e3');
-}
-
-function enterE1() {
-  renderDots('dots-e1', 0, 3);
-  const d = load();
-  const today = getDay(d);
-  const name = d.name || 'You';
-  document.getElementById('mid-intent').textContent = today.intent || 'No intention recorded this morning.';
-  document.getElementById('e1-reflect-lbl').textContent = `What stopped ${name} — or what made it possible?`;
-  document.getElementById('ta-e1').value = today.eveReflect || '';
-}
-function setIntentDone(v) {
-  const d = load();
-  const today = getDay(d);
-  today.intentDone = v;
-  const cats = v ? ['discipline','honesty'] : ['honesty'];
-  castVote(cats, d, v ? 'Intention completed' : 'Honest: intention missed');
-}
-function saveE1() {
-  const d = load();
-  const today = getDay(d);
-  const ta = document.getElementById('ta-e1');
-  today.eveReflect = ta ? ta.value : '';
-  save(d);
-}
-
-function enterE2() {
-  renderDots('dots-e2', 1, 3);
-  const d = load();
-  const name = d.name || 'You';
-  document.getElementById('avoid-lbl').textContent = `What did ${name} avoid today that needs facing?`;
-  document.getElementById('ta-avoid').value = getDay(d).avoided || '';
-}
-function saveE2() {
-  const d = load();
-  const today = getDay(d);
-  const ta = document.getElementById('ta-avoid');
-  today.avoided = ta ? ta.value : '';
-  if (today.avoided.length > 5) castVote(['control','honesty'], d, 'Avoidance named');
-  else save(d);
-}
-
-function enterE3() {
-  renderDots('dots-e3', 2, 3);
-  const d = load();
-  const name = d.name || 'You';
-  document.getElementById('grat-lbl').textContent = `Three things ${name} is genuinely grateful for today`;
-  document.getElementById('ta-grat').value = getDay(d).gratitude || '';
-}
-function saveE3() {
-  const d = load();
-  const today = getDay(d);
-  const ta = document.getElementById('ta-grat');
-  today.gratitude = ta ? ta.value : '';
-  if (today.gratitude.length > 5) castVote(['gratitude','brotherhood'], d, 'Gratitude practiced');
-  else save(d);
-}
-function completeEvening() {
-  saveE3();
-  const d = load();
-  const today = getDay(d);
-  today.eveDone = true;
-  save(d);
-  showComplete('Evening Check-in', 'Complete', 'الحمد لله',
-    'Ending the day with honest reflection is the discipline most people skip. You did not.',
-    today.votes);
-}
-
-// ═══════════════════════════════════════════════════════
-// COMPLETE SCREEN
-// ═══════════════════════════════════════════════════════
-function showComplete(type, status, ar, msg, votes) {
-  document.getElementById('complete-title').textContent = type + ' ' + status;
-  document.getElementById('complete-ar').textContent = ar;
-  document.getElementById('complete-msg').textContent = msg;
-  const vel = document.getElementById('complete-votes');
-  if (vel && votes) {
-    const rows = Object.keys(votes)
-      .filter(k => votes[k] > 0)
-      .map(k => {
-        const cat = CATS.find(c => c.id === k);
-        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
-          <div style="width:7px;height:7px;border-radius:50%;background:${cat?.color||'#fff'};flex-shrink:0"></div>
-          <span style="font-size:12px;color:var(--text3)">+${votes[k]} vote${votes[k]>1?'s':''} for</span>
-          <span style="font-size:13px;font-weight:500">${cat?.name||k}</span>
-        </div>`;
-      }).join('');
-    vel.innerHTML = `<div class="eyebrow" style="margin-bottom:8px">Votes Cast</div>
-      ${rows || '<span style="font-size:13px;color:var(--text3)">Complete steps to cast votes.</span>'}`;
-  }
-  goTo('pg-complete');
-}
-
-// ═══════════════════════════════════════════════════════
-// URGE PROTOCOL
-// ═══════════════════════════════════════════════════════
-let _urgeTimer = null;
-let _urgeSecs = 60;
-
-function enterUrge() {
-  const d = load();
-  const name = d.name || 'You';
-  document.getElementById('urge-name-display').textContent = name;
-  document.getElementById('urge-ph1').style.display = '';
-  document.getElementById('urge-ph2').style.display = 'none';
-
-  const arc = document.getElementById('urge-arc');
-  if (arc) arc.style.strokeDashoffset = '0';
-  _urgeSecs = 60;
-  document.getElementById('urge-count').textContent = '60';
-
-  clearInterval(_urgeTimer);
-  _urgeTimer = setInterval(() => {
-    _urgeSecs--;
-    const cnt = document.getElementById('urge-count');
-    const a = document.getElementById('urge-arc');
-    if (cnt) cnt.textContent = _urgeSecs;
-    if (a) a.style.strokeDashoffset = String(515 * (1 - _urgeSecs / 60));
-    if (_urgeSecs <= 0) {
-      clearInterval(_urgeTimer);
-      _urgeTimer = null;
-      document.getElementById('urge-ph1').style.display = 'none';
-      document.getElementById('urge-ph2').style.display = '';
-    }
-  }, 1000);
-}
-function cancelUrge() {
-  clearInterval(_urgeTimer);
-  _urgeTimer = null;
-  goBack();
-}
-function logUrge(resisted) {
-  clearInterval(_urgeTimer);
-  _urgeTimer = null;
-  const d = load();
-  d.urgesTotal = (d.urgesTotal || 0) + 1;
-  if (resisted) {
-    d.urgesResisted = (d.urgesResisted || 0) + 1;
-    castVote(['control','discipline'], d, 'Urge resisted');
-  } else {
-    castVote(['honesty'], d, 'Urge logged honestly');
-  }
-  goBack();
-}
-
-// ═══════════════════════════════════════════════════════
-// HISTORY
-// ═══════════════════════════════════════════════════════
-function renderHistory() {
-  const d = load();
-  const name = d.name || 'You';
-  const days = Object.keys(d.days).sort((a,b) => b.localeCompare(a));
-  const el = document.getElementById('hist-list');
-  if (!el) return;
-  if (!days.length) {
-    el.innerHTML = '<div class="empty">Your journey begins<br/>with your first morning.</div>';
-    return;
-  }
-  el.innerHTML = days.map(k => {
-    const r = d.days[k];
-    const sc = r.score || 0;
-    const scColor = sc <= 3 ? 'var(--red)' : sc <= 6 ? 'var(--amber)' : 'var(--green)';
-    const date = new Date(k + 'T00:00:00');
-    const lbl = date.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
-    const status = r.mornDone ? 'Morning complete' : r.fajr ? 'In progress' : 'Not started';
-    return `<div class="hist-item">
-      <div class="hist-hdr" onclick="this.nextElementSibling.classList.toggle('open')">
-        <div>
-          <div class="hist-date">${esc(lbl)}</div>
-          <div class="hist-tag">${status}</div>
-        </div>
-        ${sc ? `<div class="hist-score" style="background:${scColor}22;color:${scColor}">${sc}</div>` : ''}
-        <span style="color:var(--text3);font-size:12px">▾</span>
-      </div>
-      <div class="hist-body">
-        ${r.intent ? `<div class="hist-field"><div class="hist-flbl">Intention</div><div class="hist-fval">${esc(r.intent)}</div></div>` : ''}
-        ${r.quranRef ? `<div class="hist-field"><div class="hist-flbl">Qur'an Reflection</div><div class="hist-fval">${esc(r.quranRef)}</div></div>` : ''}
-        ${r.avoided ? `<div class="hist-field"><div class="hist-flbl">Avoidance</div><div class="hist-fval">${esc(r.avoided)}</div></div>` : ''}
-        ${r.gratitude ? `<div class="hist-field"><div class="hist-flbl">Gratitude</div><div class="hist-fval">${esc(r.gratitude)}</div></div>` : ''}
-        ${r.votes && Object.keys(r.votes).length ? `<div class="hist-field"><div class="hist-flbl">Votes Cast</div>
-          <div style="font-size:12px;color:var(--text3);margin-top:3px">${Object.entries(r.votes).filter(([,v])=>v>0).map(([k,v])=>`${CATS.find(c=>c.id===k)?.name||k}: +${v}`).join(' · ')}</div>
-        </div>` : ''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════════════
-// WALL
-// ═══════════════════════════════════════════════════════
-function renderWall() {
-  const d = load();
-  const days = Object.keys(d.days);
-  const mornDone = days.filter(k => d.days[k]?.mornDone).length;
-  const eveDone = days.filter(k => d.days[k]?.eveDone).length;
-  const total = Object.values(d.catScores || {}).reduce((a,b) => a+b, 0);
-
-  const grid = document.getElementById('wall-grid');
-  if (grid) grid.innerHTML = [
-    ['Total Days', days.length], ['Mornings', mornDone],
-    ['Evenings', eveDone], ['Streak', d.streak || 0],
-    ['Best', d.best || 0], ['Urges Won', d.urgesResisted || 0],
-    ['Total Votes', total], ['Urges Total', d.urgesTotal || 0],
-  ].map(([l, v]) => `<div class="wall-cell">
-    <div class="wall-n">${v}</div>
-    <div class="wall-l">${l}</div>
-  </div>`).join('');
-
-  const cats = document.getElementById('wall-cats');
-  if (cats) {
-    const max = Math.max(1, ...Object.values(d.catScores || {}));
-    cats.innerHTML = CATS.map(c => `<div class="cat-bar">
-      <span class="cat-nm">${c.name}</span>
-      <div class="cat-track"><div class="cat-fill" style="width:${Math.round((d.catScores?.[c.id]||0)/max*100)}%;background:${c.color}"></div></div>
-      <span class="cat-val">${d.catScores?.[c.id] || 0}</span>
-    </div>`).join('');
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-// GOALS
-// ═══════════════════════════════════════════════════════
-function renderGoals() {
-  const d = load();
-  const goals = d.goals || [];
-  const el = document.getElementById('goal-list');
-  if (!el) return;
-  if (!goals.length) {
-    el.innerHTML = '<div class="empty" style="padding:40px 0;font-size:17px">Add your first goal.</div>';
-    return;
-  }
-  el.innerHTML = goals.map((g, i) => `
-    <div class="goal-item">
-      <div class="goal-bubble ${g.done ? 'done' : ''}" onclick="toggleGoal(${i})"></div>
-      <div class="goal-txt ${g.done ? 'done' : ''}">${esc(g.txt)}</div>
-      <div class="goal-del" onclick="deleteGoal(${i})">×</div>
-    </div>`).join('');
-}
-function addGoal() {
-  const inp = document.getElementById('goal-input');
-  const txt = inp.value.trim();
-  if (!txt) return;
-  const d = load();
-  if (!d.goals) d.goals = [];
-  d.goals.push({txt, done: false});
-  castVote(['discipline'], d, 'Goal added');
-  inp.value = '';
-  renderGoals();
-}
-function toggleGoal(i) {
-  const d = load();
-  d.goals[i].done = !d.goals[i].done;
-  if (d.goals[i].done) castVote(['discipline'], d, 'Goal completed');
-  else save(d);
-  renderGoals();
-}
-function deleteGoal(i) {
-  const d = load();
-  d.goals.splice(i, 1);
-  save(d);
-  renderGoals();
-}
-
-// ═══════════════════════════════════════════════════════
-// WEEKLY REPORT
-// ═══════════════════════════════════════════════════════
-function renderWeekly() {
-  const d = load();
-  const name = d.name || 'You';
-  const now = new Date();
-  const weekKeys = Array.from({length:7}, (_, i) => {
-    const dd = new Date(now);
-    dd.setDate(now.getDate() - i);
-    return dd.getFullYear() + '-' +
-      String(dd.getMonth()+1).padStart(2,'0') + '-' +
-      String(dd.getDate()).padStart(2,'0');
-  });
-
-  const weekVotes = {};
-  CATS.forEach(c => weekVotes[c.id] = 0);
-  weekKeys.forEach(k => {
-    const r = d.days[k];
-    if (r?.votes) Object.entries(r.votes).forEach(([cat, v]) => {
-      if (weekVotes[cat] !== undefined) weekVotes[cat] += v;
-    });
-  });
-
-  const maxV = Math.max(1, ...Object.values(weekVotes));
-  const strongest = CATS.reduce((a, c) => (weekVotes[c.id]||0) > (weekVotes[a.id]||0) ? c : a, CATS[0]);
-  const weakest = CATS.reduce((a, c) => (weekVotes[c.id]||0) < (weekVotes[a.id]||0) ? c : a, CATS[0]);
-
-  let bestJournal = '';
-  weekKeys.forEach(k => {
-    const r = d.days[k];
-    if (r?.quranRef && r.quranRef.length > bestJournal.length) bestJournal = r.quranRef;
-  });
-
-  const el = document.getElementById('weekly-inner');
-  if (el) el.innerHTML = `
-    <div class="display" style="font-size:26px;margin-bottom:20px">This Week's Identity</div>
-
-    <div class="card mb12" style="border-color:rgba(200,146,42,.3)">
-      <div class="eyebrow mb8" style="color:var(--text3)">Voted most for</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:9px;height:9px;border-radius:50%;background:${strongest.color}"></div>
-        <span class="display" style="font-size:22px">${strongest.name}</span>
-      </div>
-    </div>
-
-    <div class="card mb12">
-      <div class="eyebrow mb8" style="color:var(--text3)">Fewest votes for</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:9px;height:9px;border-radius:50%;background:${weakest.color}"></div>
-        <span class="display" style="font-size:22px">${weakest.name}</span>
-      </div>
-    </div>
-
-    ${bestJournal ? `<div class="card card-amber mb12">
-      <div class="eyebrow mb8">Best reflection this week</div>
-      <div class="display-i" style="font-size:16px;color:var(--text2);line-height:1.65">"${esc(bestJournal.slice(0,200))}${bestJournal.length>200?'…':''}"</div>
-    </div>` : ''}
-
-    <div class="eyebrow mb10 mt16">Category Breakdown</div>
-    ${CATS.map(c => `<div class="cat-bar">
-      <span class="cat-nm">${c.name}</span>
-      <div class="cat-track"><div class="cat-fill" style="width:${Math.round((weekVotes[c.id]||0)/maxV*100)}%;background:${c.color}"></div></div>
-      <span class="cat-val">${weekVotes[c.id]||0}</span>
-    </div>`).join('')}
-  `;
-
-  // Draw radar after content is in DOM
-  setTimeout(() => drawRadar('weekly-radar', weekVotes), 50);
-}
-
-// ═══════════════════════════════════════════════════════
-// ABOUT
-// ═══════════════════════════════════════════════════════
-function renderAbout() {
-  const el = document.getElementById('about-cats');
-  if (!el) return;
-  el.innerHTML = CATS.map(c => `
-    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="width:9px;height:9px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
-      <div>
-        <div style="font-size:14px;font-weight:500">${c.name}</div>
-      </div>
-    </div>`).join('');
-}
-
-// ═══════════════════════════════════════════════════════
-// UTILITIES
-// ═══════════════════════════════════════════════════════
-function esc(s) {
-  const el = document.createElement('div');
-  el.textContent = s;
-  return el.innerHTML;
-}
-
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  const d = load();
-  if (d.setup && d.name) {
-    showPage('pg-home');
-  } else {
-    showPage('pg-setup');
-  }
-});
-</script>
+    </button>
+
+    <nav class="nav-tabs" id="navTabs" style="display: none;">
+        <button class="nav-tab active" onclick="navigateTo('home')">
+            <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Home
+        </button>
+        <button class="nav-tab" onclick="navigateTo('wall')">
+            <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            Wall
+        </button>
+        <button class="nav-tab" onclick="navigateTo('goals')">
+            <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+            Goals
+        </button>
+        <button class="nav-tab" onclick="navigateTo('reference')">
+            <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            Library
+        </button>
+    </nav>
+
+    <script>
+        // App State
+        let appState = {
+            initialized: false,
+            futureSelfName: '',
+            identityScores: {
+                taqwa: 0,
+                discipline: 0,
+                selfControl: 0,
+                gratitude: 0,
+                honesty: 0,
+                brotherhood: 0
+            },
+            history: [],
+            morningSteps: {
+                fajr: false,
+                quran: false,
+                affirmations: false,
+                intention: false,
+                review: false
+            },
+            eveningSteps: {
+                intentionCheck: false,
+                avoided: false,
+                gratitude: false
+            },
+            todayVotes: 0,
+            currentStreak: 0,
+            bestMonth: 0,
+            totalVotes: 0,
+            totalUrges: 0,
+            monthlyUrges: 0,
+            lastMonth: null,
+            goals: [],
+            observations: {
+                morning: '',
+                evening: '',
+                wall: '',
+                goals: '',
+                reference: ''
+            },
+            lastActiveDate: null,
+            lastResurfaceDate: null
+        };
+
+        // Navigation State
+        let currentPage = 'home';
+        let pageHistory = ['home'];
+        let HISTORY_API_OK = true;
+        let urgeTimerInterval = null;
+
+        // Initialize App
+        function initApp() {
+            // Load state from localStorage
+            const savedState = localStorage.getItem('mirrorAppState');
+            if (savedState) {
+                try {
+                    appState = JSON.parse(savedState);
+                } catch (e) {
+                    console.error('Failed to parse saved state', e);
+                }
+            }
+
+            // Check if first launch
+            if (!appState.initialized) {
+                setTimeout(() => {
+                    document.getElementById('splash').classList.add('hidden');
+                    setTimeout(() => {
+                        showPage('setup');
+                    }, 800);
+                }, 2000);
+            } else {
+                // Check if new day
+                checkNewDay();
+                
+                setTimeout(() => {
+                    document.getElementById('splash').classList.add('hidden');
+                    setTimeout(() => {
+                        showPage('home');
+                        updateUI();
+                        checkResurface();
+                        checkDriftAlert();
+                        checkWeeklyReport();
+                    }, 800);
+                }, 2000);
+            }
+
+            // Setup history API for back button
+            setupHistoryAPI();
+        }
+
+        // Complete Setup
+        function completeSetup() {
+            const name = document.getElementById('futureSelfName').value.trim();
+            if (!name) {
+                alert('Please enter a name for your future self.');
+                return;
+            }
+
+            appState.futureSelfName = name;
+            appState.initialized = true;
+            appState.lastActiveDate = new Date().toISOString().split('T')[0];
+            saveState();
+
+            showPage('home');
+            updateUI();
+        }
+
+        // Check if new day
+        function checkNewDay() {
+            const today = new Date().toISOString().split('T')[0];
+            if (appState.lastActiveDate !== today) {
+                // Reset daily state
+                appState.morningSteps = {
+                    fajr: false,
+                    quran: false,
+                    affirmations: false,
+                    intention: false,
+                    review: false
+                };
+                appState.eveningSteps = {
+                    intentionCheck: false,
+                    avoided: false,
+                    gratitude: false
+                };
+                appState.todayVotes = 0;
+                
+                // Check streak
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                
+                if (appState.lastActiveDate === yesterdayStr) {
+                    appState.currentStreak++;
+                } else {
+                    appState.currentStreak = 1;
+                }
+                
+                // Check monthly urges reset
+                const currentMonth = new Date().getMonth();
+                if (!appState.lastMonth || appState.lastMonth !== currentMonth) {
+                    appState.monthlyUrges = 0;
+                    appState.lastMonth = currentMonth;
+                }
+                
+                appState.lastActiveDate = today;
+                saveState();
+            }
+        }
+
+        // Save state to localStorage
+        function saveState() {
+            try {
+                localStorage.setItem('mirrorAppState', JSON.stringify(appState));
+            } catch (e) {
+                console.error('Failed to save state', e);
+            }
+        }
+
+        // Update UI based on state
+        function updateUI() {
+            // Show navigation and urge button after setup
+            if (appState.initialized) {
+                document.getElementById('navTabs').style.display = 'flex';
+                document.getElementById('urgeButton').style.display = 'flex';
+            }
+
+            // Update home page
+            document.getElementById('todayVotes').textContent = appState.todayVotes;
+
+            // Update prompts with future self name
+            updatePrompts();
+
+            // Update radar chart
+            drawRadarChart();
+
+            // Update wall page
+            updateWallPage();
+
+            // Update goals page
+            updateGoalsPage();
+
+            // Update urge counter
+            document.getElementById('urgeCounter').textContent = appState.monthlyUrges;
+            document.getElementById('urgeInitialTitle').textContent = `${appState.futureSelfName} is deciding right now.`;
+        }
+
+        // Update prompts with future self name
+        function updatePrompts() {
+            const name = appState.futureSelfName;
+            
+            document.getElementById('fajrPrompt').textContent = `Did ${name} wake for Fajr today?`;
+            document.getElementById('quranPrompt').textContent = `What did ${name} read, and what did it reveal about his current state?`;
+            document.getElementById('affirmationPrompt').textContent = `${name} doesn't negotiate with his feelings. He acts according to what he knows is right.`;
+            
+            document.getElementById('driftText').textContent = `3 days of unfinished intentions. ${name} would lower the target, not abandon it. Adjust today's goal?`;
+            
+            document.getElementById('eveningStep1').querySelector('.step-prompt').textContent = `Did ${name} follow through on his intention today?`;
+            document.getElementById('eveningStep2').querySelector('.step-prompt').textContent = `What did ${name} avoid today that he needs to face tomorrow?`;
+            document.getElementById('eveningStep3').querySelector('.step-prompt').textContent = `What is ${name} grateful for today that he often overlooks?`;
+        }
+
+        // Draw Radar Chart
+        function drawRadarChart() {
+            const canvas = document.getElementById('radarChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(centerX, centerY) - 30;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Get identity scores
+            const scores = [
+                appState.identityScores.taqwa,
+                appState.identityScores.discipline,
+                appState.identityScores.selfControl,
+                appState.identityScores.gratitude,
+                appState.identityScores.honesty,
+                appState.identityScores.brotherhood
+            ];
+            
+            // Normalize scores (max score for display is 100)
+            const maxScore = Math.max(...scores, 1); // Avoid division by zero
+            const normalizedScores = scores.map(score => (score / Math.max(maxScore, 100)) * radius);
+            
+            // Draw grid
+            const categories = ['Taqwa', 'Discipline', 'Self-Control', 'Gratitude', 'Honesty', 'Brotherhood'];
+            const angleStep = (Math.PI * 2) / categories.length;
+            
+            // Draw grid circles
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i <= 4; i++) {
+                const r = (radius * i) / 4;
+                ctx.beginPath();
+                for (let j = 0; j <= categories.length; j++) {
+                    const angle = j * angleStep - Math.PI / 2;
+                    const x = centerX + r * Math.cos(angle);
+                    const y = centerY + r * Math.sin(angle);
+                    if (j === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Draw grid lines
+            for (let i = 0; i < categories.length; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
+                ctx.stroke();
+            }
+            
+            // Draw category labels
+            ctx.fillStyle = '#8a8a9a';
+            ctx.font = '11px DM Sans';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            for (let i = 0; i < categories.length; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const labelRadius = radius + 20;
+                const x = centerX + labelRadius * Math.cos(angle);
+                const y = centerY + labelRadius * Math.sin(angle);
+                ctx.fillText(categories[i], x, y);
+            }
+            
+            // Draw data polygon
+            ctx.beginPath();
+            for (let i = 0; i <= categories.length; i++) {
+                const index = i % categories.length;
+                const angle = index * angleStep - Math.PI / 2;
+                const x = centerX + normalizedScores[index] * Math.cos(angle);
+                const y = centerY + normalizedScores[index] * Math.sin(angle);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            // Create gradient fill
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, 'rgba(201, 168, 76, 0.2)');
+            gradient.addColorStop(1, 'rgba(123, 104, 238, 0.2)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Draw data polygon border
+            const borderGradient = ctx.createLinearGradient(0, 0, width, height);
+            borderGradient.addColorStop(0, '#c9a84c');
+            borderGradient.addColorStop(1, '#7b68ee');
+            
+            ctx.strokeStyle = borderGradient;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw data points
+            for (let i = 0; i < categories.length; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const x = centerX + normalizedScores[i] * Math.cos(angle);
+                const y = centerY + normalizedScores[i] * Math.sin(angle);
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#c9a84c';
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#09090f';
+                ctx.fill();
+            }
+        }
+
+        // Complete Morning Step
+        function completeMorningStep(step, completed) {
+            let category = '';
+            let points = 0;
+            
+            switch(step) {
+                case 1: // Fajr
+                    appState.morningSteps.fajr = true;
+                    category = 'taqwa';
+                    points = completed ? 5 : 0;
+                    break;
+                case 2: // Quran
+                    appState.morningSteps.quran = true;
+                    category = 'taqwa';
+                    points = 3;
+                    break;
+                case 3: // Affirmations
+                    appState.morningSteps.affirmations = true;
+                    category = 'discipline';
+                    points = 2;
+                    break;
+                case 4: // Intention
+                    appState.morningSteps.intention = true;
+                    category = 'discipline';
+                    points = 3;
+                    break;
+                case 5: // Review
+                    appState.morningSteps.review = true;
+                    category = 'honesty';
+                    points = 3;
+                    break;
+            }
+            
+            // Increment identity score
+            appState.identityScores[category] += points;
+            appState.todayVotes++;
+            appState.totalVotes++;
+            
+            // Save entry to history
+            if (step > 1) {
+                const inputId = ['quranInput', 'affirmationInput', 'intentionInput', 'reviewInput'][step-2];
+                const text = document.getElementById(inputId).value.trim();
+                if (text) {
+                    appState.history.push({
+                        date: new Date().toISOString(),
+                        type: 'morning',
+                        step: step,
+                        category: category,
+                        text: text
+                    });
+                }
+            }
+            
+            // Show vote notification
+            showVoteNotification(category, appState.identityScores[category]);
+            
+            // Update progress bar
+            const progress = (step / 5) * 100;
+            document.getElementById('morningProgress').style.width = `${progress}%`;
+            
+            // Show next step or complete
+            if (step < 5) {
+                document.getElementById(`morningStep${step}`).style.display = 'none';
+                document.getElementById(`morningStep${step+1}`).style.display = 'block';
+                
+                // Show observation note after first step
+                if (step === 1) {
+                    document.getElementById('morningObservation').style.display = 'block';
+                }
+            } else {
+                // All steps completed
+                document.getElementById(`morningStep${step}`).style.display = 'none';
+                document.getElementById('morningObservation').style.display = 'none';
+                
+                // Return to home after a short delay
+                setTimeout(() => {
+                    navigateTo('home');
+                }, 1000);
+            }
+            
+            saveState();
+        }
+
+        // Complete Evening Step
+        function completeEveningStep(step, completed) {
+            let category = '';
+            let points = 0;
+            
+            switch(step) {
+                case 1: // Intention Check
+                    appState.eveningSteps.intentionCheck = true;
+                    category = 'honesty';
+                    points = 3;
+                    break;
+                case 2: // Avoided
+                    appState.eveningSteps.avoided = true;
+                    category = 'selfControl';
+                    points = 3;
+                    break;
+                case 3: // Gratitude
+                    appState.eveningSteps.gratitude = true;
+                    category = 'gratitude';
+                    points = 3;
+                    break;
+            }
+            
+            // Increment identity score
+            appState.identityScores[category] += points;
+            appState.todayVotes++;
+            appState.totalVotes++;
+            
+            // Save entry to history
+            const inputId = ['intentionCheckInput', 'avoidedInput', 'gratitudeInput'][step-1];
+            const text = document.getElementById(inputId).value.trim();
+            if (text) {
+                appState.history.push({
+                    date: new Date().toISOString(),
+                    type: 'evening',
+                    step: step,
+                    category: category,
+                    text: text
+                });
+            }
+            
+            // Show vote notification
+            showVoteNotification(category, appState.identityScores[category]);
+            
+            // Update progress bar
+            const progress = (step / 3) * 100;
+            document.getElementById('eveningProgress').style.width = `${progress}%`;
+            
+            // Show next step or complete
+            if (step < 3) {
+                document.getElementById(`eveningStep${step}`).style.display = 'none';
+                document.getElementById(`eveningStep${step+1}`).style.display = 'block';
+                
+                // Show observation note after first step
+                if (step === 1) {
+                    document.getElementById('eveningObservation').style.display = 'block';
+                }
+            } else {
+                // All steps completed
+                document.getElementById(`eveningStep${step}`).style.display = 'none';
+                document.getElementById('eveningObservation').style.display = 'none';
+                
+                // Return to home after a short delay
+                setTimeout(() => {
+                    navigateTo('home');
+                }, 1000);
+            }
+            
+            saveState();
+        }
+
+        // Show Vote Notification
+        function showVoteNotification(category, strength) {
+            const categoryNames = {
+                taqwa: 'Taqwa',
+                discipline: 'Discipline',
+                selfControl: 'Self-Control',
+                gratitude: 'Gratitude',
+                honesty: 'Honesty',
+                brotherhood: 'Brotherhood'
+            };
+            
+            document.getElementById('voteTitle').textContent = `Vote cast for: ${categoryNames[category]}`;
+            document.getElementById('voteStrength').textContent = `Current strength: ${strength}`;
+            
+            const notification = document.getElementById('voteNotification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Urge Mode Functions
+        function startUrgeTimer() {
+            document.getElementById('urgeInitial').style.display = 'none';
+            document.getElementById('urgeTimer').style.display = 'block';
+            
+            let timeLeft = 60;
+            const timerText = document.getElementById('timerText');
+            const timerProgress = document.getElementById('timerProgress');
+            const circumference = 2 * Math.PI * 90; // radius = 90
+            
+            timerText.textContent = timeLeft;
+            timerProgress.style.strokeDashoffset = 0;
+            
+            urgeTimerInterval = setInterval(() => {
+                timeLeft--;
+                timerText.textContent = timeLeft;
+                
+                // Update progress circle
+                const offset = circumference * (1 - timeLeft / 60);
+                timerProgress.style.strokeDashoffset = offset;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(urgeTimerInterval);
+                    urgeTimerInterval = null;
+                    
+                    document.getElementById('urgeTimer').style.display = 'none';
+                    document.getElementById('urgeChoice').style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        function logUrgeChoice(resisted) {
+            const category = resisted ? 'selfControl' : 'honesty';
+            const points = resisted ? 5 : 2;
+            
+            appState.identityScores[category] += points;
+            appState.todayVotes++;
+            appState.totalVotes++;
+            
+            if (resisted) {
+                appState.totalUrges++;
+                appState.monthlyUrges++;
+                
+                // Update best month if needed
+                if (appState.monthlyUrges > appState.bestMonth) {
+                    appState.bestMonth = appState.monthlyUrges;
+                }
+            }
+            
+            // Save to history
+            appState.history.push({
+                date: new Date().toISOString(),
+                type: 'urge',
+                resisted: resisted,
+                category: category
+            });
+            
+            // Show vote notification
+            showVoteNotification(category, appState.identityScores[category]);
+            
+            // Reset UI
+            document.getElementById('urgeChoice').style.display = 'none';
+            document.getElementById('urgeInitial').style.display = 'block';
+            document.getElementById('urgeCounter').textContent = appState.monthlyUrges;
+            
+            // Return to home after a short delay
+            setTimeout(() => {
+                navigateTo('home');
+            }, 1000);
+            
+            saveState();
+        }
+
+        // Update Wall Page
+        function updateWallPage() {
+            document.getElementById('totalVotes').textContent = appState.totalVotes;
+            document.getElementById('currentStreak').textContent = appState.currentStreak;
+            document.getElementById('bestMonth').textContent = appState.bestMonth;
+            document.getElementById('totalUrges').textContent = appState.totalUrges;
+            
+            // Identity breakdown
+            const breakdown = document.getElementById('identityBreakdown');
+            const categories = [
+                { key: 'taqwa', name: 'Taqwa' },
+                { key: 'discipline', name: 'Discipline' },
+                { key: 'selfControl', name: 'Self-Control' },
+                { key: 'gratitude', name: 'Gratitude' },
+                { key: 'honesty', name: 'Honesty' },
+                { key: 'brotherhood', name: 'Brotherhood' }
+            ];
+            
+            let breakdownHTML = '';
+            const maxScore = Math.max(...Object.values(appState.identityScores), 1);
+            
+            categories.forEach(category => {
+                const score = appState.identityScores[category.key];
+                const percentage = (score / maxScore) * 100;
+                
+                breakdownHTML += `
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="font-size: 14px;">${category.name}</span>
+                            <span style="font-size: 14px; color: var(--text-muted);">${score}</span>
+                        </div>
+                        <div class="progress-bar" style="margin-bottom: 0;">
+                            <div class="progress-fill" style="width: ${percentage}%;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            breakdown.innerHTML = breakdownHTML;
+            
+            // Load observation
+            if (appState.observations.wall) {
+                document.getElementById('wallObservationInput').value = appState.observations.wall;
+            }
+        }
+
+        // Update Goals Page
+        function updateGoalsPage() {
+            const goalsList = document.getElementById('goalsList');
+            
+            if (appState.goals.length === 0) {
+                goalsList.innerHTML = `
+                    <div class="card">
+                        <div class="card-subtitle">No goals yet. Add your first goal to begin tracking your progress.</div>
+                    </div>
+                `;
+            } else {
+                let goalsHTML = '';
+                appState.goals.forEach((goal, index) => {
+                    const completionPercentage = (goal.completed / goal.target) * 100;
+                    
+                    goalsHTML += `
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div class="card-title">${goal.title}</div>
+                                <button class="header-btn" onclick="removeGoal(${index})" style="flex-shrink: 0;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="card-subtitle">${goal.description || ''}</div>
+                            <div style="margin-top: 12px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span style="font-size: 14px;">Progress</span>
+                                    <span style="font-size: 14px; color: var(--text-muted);">${goal.completed}/${goal.target}</span>
+                                </div>
+                                <div class="progress-bar" style="margin-bottom: 0;">
+                                    <div class="progress-fill" style="width: ${completionPercentage}%;"></div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary btn-full" style="margin-top: 12px;" onclick="incrementGoal(${index})">
+                                Increment Progress
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                goalsList.innerHTML = goalsHTML;
+            }
+            
+            // Load observation
+            if (appState.observations.goals) {
+                document.getElementById('goalsObservationInput').value = appState.observations.goals;
+            }
+        }
+
+        // Add Goal
+        function addGoal() {
+            const title = prompt("Enter goal title:");
+            if (!title) return;
+            
+            const description = prompt("Enter goal description (optional):") || '';
+            const target = parseInt(prompt("Enter target number:")) || 10;
+            
+            appState.goals.push({
+                title,
+                description,
+                target,
+                completed: 0,
+                created: new Date().toISOString()
+            });
+            
+            saveState();
+            updateGoalsPage();
+        }
+
+        // Increment Goal
+        function incrementGoal(index) {
+            if (index >= 0 && index < appState.goals.length) {
+                appState.goals[index].completed++;
+                appState.identityScores.discipline += 2;
+                appState.todayVotes++;
+                appState.totalVotes++;
+                
+                showVoteNotification('discipline', appState.identityScores.discipline);
+                
+                saveState();
+                updateGoalsPage();
+            }
+        }
+
+        // Remove Goal
+        function removeGoal(index) {
+            if (confirm("Are you sure you want to remove this goal?")) {
+                appState.goals.splice(index, 1);
+                saveState();
+                updateGoalsPage();
+            }
+        }
+
+        // Show Reference
+        function showReference(type) {
+            let title = '';
+            let content = '';
+            
+            switch(type) {
+                case 'ethics':
+                    title = 'Ethics';
+                    content = `
+                        <div class="card-title">Islamic Principles for Character Development</div>
+                        <div style="margin-top: 16px; line-height: 1.6;">
+                            <p style="margin-bottom: 16px;">The foundation of Islamic ethics is the concept of Taqwa — consciousness of Allah in all actions. This isn't just ritual observance, but a continuous awareness that shapes decision-making at every moment.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Truthfulness (Sidq)</strong>: The Prophet (peace be upon him) said, "Truthfulness leads to righteousness, and righteousness leads to Paradise." This begins with being honest with yourself about your current state.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Patience (Sabr)</strong>: Not passive endurance, but active perseverance despite difficulty. Sabr is what allows [Name] to act according to his values even when feelings pull in another direction.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Gratitude (Shukr)</strong>: Recognizing that all strength and progress comes from Allah. This prevents arrogance when succeeding and despair when failing.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Justice (Adl)</strong>: Being fair to yourself means acknowledging both strengths and weaknesses without distortion. Neither self-flagellation nor self-deception serve the path of growth.</p>
+                            
+                            <p><strong>Brotherhood (Ukhuwah)</strong>: The Prophet (peace be upon him) said, "None of you truly believes until he loves for his brother what he loves for himself." This extends to character — [Name] develops not in isolation but in relation to others.</p>
+                        </div>
+                    `;
+                    break;
+                case 'method':
+                    title = 'Method';
+                    content = `
+                        <div class="card-title">The Psychology of Identity-Based Change</div>
+                        <div style="margin-top: 16px; line-height: 1.6;">
+                            <p style="margin-bottom: 16px;">This app is built on a principle from behavioral psychology: lasting change comes not from focusing on outcomes, but from shifting identity. When [Name] sees himself as "someone who wakes for Fajr" rather than "someone trying to wake for Fajr," the behavior follows naturally.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>The Voting Mechanism</strong>: Every action is framed as a "vote" for the identity [Name] wants to build. This isn't gamification — it's a cognitive reframing technique. Research shows that this framing increases consistency because it connects single actions to a larger self-concept.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Self-Distancing</strong>: All prompts use second/third person framing ("What did [Name] do?") rather than first person ("What did I do?"). Psychological research by Ethan Kross demonstrates that self-distancing reduces emotional reactivity and improves self-regulation.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Implementation Intentions</strong>: Rather than vague goals ("I'll be more disciplined"), the morning ritual asks for specific if-then plans ("If X happens, then I will Y"). Peter Gollwitzer's research shows this format significantly increases follow-through.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>The Urge Timer</strong>: The 60-second delay before logging an urge decision isn't arbitrary. Research on delay discounting shows that even brief pauses between impulse and action significantly increase the likelihood of resistance.</p>
+                            
+                            <p><strong>Spaced Resurfacing</strong>: Past entries resurface every 3-5 days based on the spacing effect in memory research. This strengthens the connection between past insights and present decisions, building a coherent narrative of growth.</p>
+                        </div>
+                    `;
+                    break;
+                case 'shadow':
+                    title = 'Villain/Shadow';
+                    content = `
+                        <div class="card-title">Understanding Your Shadow Self</div>
+                        <div style="margin-top: 16px; line-height: 1.6;">
+                            <p style="margin-bottom: 16px;">Carl Jung's concept of the "shadow" refers to the parts of ourselves that we reject or deny. In Islamic terms, this aligns with the concept of the nafs (lower self) that pulls us toward instant gratification and self-deception.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Why This Matters</strong>: [Name] cannot transform what he refuses to acknowledge. The shadow isn't "evil" — it's simply the aspects of self that operate unconsciously, often working against stated intentions.</p>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Common Shadow Patterns</strong>:</p>
+                            <ul style="margin-bottom: 16px; padding-left: 20px;">
+                                <li style="margin-bottom: 8px;">The Perfectionist who uses "not ready" as permanent procrastination</li>
+                                <li style="margin-bottom: 8px;">The Martyr who feels virtuous while avoiding actual change</li>
+                                <li style="margin-bottom: 8px;">The Intellectual who analyzes endlessly but never acts</li>
+                                <li style="margin-bottom: 8px;">The Isolationist who uses "focus" to avoid relationship obligations</li>
+                            </ul>
+                            
+                            <p style="margin-bottom: 16px;"><strong>Working With Shadow</strong>: The goal isn't to eliminate these patterns but to bring them into awareness. When [Name] notices "I'm using analysis as avoidance again," that moment of recognition is already transformation.</p>
+                            
+                            <p><strong>The Urge Log</strong>: When [Name] honestly logs "I gave in," he's integrating shadow rather than denying it. This honesty is itself a vote for the identity of someone who faces reality rather than hiding from it.</p>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            document.getElementById('referenceDetailTitle').textContent = title;
+            document.getElementById('referenceDetailContent').innerHTML = content;
+            navigateTo('referenceDetail');
+        }
+
+        // Save Observation
+        function saveObservation(page, value) {
+            appState.observations[page] = value;
+            saveState();
+        }
+
+        // Check for Resurfacing
+        function checkResurface() {
+            if (!appState.lastResurfaceDate) {
+                appState.lastResurfaceDate = new Date().toISOString();
+                saveState();
+                return;
+            }
+            
+            const lastDate = new Date(appState.lastResurfaceDate);
+            const now = new Date();
+            const daysSince = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysSince >= 3 && appState.history.length > 0) {
+                // Randomly select a past entry
+                const randomIndex = Math.floor(Math.random() * appState.history.length);
+                const entry = appState.history[randomIndex];
+                
+                let resurfaceText = '';
+                
+                if (entry.type === 'morning' || entry.type === 'evening') {
+                    const daysAgo = Math.floor((now - new Date(entry.date)) / (1000 * 60 * 60 * 24));
+                    resurfaceText = `${daysAgo} days ago you wrote: "${entry.text}"`;
+                } else if (entry.type === 'urge') {
+                    if (entry.resisted) {
+                        resurfaceText = `You resisted an urge before. You can again.`;
+                    } else {
+                        resurfaceText = `You gave in to an urge before. What would [Name] do differently now?`;
+                    }
+                }
+                
+                if (resurfaceText) {
+                    document.getElementById('resurfaceText').textContent = resurfaceText;
+                    document.getElementById('resurfaceCard').style.display = 'block';
+                    
+                    appState.lastResurfaceDate = now.toISOString();
+                    saveState();
+                }
+            }
+        }
+
+        // Check for Drift Alert
+        function checkDriftAlert() {
+            // Check if there's a pattern of unfinished intentions
+            const today = new Date();
+            const threeDaysAgo = new Date(today);
+            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+            
+            // Get entries from the last 3 days
+            const recentEntries = appState.history.filter(entry => {
+                const entryDate = new Date(entry.date);
+                return entryDate >= threeDaysAgo && entry.type === 'evening' && entry.step === 1;
+            });
+            
+            // Check if there's a pattern of not following through
+            const notFollowedThrough = recentEntries.filter(entry => 
+                entry.text && entry.text.toLowerCase().includes('no') || 
+                entry.text && entry.text.toLowerCase().includes('didn\'t') ||
+                entry.text && entry.text.toLowerCase().includes('failed')
+            );
+            
+            if (notFollowedThrough.length >= 3) {
+                document.getElementById('driftAlert').classList.add('show');
+            }
+        }
+
+        // Check for Weekly Report
+        function checkWeeklyReport() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            
+            if (dayOfWeek === 0) { // Sunday
+                // Check if we've already shown the report today
+                const lastReportDate = localStorage.getItem('mirrorLastReportDate');
+                const todayStr = today.toISOString().split('T')[0];
+                
+                if (lastReportDate !== todayStr) {
+                    // Generate and show weekly report
+                    generateWeeklyReport();
+                    localStorage.setItem('mirrorLastReportDate', todayStr);
+                }
+            }
+        }
+
+        // Generate Weekly Report
+        function generateWeeklyReport() {
+            const now = new Date();
+            const thisWeekStart = new Date(now);
+            thisWeekStart.setDate(now.getDate() - now.getDay());
+            thisWeekStart.setHours(0, 0, 0, 0);
+            
+            const lastWeekStart = new Date(thisWeekStart);
+            lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+            
+            const lastWeekEnd = new Date(thisWeekStart);
+            lastWeekEnd.setMilliseconds(lastWeekEnd.getMilliseconds() - 1);
+            
+            // Get entries for this week and last week
+            const thisWeekEntries = appState.history.filter(entry => {
+                const entryDate = new Date(entry.date);
+                return entryDate >= thisWeekStart && entryDate <= now;
+            });
+            
+            const lastWeekEntries = appState.history.filter(entry => {
+                const entryDate = new Date(entry.date);
+                return entryDate >= lastWeekStart && entryDate <= lastWeekEnd;
+            });
+            
+            // Calculate category scores for this week
+            const thisWeekScores = {
+                taqwa: 0,
+                discipline: 0,
+                selfControl: 0,
+                gratitude: 0,
+                honesty: 0,
+                brotherhood: 0
+            };
+            
+            const lastWeekScores = {
+                taqwa: 0,
+                discipline: 0,
+                selfControl: 0,
+                gratitude: 0,
+                honesty: 0,
+                brotherhood: 0
+            };
+            
+            thisWeekEntries.forEach(entry => {
+                if (entry.category && thisWeekScores.hasOwnProperty(entry.category)) {
+                    thisWeekScores[entry.category] += 3; // Simplified scoring for visualization
+                }
+            });
+            
+            lastWeekEntries.forEach(entry => {
+                if (entry.category && lastWeekScores.hasOwnProperty(entry.category)) {
+                    lastWeekScores[entry.category] += 3; // Simplified scoring for visualization
+                }
+            });
+            
+            // Draw comparison charts
+            drawRadarChartForReport('thisWeekChart', thisWeekScores);
+            drawRadarChartForReport('lastWeekChart', lastWeekScores);
+            
+            // Find strongest and weakest categories
+            let strongest = 'taqwa';
+            let weakest = 'taqwa';
+            let maxScore = 0;
+            let minScore = Infinity;
+            
+            Object.entries(thisWeekScores).forEach(([category, score]) => {
+                if (score > maxScore) {
+                    maxScore = score;
+                    strongest = category;
+                }
+                if (score < minScore) {
+                    minScore = score;
+                    weakest = category;
+                }
+            });
+            
+            // Format category names
+            const categoryNames = {
+                taqwa: 'Taqwa',
+                discipline: 'Discipline',
+                selfControl: 'Self-Control',
+                gratitude: 'Gratitude',
+                honesty: 'Honesty',
+                brotherhood: 'Brotherhood'
+            };
+            
+            document.getElementById('strongestCategory').textContent = categoryNames[strongest];
+            document.getElementById('weakestCategory').textContent = categoryNames[weakest];
+            
+            // Find representative entry
+            let representativeEntry = "No entries this week.";
+            if (thisWeekEntries.length > 0) {
+                const randomIndex = Math.floor(Math.random() * thisWeekEntries.length);
+                const entry = thisWeekEntries[randomIndex];
+                if (entry.text) {
+                    representativeEntry = `"${entry.text}"`;
+                }
+            }
+            document.getElementById('representativeEntry').textContent = representativeEntry;
+            
+            // Generate vote distribution text
+            let moreVotes = strongest;
+            let fewerVotes = weakest;
+            document.getElementById('voteDistribution').textContent = `This week, you cast more votes for: ${categoryNames[moreVotes]}. Fewer for: ${categoryNames[fewerVotes]}.`;
+            
+            // Show report
+            navigateTo('weeklyReport');
+        }
+
+        // Draw Radar Chart for Report
+        function drawRadarChartForReport(canvasId, scores) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(centerX, centerY) - 20;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Normalize scores
+            const maxScore = Math.max(...Object.values(scores), 1);
+            const normalizedScores = Object.values(scores).map(score => (score / maxScore) * radius);
+            
+            // Draw grid
+            const categories = ['Taqwa', 'Disc.', 'Self-C', 'Grat.', 'Honesty', 'Broth.'];
+            const angleStep = (Math.PI * 2) / categories.length;
+            
+            // Draw grid circles
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i <= 3; i++) {
+                const r = (radius * i) / 3;
+                ctx.beginPath();
+                for (let j = 0; j <= categories.length; j++) {
+                    const angle = j * angleStep - Math.PI / 2;
+                    const x = centerX + r * Math.cos(angle);
+                    const y = centerY + r * Math.sin(angle);
+                    if (j === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Draw data polygon
+            ctx.beginPath();
+            for (let i = 0; i <= categories.length; i++) {
+                const index = i % categories.length;
+                const angle = index * angleStep - Math.PI / 2;
+                const x = centerX + normalizedScores[index] * Math.cos(angle);
+                const y = centerY + normalizedScores[index] * Math.sin(angle);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            // Create gradient fill
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, 'rgba(201, 168, 76, 0.2)');
+            gradient.addColorStop(1, 'rgba(123, 104, 238, 0.2)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Draw data polygon border
+            const borderGradient = ctx.createLinearGradient(0, 0, width, height);
+            borderGradient.addColorStop(0, '#c9a84c');
+            borderGradient.addColorStop(1, '#7b68ee');
+            
+            ctx.strokeStyle = borderGradient;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        // Navigation Functions
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show target page
+            const targetPage = document.getElementById(pageId + 'Page');
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // Update current page
+            currentPage = pageId;
+            
+            // Update nav tabs
+            updateNavTabs(pageId);
+            
+            // Reset ritual steps if navigating to ritual pages
+            if (pageId === 'morningRitual') {
+                resetMorningRitualSteps();
+            } else if (pageId === 'eveningRitual') {
+                resetEveningRitualSteps();
+            } else if (pageId === 'urgeMode') {
+                resetUrgeMode();
+            }
+            
+            // Load observations
+            loadObservations(pageId);
+        }
+
+        function navigateTo(pageId) {
+            // Add to history
+            pageHistory.push(pageId);
+            
+            // Use History API if available
+            if (HISTORY_API_OK) {
+                try {
+                    history.pushState({ page: pageId }, '', `#${pageId}`);
+                } catch (e) {
+                    if (e instanceof SecurityError) {
+                        HISTORY_API_OK = false;
+                    } else {
+                        console.error('Error with History API:', e);
+                    }
+                }
+            }
+            
+            // Show the page
+            showPage(pageId);
+        }
+
+        function navigateBack() {
+            // If in urge mode with active timer, cancel it
+            if (currentPage === 'urgeMode' && urgeTimerInterval) {
+                clearInterval(urgeTimerInterval);
+                urgeTimerInterval = null;
+            }
+            
+            // Go back in history
+            if (pageHistory.length > 1) {
+                pageHistory.pop();
+                const previousPage = pageHistory[pageHistory.length - 1];
+                
+                // Use History API if available
+                if (HISTORY_API_OK) {
+                    try {
+                        history.back();
+                    } catch (e) {
+                        if (e instanceof SecurityError) {
+                            HISTORY_API_OK = false;
+                        } else {
+                            console.error('Error with History API:', e);
+                        }
+                    }
+                }
+                
+                // Show the previous page
+                showPage(previousPage);
+            }
+        }
+
+        function setupHistoryAPI() {
+            // Handle browser back button
+            window.addEventListener('popstate', function(event) {
+                if (event.state && event.state.page) {
+                    showPage(event.state.page);
+                } else if (pageHistory.length > 1) {
+                    pageHistory.pop();
+                    showPage(pageHistory[pageHistory.length - 1]);
+                }
+            });
+            
+            // Try to set initial state
+            if (HISTORY_API_OK) {
+                try {
+                    history.replaceState({ page: 'home' }, '', '#home');
+                } catch (e) {
+                    if (e instanceof SecurityError) {
+                        HISTORY_API_OK = false;
+                    } else {
+                        console.error('Error with History API:', e);
+                    }
+                }
+            }
+            
+            // Try to setup Capacitor back button listener if available
+            try {
+                if (window.Capacitor && window.Capacitor.App) {
+                    window.Capacitor.App.addListener('backButton', ({ canGoBack }) => {
+                        if (currentPage !== 'home') {
+                            navigateBack();
+                        } else {
+                            window.Capacitor.App.exitApp();
+                        }
+                    });
+                }
+            } catch (e) {
+                console.log('Capacitor not available, using web fallback');
+            }
+        }
+
+        function updateNavTabs(pageId) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Add active class to current tab
+            const tabMapping = {
+                'home': 0,
+                'wall': 1,
+                'goals': 2,
+                'reference': 3
+            };
+            
+            if (tabMapping.hasOwnProperty(pageId)) {
+                document.querySelectorAll('.nav-tab')[tabMapping[pageId]].classList.add('active');
+            }
+        }
+
+        // Reset Ritual Steps
+        function resetMorningRitualSteps() {
+            // Hide all steps except first one
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`morningStep${i}`);
+                if (step) {
+                    step.style.display = i === 1 ? 'block' : 'none';
+                }
+            }
+            
+            // Reset progress bar
+            document.getElementById('morningProgress').style.width = '0%';
+            
+            // Show observation note if first step already completed
+            if (appState.morningSteps.fajr) {
+                document.getElementById('morningObservation').style.display = 'block';
+            } else {
+                document.getElementById('morningObservation').style.display = 'none';
+            }
+            
+            // Load observation
+            if (appState.observations.morning) {
+                document.getElementById('morningObservationInput').value = appState.observations.morning;
+            }
+        }
+
+        function resetEveningRitualSteps() {
+            // Hide all steps except first one
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById(`eveningStep${i}`);
+                if (step) {
+                    step.style.display = i === 1 ? 'block' : 'none';
+                }
+            }
+            
+            // Reset progress bar
+            document.getElementById('eveningProgress').style.width = '0%';
+            
+            // Show observation note if first step already completed
+            if (appState.eveningSteps.intentionCheck) {
+                document.getElementById('eveningObservation').style.display = 'block';
+            } else {
+                document.getElementById('eveningObservation').style.display = 'none';
+            }
+            
+            // Load observation
+            if (appState.observations.evening) {
+                document.getElementById('eveningObservationInput').value = appState.observations.evening;
+            }
+        }
+
+        function resetUrgeMode() {
+            document.getElementById('urgeInitial').style.display = 'block';
+            document.getElementById('urgeTimer').style.display = 'none';
+            document.getElementById('urgeChoice').style.display = 'none';
+            
+            // Update urge counter
+            document.getElementById('urgeCounter').textContent = appState.monthlyUrges;
+            document.getElementById('urgeInitialTitle').textContent = `${appState.futureSelfName} is deciding right now.`;
+        }
+
+        // Load Observations
+        function loadObservations(pageId) {
+            const observationMapping = {
+                'morningRitual': 'morning',
+                'eveningRitual': 'evening',
+                'wall': 'wall',
+                'goals': 'goals',
+                'reference': 'reference'
+            };
+            
+            if (observationMapping.hasOwnProperty(pageId)) {
+                const observationKey = observationMapping[pageId];
+                const inputId = `${observationKey}ObservationInput`;
+                const input = document.getElementById(inputId);
+                
+                if (input && appState.observations[observationKey]) {
+                    input.value = appState.observations[observationKey];
+                }
+            }
+        }
+
+        // Reset App
+        function resetApp() {
+            if (confirm("Are you sure you want to reset all data? This cannot be undone.")) {
+                localStorage.removeItem('mirrorAppState');
+                localStorage.removeItem('mirrorLastReportDate');
+                location.reload();
+            }
+        }
+
+        // Initialize app on load
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
 </body>
 </html>
